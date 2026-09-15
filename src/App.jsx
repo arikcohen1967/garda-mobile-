@@ -975,44 +975,46 @@ export default function App() {
             )}
 
             {modalType === 'parking' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '85px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#fff', color: textColor, borderRadius: '14px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '13px', border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '75px 12px 16px', boxSizing: 'border-box', overflow: 'hidden', gap: '10px', background: bgMain }}>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#fff', color: textColor, borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                     🏡 למלון Vojon
                   </a>
-                  <a href={`https://maps.google.com/?q=${savedParking ? `${savedParking.lat},${savedParking.lng}` : HOTEL_ADDRESS}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '12px', background: '#1e3a8a', color: '#fff', borderRadius: '14px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <a href={`https://maps.google.com/?q=${savedParking ? `${savedParking.lat},${savedParking.lng}` : HOTEL_ADDRESS}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: '#1e3a8a', color: '#fff', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                     🚗 לרכב החונה
                   </a>
                 </div>
 
-                <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '20px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '800', color: textSub }}>מכוון אל: Bio Agriturismo Vojon</span>
-                  <span style={{ fontSize: '26px', fontWeight: '900', color: '#10b981' }}>2554.9 ק"מ</span>
-                  <button onClick={requestCompassPermission} style={{ background: '#1e3a8a', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    🧭 אשר גישה למצפן (iOS)
-                  </button>
+                <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '16px', padding: '10px 14px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', boxShadow: cardShadow }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '800', color: textSub }}>יעד: Vojon</span>
+                    <span style={{ fontSize: '18px', fontWeight: '900', color: '#10b981' }}>2554.9 ק"מ</span>
+                    <button onClick={requestCompassPermission} style={{ background: '#1e3a8a', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '900', cursor: 'pointer' }}>
+                      🧭 מצפן (iOS)
+                    </button>
+                  </div>
 
-                  <div style={{ width: '150px', height: '150px', borderRadius: '50%', border: `3px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', margin: '10px auto', background: isDark ? '#0f172a' : '#f8fafc' }}>
-                    <div style={{ position: 'absolute', top: '6px', fontSize: '11px', fontWeight: '900', color: '#ef4444' }}>N</div>
-                    <div style={{ position: 'absolute', bottom: '6px', fontSize: '11px', fontWeight: '900', color: textSub }}>S</div>
-                    <div style={{ position: 'absolute', left: '8px', fontSize: '11px', fontWeight: '900', color: textSub }}>W</div>
-                    <div style={{ position: 'absolute', right: '8px', fontSize: '11px', fontWeight: '900', color: textSub }}>E</div>
-                    <div style={{ width: '60px', height: '60px', transform: `rotate(${carCompassHeading}deg)`, transition: 'transform 0.3s ease', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: '32px' }}>🧭</span>
+                  <div style={{ width: '90px', height: '90px', borderRadius: '50%', border: `2.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', background: isDark ? '#0f172a' : '#f8fafc' }}>
+                    <div style={{ position: 'absolute', top: '4px', fontSize: '10px', fontWeight: '900', color: '#ef4444' }}>N</div>
+                    <div style={{ position: 'absolute', bottom: '4px', fontSize: '10px', fontWeight: '900', color: textSub }}>S</div>
+                    <div style={{ position: 'absolute', left: '6px', fontSize: '10px', fontWeight: '900', color: textSub }}>W</div>
+                    <div style={{ position: 'absolute', right: '6px', fontSize: '10px', fontWeight: '900', color: textSub }}>E</div>
+                    <div style={{ width: '40px', height: '40px', transform: `rotate(${carCompassHeading}deg)`, transition: 'transform 0.3s ease', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: '24px' }}>🧭</span>
                     </div>
                   </div>
-                  <span style={{ fontSize: '11px', color: textSub, fontWeight: '700' }}>כוון את ראש הטלפון לפי החץ הכחול כדי ללכת ישר ליעד</span>
                 </div>
 
-                <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '20px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '800', color: textSub, textAlign: 'center' }}>תיאור מקום החניה / קומה / עמוד:</span>
-                  <input type="text" placeholder="לדוגמה: קומה 2, עמוד 14B..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} />
-                  <button onClick={() => alert('📷 מצלמה נפתחת לצילום עמוד החניה!')} style={{ width: '100%', padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1px solid ${borderColor}`, borderRadius: '12px', fontWeight: '800', cursor: 'pointer', textAlign: 'center' }}>
-                    📸 צלם תמונה של עמוד החניה
-                  </button>
-                  <button onClick={() => { navigator.geolocation.getCurrentPosition(pos => { setSavedParking({ lat: pos.coords.latitude, lng: pos.coords.longitude, note: parkingNote }); alert('מיקום החניה נשמר בהצלחה!'); }); }} style={{ width: '100%', padding: '14px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', textAlign: 'center' }}>
-                    📍 שמור מיקום GPS מדויק עכשיו
-                  </button>
+                <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '16px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: cardShadow }}>
+                  <input type="text" placeholder="תיאור מקום החניה / קומה / עמוד..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => alert('📷 מצלמה נפתחת לצילום עמוד החניה!')} style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1px solid ${borderColor}`, borderRadius: '10px', fontWeight: '800', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}>
+                      📸 צלם עמוד
+                    </button>
+                    <button onClick={() => { navigator.geolocation.getCurrentPosition(pos => { setSavedParking({ lat: pos.coords.latitude, lng: pos.coords.longitude, note: parkingNote }); alert('מיקום החניה נשמר בהצלחה!'); }); }} style={{ flex: 1.5, padding: '10px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}>
+                      📍 שמור מיקום GPS
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -1080,7 +1082,7 @@ const menuBtnStyle = (isDark, textColor) => ({
   gap: '10px',
   width: '100%',
   transition: 'all 0.2s ease'
-});
+};
 
 const timerPresetBtn = {
   padding: '16px',
