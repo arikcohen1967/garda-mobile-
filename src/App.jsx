@@ -740,12 +740,12 @@ export default function App() {
 
       {/* Modals */}
       {modalType && (
-        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '18px', borderRadius: modalType === 'radar' || modalType === 'around-me' ? 0 : '24px', width: modalType === 'radar' || modalType === 'around-me' ? '100vw' : '90%', height: modalType === 'radar' || modalType === 'around-me' ? '100vh' : 'auto', maxWidth: modalType === 'radar' || modalType === 'around-me' ? 'none' : '400px', maxHeight: modalType === 'radar' || modalType === 'around-me' ? '100vh' : '70vh', overflowY: 'auto', border: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: modalType === 'radar' || modalType === 'around-me' ? 0 : '12px', position: 'relative' }}>
+        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, backdropFilter: 'blur(10px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: 0, borderRadius: 0, width: '100vw', height: '100vh', maxWidth: 'none', maxHeight: 'none', overflowY: 'auto', border: 'none', boxShadow: 'none', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative' }}>
             
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, padding: modalType === 'radar' || modalType === 'around-me' ? '14px 16px' : '0 0 8px 0', flexShrink: 0, position: modalType === 'radar' || modalType === 'around-me' ? 'absolute' : 'relative', top: 0, left: 0, right: 0, zIndex: 10, background: modalType === 'radar' || modalType === 'around-me' ? (isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)') : 'transparent', backdropFilter: modalType === 'radar' || modalType === 'around-me' ? 'blur(10px)' : 'none' }}>
-              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '32px', height: '32px', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', flexShrink: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(10px)', borderBottom: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
+              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '36px', height: '36px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
               
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '6px' }}>
@@ -758,12 +758,12 @@ export default function App() {
                 </div>
               ) : null}
 
-              <h2 style={{ margin: 0, fontSize: '17px', fontWeight: '900' }}>
+              <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, paddingRight: '10px' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי ומופת האגם'}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 שמירת מיקום רכב חכם'}
-                {modalType === 'trivia' && 'טריויה'}
+                {modalType === 'trivia' && '🧠 טריויה משפחתית'}
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום ושגרירות'}
               </h2>
@@ -814,12 +814,10 @@ export default function App() {
 
             {modalType === 'radar' && (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', position: 'relative', boxSizing: 'border-box' }}>
-                {/* EDGE-TO-EDGE FULL SCREEN MAP */}
                 <div style={{ width: '100%', flex: 1, minHeight: '65vh', overflow: 'hidden', boxSizing: 'border-box' }}>
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
-                {/* BOTTOM FLOATING PANEL FOR FAMILY & CONTROLS */}
                 <div style={{ background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(15px)', padding: '12px 16px 20px', borderTop: `1px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box' }}>
                   <span style={{ fontSize: '11px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '130px', overflowY: 'auto' }}>
@@ -853,22 +851,22 @@ export default function App() {
             )}
 
             {modalType === 'timer' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', boxSizing: 'border-box' }}>
-                <p style={{ fontSize: '13px', color: textSub, margin: 0 }}>בחר משך זמן מהיר לטיימר:</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-                  <button onClick={() => startTimer(5)} style={timerPresetBtn}>⚡ 5 דקות</button>
-                  <button onClick={() => startTimer(15)} style={timerPresetBtn}>⏳ 15 דקות</button>
-                  <button onClick={() => startTimer(30)} style={timerPresetBtn}>⏳ 30 דקות</button>
-                  <button onClick={() => startTimer(45)} style={timerPresetBtn}>⏳ 45 דקות</button>
-                  <button onClick={() => startTimer(60)} style={{ ...timerPresetBtn, gridColumn: 'span 2' }}>⏰ 60 דקות (שעה)</button>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '85px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
+                <p style={{ fontSize: '14px', fontWeight: '800', color: textSub, margin: 0 }}>בחר משך זמן מהיר לטיימר:</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '12px' }}>
+                  <button onClick={() => startTimer(5)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⚡ 5 דקות</button>
+                  <button onClick={() => startTimer(15)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 15 דקות</button>
+                  <button onClick={() => startTimer(30)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 30 דקות</button>
+                  <button onClick={() => startTimer(45)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 45 דקות</button>
+                  <button onClick={() => startTimer(60)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏰ 60 דקות (שעה)</button>
                 </div>
 
                 {activeTimer && (
-                  <div style={{ display: 'flex', gap: '8px', width: '100%', boxSizing: 'border-box', marginTop: '4px' }}>
-                    <button onClick={stopTimer} style={{ flex: 1, padding: '12px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}>
+                  <div style={{ display: 'flex', gap: '10px', width: '100%', boxSizing: 'border-box', marginTop: '10px' }}>
+                    <button onClick={stopTimer} style={{ flex: 1, padding: '14px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
                       {isTimerPaused ? '▶️ המשך' : '⏸️ עצור'}
                     </button>
-                    <button onClick={resetTimer} style={{ flex: 1, padding: '12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}>
+                    <button onClick={resetTimer} style={{ flex: 1, padding: '14px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
                       🔄 איפוס
                     </button>
                   </div>
@@ -877,14 +875,13 @@ export default function App() {
             )}
 
             {modalType === 'trivia' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '85px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
                 {isTriviaPaused && (
                   <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1px solid ${borderColor}`, padding: '12px 16px', borderRadius: '14px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
                     ⏸️ המשחק מושהה (לחץ למעלה על "המשך" כדי להפעיל את הזמן)
                   </div>
                 )}
 
-                {/* Question Timer Progress Bar */}
                 <div style={{ background: isDark ? '#1e293b' : '#e2e8f0', borderRadius: '8px', height: '8px', width: '100%', overflow: 'hidden', display: 'flex' }}>
                   <div style={{ background: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6', width: `${(questionTimeLeft / 45) * 100}%`, transition: 'width 1s linear' }} />
                 </div>
@@ -893,7 +890,6 @@ export default function App() {
                   <span style={{ color: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6' }}>{questionTimeLeft} שניות</span>
                 </div>
 
-                {/* Turn Info & New Game Button */}
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <div style={{ flex: 1, height: '46px', background: isDark ? '#1e293b' : '#f8fafc', padding: '0 14px', borderRadius: '14px', border: `1px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor, boxSizing: 'border-box' }}>
                     <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
@@ -903,7 +899,6 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Travelers Score Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
                   {travelers.map((t, tIdx) => {
                     const isCurrent = tIdx === travelerIndex;
@@ -916,14 +911,12 @@ export default function App() {
                   })}
                 </div>
 
-                {/* Question Box */}
                 <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(59, 130, 246, 0.2)', boxSizing: 'border-box' }}>
                   <span style={{ fontSize: '15px', fontWeight: '900', color: textColor }}>
                     (שאלה #{ (triviaIndex % ROAD_TRIVIA_QUESTIONS.length) + 1 }) {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].q}
                   </span>
                 </div>
 
-                {/* Options - Uniform Sized Buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].options.map((opt, oIdx) => {
                     const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
@@ -948,17 +941,17 @@ export default function App() {
             )}
 
             {modalType === 'tickets' && (
-              <div>
-                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '12px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '85px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '12px', background: bgMain }}>
+                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px' }}>
                   {folders.map((f, idx) => (
-                    <button key={idx} onClick={() => setActiveFolder(f)} style={{ padding: '8px 12px', borderRadius: '10px', background: activeFolder === f ? accentGradient : (isDark ? '#1e293b' : '#f1f5f9'), color: activeFolder === f ? '#fff' : textColor, border: 'none', fontWeight: '700', fontSize: '11px', cursor: 'pointer' }}>{f}</button>
+                    <button key={idx} onClick={() => setActiveFolder(f)} style={{ padding: '10px 14px', borderRadius: '10px', background: activeFolder === f ? accentGradient : (isDark ? '#1e293b' : '#f1f5f9'), color: activeFolder === f ? '#fff' : textColor, border: 'none', fontWeight: '700', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>{f}</button>
                   ))}
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {ticketFiles.filter(d => d.folder === activeFolder).map((doc, dIdx) => (
-                    <div key={dIdx} onClick={() => setViewerItem(doc)} style={{ background: isDark ? 'rgba(15, 23, 42, 0.4)' : '#f8fafc', padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-                      <span style={{ fontSize: '13px', fontWeight: '700' }}>📄 {doc.title}</span>
-                      <span style={{ fontSize: '11px', fontWeight: '800', color: '#3b82f6' }}>צפה 👁️</span>
+                    <div key={dIdx} onClick={() => setViewerItem(doc)} style={{ background: isDark ? 'rgba(15, 23, 42, 0.4)' : '#f8fafc', padding: '16px', borderRadius: '14px', border: `1px solid ${borderColor}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '800' }}>📄 {doc.title}</span>
+                      <span style={{ fontSize: '12px', fontWeight: '900', color: '#3b82f6' }}>צפה 👁️</span>
                     </div>
                   ))}
                 </div>
@@ -966,23 +959,23 @@ export default function App() {
             )}
 
             {modalType === 'emergency' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '85px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '10px', background: bgMain }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <a href="tel:112" style={emergencyBtnStyle}>🚨 חירום כללי: 112</a>
                   <a href="tel:118" style={emergencyBtnStyle}>🚑 אמבולנס: 118</a>
                   <a href="tel:113" style={emergencyBtnStyle}>👮 משטרה: 113</a>
                   <a href="tel:115" style={emergencyBtnStyle}>🚒 כיבוי אש: 115</a>
                 </div>
-                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '14px', borderRadius: '14px', marginTop: '6px' }}>
+                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '16px', borderRadius: '16px', marginTop: '6px' }}>
                   <strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px', color: '#3b82f6' }}>🇮🇱 שגרירות ישראל באיטליה (רומא)</strong>
-                  <p style={{ margin: '0 0 8px', fontSize: '12px', color: textSub }}>כתובת: Via Michele Mercati 12, 00197 Roma</p>
-                  <a href="tel:+3906361981" style={{ display: 'block', padding: '10px', background: '#3b82f6', color: '#fff', textAlign: 'center', borderRadius: '10px', fontWeight: '800', textDecoration: 'none', fontSize: '13px' }}>📞 חיוג לשגרירות: +39 06 361981</a>
+                  <p style={{ margin: '0 0 10px', fontSize: '13px', color: textSub }}>כתובת: Via Michele Mercati 12, 00197 Roma</p>
+                  <a href="tel:+3906361981" style={{ display: 'block', padding: '12px', background: '#3b82f6', color: '#fff', textAlign: 'center', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px' }}>📞 חיוג לשגרירות: +39 06 361981</a>
                 </div>
               </div>
             )}
 
             {modalType === 'parking' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '85px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#fff', color: textColor, borderRadius: '14px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '13px', border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                     🏡 למלון Vojon
@@ -1090,23 +1083,24 @@ const menuBtnStyle = (isDark, textColor) => ({
 });
 
 const timerPresetBtn = {
-  padding: '12px',
-  borderRadius: '12px',
+  padding: '16px',
+  borderRadius: '14px',
   background: 'rgba(59, 130, 246, 0.1)',
   color: '#3b82f6',
   border: '1.5px solid rgba(59, 130, 246, 0.3)',
-  fontWeight: '800',
-  fontSize: '14px',
-  cursor: 'pointer'
+  fontWeight: '900',
+  fontSize: '15px',
+  cursor: 'pointer',
+  textAlign: 'center'
 };
 
 const emergencyBtnStyle = {
-  padding: '12px',
+  padding: '14px',
   borderRadius: '12px',
   background: '#fee2e2',
   color: '#ef4444',
   fontWeight: '800',
-  fontSize: '12px',
+  fontSize: '13px',
   textAlign: 'center',
   textDecoration: 'none',
   border: '1.5px solid #fecaca',
