@@ -166,7 +166,7 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [currentWeather, setCurrentWeather] = useState({ temp: '24°C', condition: '☀️ שמש' });
 
-  // Trivia states with persistence in localStorage for continuity
+  // Trivia states with persistence and 45s timer
   const [triviaIndex, setTriviaIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
@@ -179,6 +179,7 @@ export default function App() {
   });
   const [isTriviaPaused, setIsTriviaPaused] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [questionTimeLeft, setQuestionTimeLeft] = useState(45);
 
   useEffect(() => {
     try {
@@ -187,6 +188,25 @@ export default function App() {
       localStorage.setItem('garda-traveler-scores', JSON.stringify(travelerScores));
     } catch (e) {}
   }, [triviaIndex, travelerIndex, travelerScores]);
+
+  // 45 seconds per question countdown effect
+  useEffect(() => {
+    if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
+
+    if (questionTimeLeft <= 0) {
+      // Time is up! Move to next question and next traveler automatically
+      setQuestionTimeLeft(45);
+      setTriviaIndex(prev => prev + 1);
+      setTravelerIndex(prev => (prev + 1) % travelers.length);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setQuestionTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [modalType, isTriviaPaused, questionTimeLeft, selectedAnswer, travelers.length]);
 
   const [folders] = useState(TICKET_DEFAULT_FOLDERS);
   const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
@@ -353,6 +373,7 @@ export default function App() {
     }
     setTimeout(() => {
       setSelectedAnswer(null);
+      setQuestionTimeLeft(45);
       setTriviaIndex(prev => prev + 1);
       setTravelerIndex(prev => (prev + 1) % travelers.length);
     }, 1200);
@@ -360,11 +381,12 @@ export default function App() {
 
   const handleAdminReset = () => {
     const adminPassword = window.prompt("🔒 אזור מנהל בלבד: הזן סיסמת איפוס");
-    if (adminPassword === "1234" || adminPassword === "admin") { // או כל אימות שתבחר
+    if (adminPassword === "1967") {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
       setIsTriviaPaused(false);
+      setQuestionTimeLeft(45);
       alert("🔄 המשחק אותחל בהצלחה על ידי המנהל!");
     } else if (adminPassword !== null) {
       alert("❌ סיסמה שגויה!");
@@ -622,6 +644,15 @@ export default function App() {
                     ⏸️ המשחק מושהה כרגע על ידי המנהל
                   </div>
                 )}
+
+                {/* Question Timer Progress Bar (45 Seconds) */}
+                <div style={{ background: isDark ? '#1e293b' : '#e2e8f0', borderRadius: '8px', height: '8px', width: '100%', overflow: 'hidden', display: 'flex' }}>
+                  <div style={{ background: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6', width: `${(questionTimeLeft / 45) * 100}%`, transition: 'width 1s linear' }} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '800', color: textSub, marginTop: '-6px' }}>
+                  <span>⏳ זמן נותר לשאלה:</span>
+                  <span style={{ color: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6' }}>{questionTimeLeft} שניות</span>
+                </div>
 
                 {/* Turn Info Box */}
                 <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', padding: '12px', borderRadius: '14px', textAlign: 'center', fontSize: '14px', fontWeight: '900', border: `1px solid ${borderColor}` }}>
