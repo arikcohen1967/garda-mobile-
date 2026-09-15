@@ -170,6 +170,7 @@ export default function App() {
     'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו' }
   });
   const [activeSosAlert, setActiveSosAlert] = useState(null);
+  const [activeSoundAlert, setActiveSoundAlert] = useState(null); // State for incoming sound & message alert
   
   const [activeTimer, setActiveTimer] = useState(null);
   const [customTimerMinutes, setCustomTimerMinutes] = useState('10');
@@ -259,7 +260,28 @@ export default function App() {
   const audioCtxRef = useRef(null);
   const alarmIntervalRef = useRef(null);
 
-  const playAlertSound = (name) => {
+  // Extended long alert chime and message sender
+  const sendSoundAlert = async (targetName) => {
+    const customMsg = prompt(`שלח הודעה וצליל אל ${targetName}:`, "נא להגיע אל נקודת המפגש!");
+    if (customMsg === null) return; // Cancelled
+
+    playLongChime();
+
+    const soundAlertPayload = {
+      name: targetName,
+      sound_msg: customMsg || "התראה קולית מהרדאר המשפחתי!",
+      updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+      is_sound_alert: true
+    };
+
+    setActiveSoundAlert(soundAlertPayload);
+
+    try {
+      await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
+    } catch (e) {}
+  };
+
+  const playLongChime = () => {
     try {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -267,24 +289,28 @@ export default function App() {
       const ctx = audioCtxRef.current;
       if (ctx.state === 'suspended') ctx.resume();
 
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      // Play a sequence of 3 melodious chimes
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, idx) => {
+        setTimeout(() => {
+          try {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+            gain.gain.setValueAtTime(0.4, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
 
-      osc.start();
-      osc.stop(ctx.currentTime + 0.8);
-
-      alert(`🔔 צליל התראה הושמע בהצלחה עבור ${name}!`);
-    } catch (e) {
-      alert(`🔔 נשלח צליל אל ${name}!`);
-    }
+            osc.start();
+            osc.stop(ctx.currentTime + 0.6);
+          } catch (err) {}
+        }, idx * 200);
+      });
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -300,6 +326,10 @@ export default function App() {
           if (payload.new.is_sos) {
             setActiveSosAlert(payload.new);
             triggerSirenSound();
+          }
+          if (payload.new.is_sound_alert) {
+            setActiveSoundAlert(payload.new);
+            playLongChime();
           }
         }
       })
@@ -501,6 +531,21 @@ export default function App() {
               בטל אזעקה ✓
             </button>
           </div>
+        </div>
+      )}
+
+      {/* INCOMING SOUND & MESSAGE ALERT BANNER */}
+      {activeSoundAlert && (
+        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '400px', background: '#3b82f6', zIndex: 9998, borderRadius: '20px', padding: '16px', textAlign: 'center', color: '#fff', boxShadow: '0 10px 30px rgba(59, 130, 246, 0.4)', boxSizing: 'border-box', border: '2px solid #fff' }}>
+          <span style={{ fontSize: '32px' }}>🔔</span>
+          <h3 style={{ margin: '6px 0', fontSize: '16px', fontWeight: '900' }}>התראה קולית התקבלה!</h3>
+          <p style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: '800', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '10px' }}>
+            "{activeSoundAlert.sound_msg}"
+          </p>
+          <span style={{ fontSize: '11px', opacity: 0.8, display: 'block', marginBottom: '10px' }}>נשלח על ידי: {activeSoundAlert.name} ({activeSoundAlert.updated_at})</span>
+          <button onClick={() => setActiveSoundAlert(null)} style={{ padding: '8px 20px', background: '#fff', color: '#3b82f6', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+            אישור והסרה ✓
+          </button>
         </div>
       )}
 
@@ -715,7 +760,7 @@ export default function App() {
 
             {modalType === 'radar' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {/* BIG EXPANDED MAP PULLED UPWARD WITH MORE HEIGHT */}
+                {/* BIG EXPANDED MAP PULLED UPWARD */}
                 <div style={{ width: '100%', height: '380px', borderRadius: '16px', overflow: 'hidden', border: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
@@ -733,7 +778,7 @@ export default function App() {
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: '4px' }}>
-                        <button onClick={() => playAlertSound(person.name)} style={{ background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, padding: '3px 6px', borderRadius: '6px', fontSize: '9px', fontWeight: '800', cursor: 'pointer' }}>
+                        <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, padding: '3px 6px', borderRadius: '6px', fontSize: '9px', fontWeight: '800', cursor: 'pointer' }}>
                           🔔 צליל
                         </button>
                         <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '3px 8px', borderRadius: '6px', fontSize: '9px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '2px' }}>
