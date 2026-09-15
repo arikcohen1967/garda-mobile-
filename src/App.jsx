@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -26,7 +26,6 @@ const MAPS_SVG = (
   </svg>
 );
 
-const HOTEL_COORDINATES = { lat: 45.4057, lng: 10.7022, name: "Bio Agriturismo Vojon" };
 const HOTEL_ADDRESS = "Bio Agriturismo Vojon, Ponti sul Mincio, Italy";
 
 const INITIAL_TRIP_DAYS = [
@@ -104,9 +103,7 @@ const DEFAULT_DOCUMENTS = [
 
 const RAW_BASE_QUESTIONS = [
   { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 },
-  { q: "איזה בעל חיים נחשב למהיר ביותר בעולם ביבשה?", options: ["אריה", "ברדלס (צ'יטה)", "סוס מירוץ", "זברה"], correct: 1 },
-  { q: "כמה פלנטות יש במערכת השמש שלנו?", options: ["7", "8", "9", "10"], correct: 1 },
-  { q: "איזה גז אנחנו בני האדם שואפים בעיקר כדי לחיות?", options: ["פחמן דו-חמצני", "חמצן", "מימן", "חנקן"], correct: 1 }
+  { q: "איזה בעל חיים נחשב למהיר ביותר בעולם ביבשה?", options: ["אריה", "ברדלס (צ'יטה)", "סוס מירוץ", "זברה"], correct: 1 }
 ];
 
 const generateMassiveTrivia = () => {
@@ -116,17 +113,6 @@ const generateMassiveTrivia = () => {
     generated.push({ q: `(שאלה #${i + 1}) ${template.q}`, options: template.options, correct: template.correct });
   }
   return generated;
-};
-
-const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
-  if (!lat1 || !lon1 || !lon2 || !lat2) return null;
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  const d = R * c;
-  return d < 1 ? `${Math.round(d * 1000)} מטר` : `${d.toFixed(1)} ק"מ`;
 };
 
 const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
@@ -143,7 +129,7 @@ const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-      <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #0f172a; } #map { width: 100%; height: 100%; }</style>
+      <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: ${isDark ? '#0f172a' : '#f8fafc'}; } #map { width: 100%; height: 100%; }</style>
     </head>
     <body>
       <div id="map"></div>
@@ -163,24 +149,29 @@ const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
 export default function App() {
   const [activeDay, setActiveDay] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [modalType, setModalType] = useState(null); // 'radar', 'timer', 'parking', 'challengesLog', 'trivia', 'gallery', 'tickets', 'emergency', 'weatherModal', 'appleMusicModal'
-  const [themeMode, setThemeMode] = useState('dark');
-  const [viewerItem, setViewerItem] = useState(null);
+  const [modalType, setModalType] = useState(null);
+  
+  // Theme Mode with LocalStorage Support
+  const [themeMode, setThemeMode] = useState(() => {
+    try {
+      return localStorage.getItem('garda-theme-mode') || 'light'; // ברירת מחדל בהיר נקי ויוקרתי!
+    } catch (e) { return 'light'; }
+  });
 
-  // States for Radar & Family GPS
+  useEffect(() => {
+    try {
+      localStorage.setItem('garda-theme-mode', themeMode);
+    } catch (e) {}
+  }, [themeMode]);
+
+  const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
   const [familyLocations, setFamilyLocations] = useState({});
   const [activeSosAlert, setActiveSosAlert] = useState(null);
-
-  // States for Timer
   const [activeTimer, setActiveTimer] = useState(null);
-  const [timerRemainingSec, setTimerRemainingSec] = useState(0);
-
-  // States for Parking
   const [savedParking, setSavedParking] = useState(null);
   const [parkingNote, setParkingNote] = useState('');
 
-  // States for Trivia
   const [triviaQuestions] = useState(() => generateMassiveTrivia());
   const [triviaIndex, setTriviaIndex] = useState(0);
   const [travelerIndex, setTravelerIndex] = useState(0);
@@ -188,20 +179,18 @@ export default function App() {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const travelers = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
 
-  // States for Gallery & Documents
-  const [galleryItems, setGalleryItems] = useState([]);
   const [folders] = useState(TICKET_DEFAULT_FOLDERS);
   const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
   const [ticketFiles] = useState(DEFAULT_DOCUMENTS);
 
   const isDark = themeMode === 'dark';
-  const bgMain = isDark ? '#090d16' : '#f1f5f9';
-  const cardBg = isDark ? 'rgba(30, 41, 59, 0.75)' : 'rgba(255, 255, 255, 0.85)';
+  const bgMain = isDark ? '#090d16' : '#f8fafc';
+  const cardBg = isDark ? 'rgba(30, 41, 59, 0.75)' : 'rgba(255, 255, 255, 0.9)';
   const textColor = isDark ? '#f8fafc' : '#0f172a';
   const textSub = isDark ? '#94a3b8' : '#64748b';
-  const borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
   const accentGradient = 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
-  const cardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 30px rgba(15, 23, 42, 0.05)';
+  const cardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.06)';
 
   const day = INITIAL_TRIP_DAYS[activeDay];
 
@@ -213,6 +202,13 @@ export default function App() {
       setActiveSosAlert(sosData);
       setModalType('radar');
     });
+  };
+
+  const broadcastMyLocation = async (coords) => {
+    const locObj = { name: 'אריק', lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) };
+    setMyLocation({ lat: coords.latitude, lng: coords.longitude });
+    setFamilyLocations(prev => ({ ...prev, 'אריק': locObj }));
+    try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
   };
 
   const handleTriviaAnswer = (optIdx) => {
@@ -231,18 +227,25 @@ export default function App() {
   };
 
   return (
-    <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: 'system-ui, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box' }}>
+    <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: 'system-ui, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
-      {/* Top Header Bar with Menu Button */}
+      {/* Top Header Bar with Menu & Theme Toggle */}
       <header style={{ background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '16px 20px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: 'none', width: '40px', height: '40px', borderRadius: '12px', fontSize: '20px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          ☰
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: 'none', width: '40px', height: '40px', borderRadius: '12px', fontSize: '20px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            ☰
+          </button>
+          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: 'none', padding: '10px 14px', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {isDark ? '☀️ מצב בהיר' : '🌙 מצב כהה'}
+          </button>
+        </div>
+
         <div style={{ textAlign: 'center' }}>
           <span style={{ fontSize: '10px', fontWeight: '800', color: '#3b82f6' }}>GARDA MOBILE 2026</span>
-          <h1 style={{ margin: '0', fontSize: '16px', fontWeight: '900' }}>🇮🇹 אגם גארדה וונציה</h1>
+          <h1 style={{ margin: '0', fontSize: '16px', fontWeight: '900' }}>🇮🇹 אגם גארדה</h1>
         </div>
-        <button onClick={triggerSos} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: '12px', fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>🚨 SOS</button>
+
+        <button onClick={triggerSos} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '10px 14px', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>🚨 SOS</button>
       </header>
 
       {/* Slide-out Menu Drawer */}
@@ -258,7 +261,6 @@ export default function App() {
         <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={menuBtnStyle}>⏱️ טיימר משפחתי</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={menuBtnStyle}>🚗 שמירת מיקום רכב חכם</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={menuBtnStyle}>🧠 טריויה חכמה לדרך</button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('gallery'); }} style={menuBtnStyle}>📸 יומן ואלבום תמונות</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={menuBtnStyle}>🎟️ ארנק כרטיסים ומסמכים</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={menuBtnStyle}>🆘 מספרי חירום</button>
       </aside>
@@ -321,9 +323,9 @@ export default function App() {
 
       </main>
 
-      {/* Modals for Features (Radar, Trivia, Tickets, Emergency, etc.) */}
+      {/* Modals */}
       {modalType && (
-        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backdropFilter: 'blur(10px)' }}>
+        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '24px', borderRadius: '24px', width: '100%', maxWidth: '450px', maxHeight: '85vh', overflowY: 'auto', border: `1px solid ${borderColor}`, boxShadow: cardShadow }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px' }}>
@@ -334,7 +336,6 @@ export default function App() {
                 {modalType === 'trivia' && '🧠 טריויה חכמה לדרך'}
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום'}
-                {modalType === 'gallery' && '📸 אלבום תמונות משפחתי'}
               </h2>
               <button onClick={() => setModalType(null)} style={{ background: 'none', border: 'none', color: textColor, fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
             </div>
@@ -392,7 +393,7 @@ export default function App() {
             {modalType === 'parking' && (
               <div>
                 <p style={{ fontSize: '13px', color: textSub }}>שמור את מיקום הרכב כדי למצוא אותו בקלות אחר כך.</p>
-                <input type="text" placeholder="תיאור חניה (למשל: קומה 2, עמוד 4)..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, margin: '10px 0', boxSizing: 'border-box' }} />
+                <input type="text" placeholder="תיאור חניה..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, margin: '10px 0', boxSizing: 'border-box' }} />
                 <button onClick={() => { navigator.geolocation.getCurrentPosition(pos => { setSavedParking({ lat: pos.coords.latitude, lng: pos.coords.longitude, note: parkingNote }); alert('החניה נשמרה!'); setModalType(null); }); }} style={{ width: '100%', padding: '12px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>📍 שמור מיקום GPS</button>
               </div>
             )}
@@ -421,8 +422,7 @@ const menuBtnStyle = {
   textAlign: 'right',
   fontWeight: '700',
   fontSize: '14px',
-  cursor: 'pointer',
-  transition: 'background 0.2s'
+  cursor: 'pointer'
 };
 
 const emergencyBtnStyle = {
