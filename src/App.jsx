@@ -685,25 +685,25 @@ export default function App() {
 
       {/* Modals */}
       {modalType && (
-        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? '12px' : '16px', backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '24px', borderRadius: '24px', width: '100%', maxWidth: '450px', maxHeight: '95vh', overflowY: 'auto', border: `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? '8px' : '16px', backdropFilter: 'blur(10px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '18px', borderRadius: '24px', width: '100%', maxWidth: '440px', maxHeight: '96vh', overflowY: 'auto', border: `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '10px', flexShrink: 0 }}>
-              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '8px', flexShrink: 0 }}>
+              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '32px', height: '32px', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
               
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
                     {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
                   </button>
-                  <button onClick={handleAdminReset} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <button onClick={handleAdminReset} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
                     🔒 איפוס
                   </button>
                 </div>
               ) : null}
 
-              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>
+              <h2 style={{ margin: 0, fontSize: '17px', fontWeight: '900' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 שמירת מיקום רכב חכם'}
@@ -714,14 +714,14 @@ export default function App() {
             </div>
 
             {modalType === 'radar' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {/* BIG EXPANDED MAP PULLED UPWARD */}
-                <div style={{ width: '100%', height: '360px', borderRadius: '16px', overflow: 'hidden', border: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {/* BIG EXPANDED MAP PULLED UPWARD WITH MORE HEIGHT */}
+                <div style={{ width: '100%', height: '380px', borderRadius: '16px', overflow: 'hidden', border: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
                 {/* Compact Family Members List */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '130px', overflowY: 'auto', paddingRight: '2px', paddingLeft: '2px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '120px', overflowY: 'auto', paddingRight: '2px', paddingLeft: '2px' }}>
                   <span style={{ fontSize: '11px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
                   {Object.values(familyLocations).map((person, pIdx) => (
                     <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(15, 23, 42, 0.5)' : '#f8fafc', padding: '6px 10px', borderRadius: '10px', border: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
