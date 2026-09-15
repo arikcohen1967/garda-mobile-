@@ -34,7 +34,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
@@ -189,7 +189,7 @@ export default function App() {
     } catch (e) {}
   }, [triviaIndex, travelerIndex, travelerScores]);
 
-  // 45 seconds per question countdown effect
+  // 45 seconds per question countdown effect (paused correctly without resetting)
   useEffect(() => {
     if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
 
@@ -392,6 +392,16 @@ export default function App() {
     }
   };
 
+  const handleNewGame = () => {
+    if (window.confirm("🎮 להתחיל משחק חדש מאפס? (הניקוד והשאלות יתאפסו)")) {
+      setTriviaIndex(0);
+      setTravelerIndex(0);
+      setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
+      setIsTriviaPaused(false);
+      setQuestionTimeLeft(45);
+    }
+  };
+
   return (
     <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: 'system-ui, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
@@ -591,11 +601,11 @@ export default function App() {
               
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  {/* Pause Button in Pleasant Silver */}
+                  {/* Pause Button in pleasant silver */}
                   <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#475569' : '#cbd5e1', color: isDark ? '#f8fafc' : '#334155', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
                     {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
                   </button>
-                  {/* Reset Button in Green */}
+                  {/* Reset Button in green */}
                   <button onClick={handleAdminReset} style={{ background: '#10b981', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 5px rgba(16, 185, 129, 0.3)' }}>
                     🔒 איפוס
                   </button>
@@ -642,7 +652,7 @@ export default function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: isTriviaPaused ? 0.5 : 1, pointerEvents: isTriviaPaused ? 'none' : 'auto' }}>
                 {isTriviaPaused && (
                   <div style={{ background: '#f59e0b', color: '#fff', padding: '8px', borderRadius: '10px', textAlign: 'center', fontWeight: '900', fontSize: '13px', marginBottom: '4px' }}>
-                    ⏸️ המשחק מושהה כרגע על ידי המנהל
+                    ⏸️ המשחק מושהה ללא הגבלת זמן (לחץ על "המשך" כשאתה מוכן)
                   </div>
                 )}
 
@@ -656,8 +666,13 @@ export default function App() {
                 </div>
 
                 {/* Turn Info Box */}
-                <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', padding: '12px', borderRadius: '14px', textAlign: 'center', fontSize: '14px', fontWeight: '900', border: `1px solid ${borderColor}` }}>
-                  🎯 תורו/ה של: <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>!
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? '#1e293b' : '#f1f5f9', padding: '10px 14px', borderRadius: '14px', border: `1px solid ${borderColor}` }}>
+                  <span style={{ fontSize: '13px', fontWeight: '900' }}>
+                    🎯 תורו/ה של: <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
+                  </span>
+                  <button onClick={handleNewGame} style={{ background: accentGradient, color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
+                    🎮 משחק חדש
+                  </button>
                 </div>
 
                 {/* Travelers Score Grid */}
