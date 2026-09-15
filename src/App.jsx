@@ -408,7 +408,7 @@ export default function App() {
 
       {/* Slide-out Menu Drawer (Polished & Highlighted Sections) */}
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 2500, backdropFilter: 'blur(6px)', transition: 'opacity 0.3s ease' }} />}
-      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(15, 23, 42, 0.97)' : 'rgba(255, 255, 255, 0.97)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '18px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-10px 0 30px rgba(0,0,0,0.6)' : '-10px 0 30px rgba(0,0,0,0.1)' }}>
+      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(15, 23, 42, 0.97)' : 'rgba(255, 255, 255, 0.97)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-10px 0 30px rgba(0,0,0,0.6)' : '-10px 0 30px rgba(0,0,0,0.1)' }}>
         
         {/* Sidebar Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '14px' }}>
@@ -443,6 +443,25 @@ export default function App() {
           </button>
         </div>
 
+        {/* Around Me Group (New Category) */}
+        <div style={categoryGroupStyle(isDark, borderColor)}>
+          <div style={categoryTitleStyle('#f59e0b')}>
+            <span>📍</span> סביבי (בקרבת מקום)
+          </div>
+          <a href={`https://www.waze.com/ul?q=supermarket&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
+            <span style={{ fontSize: '16px' }}>🛒</span> סופרמרקט קרוב
+          </a>
+          <a href={`https://www.waze.com/ul?q=pharmacy&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
+            <span style={{ fontSize: '16px' }}>💊</span> בית מרקחת קרוב
+          </a>
+          <a href={`https://www.waze.com/ul?q=gas+station&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
+            <span style={{ fontSize: '16px' }}>⛽</span> תחנת דלק קרובה
+          </a>
+          <a href={`https://www.waze.com/ul?q=gelateria&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
+            <span style={{ fontSize: '16px' }}>🍦</span> גלידריה או בית קפה
+          </a>
+        </div>
+
         {/* Tools & Utilities Group with Highlight */}
         <div style={categoryGroupStyle(isDark, borderColor)}>
           <div style={categoryTitleStyle('#10b981')}>
@@ -463,7 +482,7 @@ export default function App() {
         </div>
 
         {/* Emergency & Support Group */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'auto', paddingTop: '12px', borderTop: `1px solid ${borderColor}` }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'auto', paddingTop: '10px', borderTop: `1px solid ${borderColor}` }}>
           <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...menuBtnStyle(isDark, textColor), background: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fee2e2', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
             <span style={{ fontSize: '16px' }}>🆘</span> מספרי חירום ושגרירות
           </button>
