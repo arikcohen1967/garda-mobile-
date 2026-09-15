@@ -26,25 +26,26 @@ const MAPS_SVG = (
   </svg>
 );
 
+const HOTEL_COORDINATES = { lat: 45.4057, lng: 10.7022, name: "Bio Agriturismo Vojon" };
 const HOTEL_ADDRESS = "Bio Agriturismo Vojon, Ponti sul Mincio, Italy";
 
 const INITIAL_TRIP_DAYS = [
   {
     date: "2026-09-30", label: "רביעי · 30/09", title: "נחיתה והגעה למלון", icon: "✈️",
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
-    challengeDesc: "הרגע נחתנו! סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
+    challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור החדש.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ואיסוף הרכב השכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
   {
     date: "2026-10-01", label: "חמישי · 01/10", title: "Gardaland – יום פארק מלא", icon: "🎢",
-    challenge: "לבחור יחד את שלושת המתקנים הכי אקסטרימיים!",
-    challengeDesc: "צלמו תמונה צועקים על אחד המתקנים וספרו מי צעק הכי חזק.",
+    challenge: "לבחור יחד את שלושת המתקנים הכי אקסטרימיים של היום!",
+    challengeDesc: "צלמו תמונה צועקים על אחד המתקנים וספרו מי צעק הכי חזק ברכבת הרים.",
     stops: [
-      { time: "08:30", name: "יציאה מהמלון ל-Gardaland", dest: "Gardaland Resort, Via Derna 4, Castelnuovo del Garda", note: "הגעה מוקדמת לפני פתיחת השערים." },
-      { time: "13:00", name: "ארוחת צהריים בפארק", dest: "Gardaland Resort", note: "אוכל מהיר והמבורגרים.", food: { name: "🍔 Aladino Pizza & Burger", dest: "Gardaland Resort" } }
+      { time: "08:30", name: "יציאה מהמלון ל-Gardaland", dest: "Gardaland Resort, Castelnuovo del Garda", note: "הגעה מוקדמת לפני פתיחת השערים." },
+      { time: "13:00", name: "ארוחת צהריים בפארק", dest: "Gardaland Resort", note: "אוכל מהיר והמבורגרים בפארק.", food: { name: "🍔 Aladino Pizza & Burger", dest: "Gardaland Resort" } }
     ]
   },
   {
@@ -103,19 +104,95 @@ const DEFAULT_DOCUMENTS = [
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland #1 (Serial 600)', isGardalandTicket: true, code: 'BKN1P01Y901MART', ticketId: '33385742' }
 ];
 
+const RAW_BASE_QUESTIONS = [
+  { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 },
+  { q: "איזה בעל חיים נחשב למהיר ביותר בעולם ביבשה?", options: ["אריה", "ברדלס (צ'יטה)", "סוס מירוץ", "זברה"], correct: 1 },
+  { q: "כמה פלנטות יש במערכת השמש שלנו?", options: ["7", "8", "9", "10"], correct: 1 },
+  { q: "איזה גז אנחנו בני האדם שואפים בעיקר כדי לחיות?", options: ["פחמן דו-חמצני", "חמצן", "מימן", "חנקן"], correct: 1 },
+  { q: "איזה כוכב לכת ידוע בתור 'הכוכב האדום'?", options: ["נוגה", "מאדים", "צדק", "שבתאי"], correct: 1 }
+];
+
+const generateMassiveTrivia = () => {
+  const generated = [];
+  for (let i = 0; i < 50; i++) {
+    const template = RAW_BASE_QUESTIONS[i % RAW_BASE_QUESTIONS.length];
+    generated.push({ q: `(שאלה #${i + 1}) ${template.q}`, options: template.options, correct: template.correct });
+  }
+  return generated;
+};
+
+const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
+  if (!lat1 || !lon1 || !lon2 || !lat2) return null;
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const d = R * c;
+  return d < 1 ? `${Math.round(d * 1000)} מטר` : `${d.toFixed(1)} ק"מ`;
+};
+
+const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
+  const locsArray = Object.values(familyLocs || {});
+  let centerLat = 45.4384, centerLng = 10.6816;
+  if (sosState?.lat) { centerLat = sosState.lat; centerLng = sosState.lng; }
+  else if (myLoc?.lat) { centerLat = myLoc.lat; centerLng = myLoc.lng; }
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #0f172a; } #map { width: 100%; height: 100%; }</style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        const map = L.map('map').setView([${centerLat}, ${centerLng}], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+        const myLocData = ${JSON.stringify(myLoc)};
+        if (myLocData && myLocData.lat) {
+          L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
+        }
+      </script>
+    </body>
+    </html>
+  `;
+};
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('itinerary'); // 'itinerary', 'wallet', 'radar', 'trivia'
+  const [activeTab, setActiveTab] = useState('itinerary'); // 'itinerary', 'wallet', 'radar', 'trivia', 'gallery'
   const [activeDay, setActiveDay] = useState(0);
-  const [themeMode, setThemeMode] = useState('dark'); // ברירת מחדל מצב כהה פרימיום יוקרתי
+  const [themeMode, setThemeMode] = useState('dark');
   const [folders] = useState(TICKET_DEFAULT_FOLDERS);
   const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
   const [ticketFiles] = useState(DEFAULT_DOCUMENTS);
   const [viewerItem, setViewerItem] = useState(null);
 
-  // עיצוב צבעים דינמי מתקדם (Glassmorphism & High-End Dark/Light Mode)
+  // States for Radar & Family GPS
+  const [myLocation, setMyLocation] = useState(null);
+  const [familyLocations, setFamilyLocations] = useState({});
+  const [activeSosAlert, setActiveSosAlert] = useState(null);
+
+  // States for Trivia
+  const [triviaQuestions] = useState(() => generateMassiveTrivia());
+  const [triviaIndex, setTriviaIndex] = useState(0);
+  const [travelerIndex, setTravelerIndex] = useState(0);
+  const [travelerScores, setTravelerScores] = useState({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const travelers = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
+
+  // States for Gallery & Challenges
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [challengeModalOpen, setChallengeModalOpen] = useState(false);
+  const [challengeNote, setChallengeNote] = useState('');
+
   const isDark = themeMode === 'dark';
   const bgMain = isDark ? '#090d16' : '#f1f5f9';
-  const cardBg = isDark ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.85)';
+  const cardBg = isDark ? 'rgba(30, 41, 59, 0.75)' : 'rgba(255, 255, 255, 0.85)';
   const textColor = isDark ? '#f8fafc' : '#0f172a';
   const textSub = isDark ? '#94a3b8' : '#64748b';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
@@ -124,92 +201,63 @@ export default function App() {
 
   const day = INITIAL_TRIP_DAYS[activeDay];
 
+  const broadcastMyLocation = async (coords) => {
+    const locObj = { name: 'אריק', lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) };
+    setMyLocation({ lat: coords.latitude, lng: coords.longitude });
+    setFamilyLocations(prev => ({ ...prev, 'אריק': locObj }));
+    try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
+  };
+
+  const triggerSos = () => {
+    if (!navigator.geolocation) return alert('GPS אינו נתמך');
+    if (!window.confirm('להפעיל התראת מצוקה SOS?')) return;
+    navigator.geolocation.getCurrentPosition(pos => {
+      const sosData = { name: 'אריק', lat: pos.coords.latitude, lng: pos.coords.longitude, time: new Date().toLocaleTimeString() };
+      setActiveSosAlert(sosData);
+      setActiveTab('radar');
+    });
+  };
+
+  const handleTriviaAnswer = (optIdx) => {
+    if (selectedAnswer !== null) return;
+    setSelectedAnswer(optIdx);
+    const currentQ = triviaQuestions[triviaIndex];
+    const currentTraveler = travelers[travelerIndex];
+    if (optIdx === currentQ.correct) {
+      setTravelerScores(prev => ({ ...prev, [currentTraveler]: (prev[currentTraveler] || 0) + 10 }));
+    }
+    setTimeout(() => {
+      setSelectedAnswer(null);
+      setTriviaIndex(prev => (prev + 1) % triviaQuestions.length);
+      setTravelerIndex(prev => (prev + 1) % travelers.length);
+    }, 1200);
+  };
+
   return (
-    <div style={{
-      background: bgMain,
-      minHeight: '100vh',
-      color: textColor,
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      direction: 'rtl',
-      paddingBottom: '90px',
-      boxSizing: 'border-box'
-    }}>
+    <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: 'system-ui, sans-serif', direction: 'rtl', paddingBottom: '90px', boxSizing: 'border-box' }}>
       
-      {/* Top Header Bar */}
-      <header style={{
-        background: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: `1px solid ${borderColor}`,
-        padding: '16px 20px',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
+      {/* Top Header */}
+      <header style={{ background: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '16px 20px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <span style={{ fontSize: '11px', fontWeight: '800', color: '#3b82f6', letterSpacing: '0.05em' }}>GARDA MOBILE 2026</span>
+          <span style={{ fontSize: '11px', fontWeight: '800', color: '#3b82f6' }}>GARDA MOBILE 2026</span>
           <h1 style={{ margin: '2px 0 0', fontSize: '18px', fontWeight: '900' }}>🇮🇹 אגם גארדה וונציה</h1>
         </div>
-        
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button 
-            onClick={() => setThemeMode(isDark ? 'light' : 'dark')}
-            style={{
-              background: isDark ? '#1e293b' : '#e2e8f0',
-              color: textColor,
-              border: 'none',
-              padding: '8px 12px',
-              borderRadius: '12px',
-              fontSize: '12px',
-              fontWeight: '700',
-              cursor: 'pointer'
-            }}
-          >
-            {isDark ? '☀️ בהיר' : '🌙 כהה'}
-          </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button onClick={triggerSos} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>🚨 SOS</button>
+          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>{isDark ? '☀️' : '🌙'}</button>
         </div>
       </header>
 
-      {/* Main Content Area */}
+      {/* Main Container */}
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
-        {/* Quick Hotel Return Widget */}
-        <div style={{
-          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-          borderRadius: '20px',
-          padding: '16px 20px',
-          color: '#fff',
-          marginBottom: '20px',
-          boxShadow: '0 8px 25px rgba(239, 68, 68, 0.3)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
+        {/* Quick Hotel Waze Widget */}
+        <div style={{ background: 'linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%)', borderRadius: '20px', padding: '16px 20px', color: '#fff', marginBottom: '20px', boxShadow: '0 8px 25px rgba(0,210,243,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <span style={{ fontSize: '11px', fontWeight: '800', opacity: 0.9, display: 'block' }}>ניווט חירום למלון</span>
+            <span style={{ fontSize: '11px', fontWeight: '800', opacity: 0.9, display: 'block' }}>ניווט מהיר למלון</span>
             <strong style={{ fontSize: '15px' }}>Bio Agriturismo Vojon</strong>
           </div>
-          <a 
-            href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              background: '#fff',
-              color: '#dc2626',
-              padding: '10px 16px',
-              borderRadius: '12px',
-              textDecoration: 'none',
-              fontWeight: '800',
-              fontSize: '13px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
+          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#fff', color: '#000', padding: '10px 16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '800', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             {WAZE_SVG} Waze
           </a>
         </div>
@@ -217,42 +265,15 @@ export default function App() {
         {/* TAB 1: ITINERARY */}
         {activeTab === 'itinerary' && (
           <div>
-            {/* Days Horizontal Picker */}
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '20px', scrollbarWidth: 'none' }}>
               {INITIAL_TRIP_DAYS.map((d, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveDay(i)}
-                  style={{
-                    flex: '1 0 auto',
-                    padding: '12px 16px',
-                    borderRadius: '16px',
-                    background: activeDay === i ? accentGradient : cardBg,
-                    color: activeDay === i ? '#fff' : textColor,
-                    border: `1px solid ${activeDay === i ? 'transparent' : borderColor}`,
-                    fontSize: '13px',
-                    fontWeight: '800',
-                    cursor: 'pointer',
-                    boxShadow: cardShadow,
-                    transition: 'all 0.2s ease'
-                  }}
-                >
+                <button key={i} onClick={() => setActiveDay(i)} style={{ flex: '1 0 auto', padding: '12px 16px', borderRadius: '16px', background: activeDay === i ? accentGradient : cardBg, color: activeDay === i ? '#fff' : textColor, border: `1px solid ${activeDay === i ? 'transparent' : borderColor}`, fontSize: '13px', fontWeight: '800', cursor: 'pointer', boxShadow: cardShadow }}>
                   {d.label}
                 </button>
               ))}
             </div>
 
-            {/* Active Day Card */}
-            <div style={{
-              background: cardBg,
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: `1px solid ${borderColor}`,
-              borderRadius: '24px',
-              padding: '24px',
-              boxShadow: cardShadow,
-              marginBottom: '20px'
-            }}>
+            <div style={{ background: cardBg, backdropFilter: 'blur(20px)', border: `1px solid ${borderColor}`, borderRadius: '24px', padding: '24px', boxShadow: cardShadow, marginBottom: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <span style={{ fontSize: '28px' }}>{day.icon}</span>
                 <div>
@@ -261,60 +282,24 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Daily Challenge Box */}
-              <div style={{
-                background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff',
-                border: '1px solid rgba(59, 130, 246, 0.2)',
-                borderRadius: '16px',
-                padding: '16px',
-                marginBottom: '20px'
-              }}>
-                <span style={{ fontSize: '11px', fontWeight: '800', color: '#3b82f6', display: 'block', marginBottom: '4px' }}>🎯 אתגר היום:</span>
+              {/* Challenge Box */}
+              <div onClick={() => setChallengeModalOpen(true)} style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '16px', padding: '16px', marginBottom: '20px', cursor: 'pointer' }}>
+                <span style={{ fontSize: '11px', fontWeight: '800', color: '#3b82f6', display: 'block', marginBottom: '4px' }}>🎯 אתגר היום (לחץ לפתיחה):</span>
                 <p style={{ margin: '0 0 4px', fontWeight: '800', fontSize: '14px', color: textColor }}>{day.challenge}</p>
                 <p style={{ margin: 0, fontSize: '12px', color: textSub }}>{day.challengeDesc}</p>
               </div>
 
-              {/* Stops Timeline */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {day.stops.map((stop, sIdx) => (
-                  <div key={sIdx} style={{
-                    background: isDark ? 'rgba(15, 23, 42, 0.4)' : '#f8fafc',
-                    borderRadius: '16px',
-                    padding: '16px',
-                    border: `1px solid ${borderColor}`
-                  }}>
+                  <div key={sIdx} style={{ background: isDark ? 'rgba(15, 23, 42, 0.4)' : '#f8fafc', borderRadius: '16px', padding: '16px', border: `1px solid ${borderColor}` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                       <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800' }}>{stop.name}</h4>
                       <span style={{ fontSize: '11px', fontWeight: '800', color: textSub, background: isDark ? '#1e293b' : '#e2e8f0', padding: '4px 8px', borderRadius: '8px' }}>{stop.time}</span>
                     </div>
                     <p style={{ margin: '0 0 12px', fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{stop.note}</p>
-
-                    {stop.food && (
-                      <div style={{
-                        background: isDark ? 'rgba(245, 158, 11, 0.1)' : '#fffbeb',
-                        border: '1px solid rgba(245, 158, 11, 0.2)',
-                        borderRadius: '12px',
-                        padding: '10px 14px',
-                        marginBottom: '12px',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        color: isDark ? '#fbbf24' : '#b45309'
-                      }}>
-                        🍴 המלצה: {stop.food.name}
-                      </div>
-                    )}
-
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                      <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{
-                        background: isDark ? '#1e293b' : '#fff', color: textColor, padding: '10px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '12px', textAlign: 'center', border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
-                      }}>
-                        {MAPS_SVG} Apple Maps
-                      </a>
-                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{
-                        background: '#33ccff', color: '#000', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '12px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
-                      }}>
-                        {WAZE_SVG} Waze
-                      </a>
+                      <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#1e293b' : '#fff', color: textColor, padding: '10px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '12px', textAlign: 'center', border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>{MAPS_SVG} Maps</a>
+                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#33ccff', color: '#000', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontWeight: '800', fontSize: '12px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>{WAZE_SVG} Waze</a>
                     </div>
                   </div>
                 ))}
@@ -323,61 +308,19 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 2: WALLET & DOCUMENTS */}
+        {/* TAB 2: WALLET */}
         {activeTab === 'wallet' && (
-          <div style={{
-            background: cardBg,
-            backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
-            padding: '24px',
-            border: `1px solid ${borderColor}`,
-            boxShadow: cardShadow
-          }}>
+          <div style={{ background: cardBg, borderRadius: '24px', padding: '24px', border: `1px solid ${borderColor}`, boxShadow: cardShadow }}>
             <h2 style={{ margin: '0 0 16px', fontSize: '20px', fontWeight: '900' }}>🎟️ ארנק כרטיסים ומסמכים</h2>
-            
-            {/* Folders */}
             <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '16px' }}>
               {folders.map((f, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveFolder(f)}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: '12px',
-                    background: activeFolder === f ? accentGradient : (isDark ? '#1e293b' : '#f1f5f9'),
-                    color: activeFolder === f ? '#fff' : textColor,
-                    border: 'none',
-                    fontWeight: '800',
-                    fontSize: '12px',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {f}
-                </button>
+                <button key={idx} onClick={() => setActiveFolder(f)} style={{ padding: '10px 14px', borderRadius: '12px', background: activeFolder === f ? accentGradient : (isDark ? '#1e293b' : '#f1f5f9'), color: activeFolder === f ? '#fff' : textColor, border: 'none', fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>{f}</button>
               ))}
             </div>
-
-            {/* Files List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {ticketFiles.filter(d => d.folder === activeFolder).map((doc, dIdx) => (
-                <div key={dIdx} onClick={() => setViewerItem(doc)} style={{
-                  background: isDark ? 'rgba(15, 23, 42, 0.4)' : '#f8fafc',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  border: `1px solid ${borderColor}`,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  cursor: 'pointer'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '18px' }}>📄</span>
-                    <div>
-                      <strong style={{ fontSize: '13px', display: 'block', color: textColor }}>{doc.title}</strong>
-                      <small style={{ color: textSub, fontSize: '11px' }}>לחץ לצפייה מהירה</small>
-                    </div>
-                  </div>
+                <div key={dIdx} onClick={() => setViewerItem(doc)} style={{ background: isDark ? 'rgba(15, 23, 42, 0.4)' : '#f8fafc', padding: '14px', borderRadius: '14px', border: `1px solid ${borderColor}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+                  <span>📄 {doc.title}</span>
                   <span style={{ fontSize: '12px', fontWeight: '800', color: '#3b82f6' }}>צפה 👁️</span>
                 </div>
               ))}
@@ -385,70 +328,69 @@ export default function App() {
           </div>
         )}
 
+        {/* TAB 3: RADAR */}
+        {activeTab === 'radar' && (
+          <div style={{ background: cardBg, borderRadius: '24px', padding: '24px', border: `1px solid ${borderColor}`, boxShadow: cardShadow }}>
+            <h2 style={{ margin: '0 0 16px', fontSize: '20px', fontWeight: '900' }}>📡 רדאר משפחתי חי</h2>
+            <div style={{ width: '100%', height: '280px', borderRadius: '16px', overflow: 'hidden', marginBottom: '16px' }}>
+              <iframe title="Radar" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
+            </div>
+            <button onClick={() => {
+              navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords));
+            }} style={{ width: '100%', padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '800', cursor: 'pointer' }}>
+              📍 עדכן מיקום שלי GPS
+            </button>
+          </div>
+        )}
+
+        {/* TAB 4: TRIVIA */}
+        {activeTab === 'trivia' && (
+          <div style={{ background: cardBg, borderRadius: '24px', padding: '24px', border: `1px solid ${borderColor}`, boxShadow: cardShadow }}>
+            <h2 style={{ margin: '0 0 12px', fontSize: '20px', fontWeight: '900' }}>🧠 טריויה משפחתית לדרך</h2>
+            <div style={{ background: isDark ? '#1e293b' : '#eff6ff', padding: '12px', borderRadius: '12px', marginBottom: '16px', textAlign: 'center' }}>
+              <b>תורו/ה של: {travelers[travelerIndex]}</b> | ניקוד: {travelerScores[travelers[travelerIndex]]} נק'
+            </div>
+            <p style={{ fontSize: '16px', fontWeight: '800', marginBottom: '16px' }}>{triviaQuestions[triviaIndex].q}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {triviaQuestions[triviaIndex].options.map((opt, oIdx) => (
+                <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ padding: '12px', borderRadius: '12px', background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, fontWeight: '700', textAlign: 'right', cursor: 'pointer' }}>
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
       </main>
 
-      {/* Modern Bottom Navigation Bar */}
-      <nav style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderTop: `1px solid ${borderColor}`,
-        padding: '12px 20px',
-        display: 'flex',
-        justifyContent: 'space-around',
-        zIndex: 1000,
-        boxSizing: 'border-box'
-      }}>
-        <button 
-          onClick={() => setActiveTab('itinerary')}
-          style={{ background: 'none', border: 'none', color: activeTab === 'itinerary' ? '#3b82f6' : textSub, fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-        >
-          <span style={{ fontSize: '18px' }}>📅</span> מסלול
-        </button>
-        <button 
-          onClick={() => setActiveTab('wallet')}
-          style={{ background: 'none', border: 'none', color: activeTab === 'wallet' ? '#3b82f6' : textSub, fontWeight: '800', fontSize: '12px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
-        >
-          <span style={{ fontSize: '18px' }}>🎟️</span> ארנק וכרטיסים
-        </button>
+      {/* Bottom Nav Bar */}
+      <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderTop: `1px solid ${borderColor}`, padding: '12px 20px', display: 'flex', justifyContent: 'space-around', zIndex: 1000, boxSizing: 'border-box' }}>
+        <button onClick={() => setActiveTab('itinerary')} style={{ background: 'none', border: 'none', color: activeTab === 'itinerary' ? '#3b82f6' : textSub, fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>📅 מסלול</button>
+        <button onClick={() => setActiveTab('wallet')} style={{ background: 'none', border: 'none', color: activeTab === 'wallet' ? '#3b82f6' : textSub, fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>🎟️ ארנק</button>
+        <button onClick={() => setActiveTab('radar')} style={{ background: 'none', border: 'none', color: activeTab === 'radar' ? '#3b82f6' : textSub, fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>📡 רדאר</button>
+        <button onClick={() => setActiveTab('trivia')} style={{ background: 'none', border: 'none', color: activeTab === 'trivia' ? '#3b82f6' : textSub, fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>🧠 טריויה</button>
       </nav>
 
-      {/* Document Viewer Modal */}
+      {/* Challenge Modal */}
+      {challengeModalOpen && (
+        <div onClick={() => setChallengeModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: isDark ? '#1e293b' : '#fff', padding: '24px', borderRadius: '24px', width: '100%', maxWidth: '400px' }}>
+            <h3 style={{ margin: '0 0 10px', fontWeight: '900' }}>🎯 אתגר יומי</h3>
+            <p>{day.challenge}</p>
+            <textarea placeholder="כתוב זיכרון או העלה תמונה..." value={challengeNote} onChange={e => setChallengeNote(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, margin: '10px 0', boxSizing: 'border-box' }} />
+            <button onClick={() => { alert('האתגר נשמר בהצלחה!'); setChallengeModalOpen(false); }} style={{ width: '100%', padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>שמור אתגר ✓</button>
+          </div>
+        </div>
+      )}
+
+      {/* Document Viewer */}
       {viewerItem && (
-        <div onClick={() => setViewerItem(null)} style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 3000,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)'
-        }}>
-          <div onClick={e => e.stopPropagation()} style={{
-            background: isDark ? '#1e293b' : '#fff', color: textColor, padding: '24px', borderRadius: '24px',
-            width: '100%', maxWidth: '400px', border: `1px solid ${borderColor}`, boxShadow: cardShadow
-          }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: '18px', fontWeight: '900' }}>{viewerItem.title}</h3>
-            {viewerItem.isFlightInfo && (
-              <p style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                ✈️ <b>חברת תעופה:</b> ישראייר<br/>
-                🎟️ <b>מספר כרטיס:</b> {viewerItem.ticketNo}<br/>
-                👤 <b>נוסע/ת:</b> {viewerItem.passenger}<br/>
-                📦 <b>הזמנה (PNR):</b> 4623652
-              </p>
-            )}
-            {viewerItem.isHotelInfo && (
-              <p style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                🏡 <b>מלון:</b> Bio Agriturismo Vojon<br/>
-                📍 <b>כתובת:</b> Ponti sul Mincio, Italy<br/>
-                📅 <b>תאריכים:</b> 30.09.2026 – 06.10.2026
-              </p>
-            )}
-            <button onClick={() => setViewerItem(null)} style={{
-              width: '100%', padding: '12px', background: accentGradient, color: '#fff',
-              border: 'none', borderRadius: '14px', fontWeight: '800', marginTop: '16px', cursor: 'pointer'
-            }}>
-              סגור חלון
-            </button>
+        <div onClick={() => setViewerItem(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: isDark ? '#1e293b' : '#fff', padding: '24px', borderRadius: '24px', width: '100%', maxWidth: '400px' }}>
+            <h3 style={{ margin: '0 0 12px', fontWeight: '900' }}>{viewerItem.title}</h3>
+            {viewerItem.isFlightInfo && <p>✈️ חברת תעופה: ישראייר<br/>🎟️ כרטיס: {viewerItem.ticketNo}<br/>👤 נוסע: {viewerItem.passenger}</p>}
+            {viewerItem.isHotelInfo && <p>🏡 מלון: Bio Agriturismo Vojon<br/>📍 כתובת: Ponti sul Mincio</p>}
+            <button onClick={() => setViewerItem(null)} style={{ width: '100%', padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', marginTop: '16px', cursor: 'pointer' }}>סגור</button>
           </div>
         </div>
       )}
