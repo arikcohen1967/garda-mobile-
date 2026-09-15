@@ -174,6 +174,7 @@ export default function App() {
   const [activeTimer, setActiveTimer] = useState(null);
   const [customTimerMinutes, setCustomTimerMinutes] = useState('10');
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
+  const [isTimerPaused, setIsTimerPaused] = useState(false);
 
   const [parkingNote, setParkingNote] = useState('');
   const [savedParking, setSavedParking] = useState(null);
@@ -393,26 +394,40 @@ export default function App() {
   const day = INITIAL_TRIP_DAYS[activeDay];
 
   useEffect(() => {
-    if (!activeTimer || !activeTimer.endTime) return;
+    if (!activeTimer || !activeTimer.endTime || isTimerPaused) return;
     const interval = setInterval(() => {
       const diff = Math.max(0, Math.floor((activeTimer.endTime - Date.now()) / 1000));
       setTimerRemainingSec(diff);
       if (diff === 0) {
         alert(`⏱️ הזמן נגמר עבור: ${activeTimer.title}!`);
         setActiveTimer(null);
+        setIsTimerPaused(false);
         clearInterval(interval);
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [activeTimer]);
+  }, [activeTimer, isTimerPaused]);
 
   const startTimer = (mins) => {
     const duration = Number(mins) || 10;
     const endTime = Date.now() + duration * 60 * 1000;
     setActiveTimer({ title: 'טיימר משפחתי', endTime, duration });
     setTimerRemainingSec(duration * 60);
-    alert(`⏱️ טיימר הופעל בהצלחה למשך ${duration} דקות!`);
+    setIsTimerPaused(false);
     setModalType(null);
+  };
+
+  const stopTimer = () => {
+    setIsTimerPaused(prev => !prev);
+  };
+
+  const resetTimer = () => {
+    if (activeTimer) {
+      const endTime = Date.now() + activeTimer.duration * 60 * 1000;
+      setActiveTimer(prev => ({ ...prev, endTime }));
+      setTimerRemainingSec(activeTimer.duration * 60);
+      setIsTimerPaused(false);
+    }
   };
 
   const formatClock = (sec) => {
@@ -525,9 +540,21 @@ export default function App() {
 
       {/* Active Timer Banner */}
       {activeTimer && (
-        <div onClick={() => setModalType('timer')} style={{ background: '#f59e0b', color: '#fff', padding: '10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
-          <span>⏱️ טיימר פועל: {formatClock(timerRemainingSec)}</span>
-          <span style={{ fontSize: '11px', background: 'rgba(0,0,0,0.2)', padding: '2px 8px', borderRadius: '6px' }}>נהל ⚙️</span>
+        <div style={{ background: '#f59e0b', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px' }}>
+          <span onClick={() => setModalType('timer')} style={{ cursor: 'pointer' }}>
+            ⏱️ טיימר {isTimerPaused ? '(מושהה)' : 'פועל'}: {formatClock(timerRemainingSec)}
+          </span>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button onClick={stopTimer} style={{ background: 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+              {isTimerPaused ? '▶️ המשך' : '⏸️ עצור'}
+            </button>
+            <button onClick={resetTimer} style={{ background: 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+              🔄 איפוס
+            </button>
+            <button onClick={() => { setActiveTimer(null); setIsTimerPaused(false); }} style={{ background: 'rgba(0,0,0,0.3)', border: 'none', color: '#fff', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+              ✕
+            </button>
+          </div>
         </div>
       )}
 
@@ -545,7 +572,7 @@ export default function App() {
               <span style={{ fontSize: '11px', color: textSub, fontWeight: '700' }}>גארדה ואזור הטיול</span>
             </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: '#ef4444', border: 'none', color: '#fff', width: '32px', height: '32px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)' }}>✕</button>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#475569' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '32px', height: '32px', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
         </div>
 
         <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, padding: '12px 16px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
@@ -661,17 +688,15 @@ export default function App() {
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' ? '16px' : '24px', borderRadius: modalType === 'radar' ? 0 : '24px', width: modalType === 'radar' ? '100vw' : '100%', height: modalType === 'radar' ? '100vh' : 'auto', maxWidth: modalType === 'radar' ? 'none' : '450px', maxHeight: modalType === 'radar' ? 'none' : '85vh', overflowY: 'auto', border: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
             
-            {/* Modal Header with Prominent Refined Gray Close Button (X) */}
+            {/* Modal Header with Metallic Silver Close Button (X) */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: modalType === 'trivia' ? '12px' : '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', flexShrink: 0 }}>
               <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
               
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  {/* Pause/Resume Button */}
                   <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
                     {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
                   </button>
-                  {/* Reset Button styled exactly like Resume */}
                   <button onClick={handleAdminReset} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
                     🔒 איפוס
                   </button>
@@ -694,7 +719,6 @@ export default function App() {
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
-                {/* Family Members List */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
                   <span style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
                   {Object.values(familyLocations).map((person, pIdx) => (
@@ -739,6 +763,17 @@ export default function App() {
                   <input type="number" placeholder="דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none' }} />
                   <button onClick={() => startTimer(customTimerMinutes)} style={{ padding: '12px 18px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>הפעל מותאם</button>
                 </div>
+
+                {activeTimer && (
+                  <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
+                    <button onClick={stopTimer} style={{ flex: 1, padding: '10px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>
+                      {isTimerPaused ? '▶️ המשך טיימר' : '⏸️ עצור טיימר'}
+                    </button>
+                    <button onClick={resetTimer} style={{ flex: 1, padding: '10px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>
+                      🔄 איפוס טיימר
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -759,7 +794,7 @@ export default function App() {
                   <span style={{ color: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6' }}>{questionTimeLeft} שניות</span>
                 </div>
 
-                {/* Turn Info & New Game Button - Uniform Size & Neutral Style */}
+                {/* Turn Info & New Game Button */}
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <div style={{ flex: 1, height: '44px', background: isDark ? '#1e293b' : '#f8fafc', padding: '0 14px', borderRadius: '14px', border: `1px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor }}>
                     <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
