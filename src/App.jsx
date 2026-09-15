@@ -383,7 +383,7 @@ export default function App() {
           </button>
           
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '10px', fontWeight: '800', color: textSub }}>גרסה 2.6</span>
+            <span style={{ fontSize: '10px', fontWeight: '800', color: '#3b82f6' }}>garda-mobile</span>
             <span style={{ fontSize: '12px', fontWeight: '900', color: isOnline ? '#22c55e' : '#f59e0b', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#22c55e' : '#f59e0b', display: 'inline-block' }}></span>
               {isOnline ? 'Online' : 'Offline'}
@@ -435,7 +435,7 @@ export default function App() {
         <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={menuBtnStyle}>🚗 שמירת מיקום רכב חכם</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={menuBtnStyle}>🧠 טריויה (1000 שאלות נוער)</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={menuBtnStyle}>🎟️ ארנק כרטיסים ומסמכים</button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={menuBtnStyle}>🆘 מספרי חירום</button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={menuBtnStyle}>🆘 מספרי חירום ושגרירות</button>
       </aside>
 
       {/* Main Container */}
@@ -497,7 +497,7 @@ export default function App() {
                 {modalType === 'parking' && '🚗 שמירת מיקום רכב חכם'}
                 {modalType === 'trivia' && '🧠 טריויה (1000 שאלות נוער)'}
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
-                {modalType === 'emergency' && '🆘 מספרי חירום'}
+                {modalType === 'emergency' && '🆘 מספרי חירום ושגרירות'}
               </h2>
               <button onClick={() => setModalType(null)} style={{ background: 'none', border: 'none', color: textColor, fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
             </div>
@@ -561,11 +561,18 @@ export default function App() {
             )}
 
             {modalType === 'emergency' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <a href="tel:112" style={emergencyBtnStyle}>🚨 חירום: 112</a>
-                <a href="tel:118" style={emergencyBtnStyle}>🚑 אמבולנס: 118</a>
-                <a href="tel:113" style={emergencyBtnStyle}>👮 משטרה: 113</a>
-                <a href="tel:+390636911" style={emergencyBtnStyle}>🇮🇱 שגרירות</a>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <a href="tel:112" style={emergencyBtnStyle}>🚨 חירום כללי: 112</a>
+                  <a href="tel:118" style={emergencyBtnStyle}>🚑 אמבולנס: 118</a>
+                  <a href="tel:113" style={emergencyBtnStyle}>👮 משטרה: 113</a>
+                  <a href="tel:115" style={emergencyBtnStyle}>🚒 כיבוי אש: 115</a>
+                </div>
+                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '14px', borderRadius: '14px', marginTop: '6px' }}>
+                  <strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px', color: '#3b82f6' }}>🇮🇱 שגרירות ישראל באיטליה (רומא)</strong>
+                  <p style={{ margin: '0 0 8px', fontSize: '12px', color: textSub }}>כתובת: Via Michele Mercati 12, 00197 Roma</p>
+                  <a href="tel:+3906361981" style={{ display: 'block', padding: '10px', background: '#3b82f6', color: '#fff', textAlign: 'center', borderRadius: '10px', fontWeight: '800', textDecoration: 'none', fontSize: '13px' }}>📞 חיוג לשגרירות: +39 06 361981</a>
+                </div>
               </div>
             )}
 
@@ -627,12 +634,12 @@ const timerPresetBtn = {
 };
 
 const emergencyBtnStyle = {
-  padding: '14px',
+  padding: '12px',
   borderRadius: '12px',
   background: '#fee2e2',
   color: '#ef4444',
   fontWeight: '800',
-  fontSize: '13px',
+  fontSize: '12px',
   textAlign: 'center',
   textDecoration: 'none',
   border: '1.5px solid #fecaca',
