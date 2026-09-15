@@ -34,7 +34,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
@@ -596,16 +596,16 @@ export default function App() {
           <div style={categoryTitleStyle('#f59e0b')}>
             <span>📍</span> סביבי (בקרבת מקום)
           </div>
-          <a href={`https://www.waze.com/ul?q=supermarket&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
+          <a href={`https://www.google.com/maps/search/?api=1&query=supermarket`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
             <span style={{ fontSize: '16px' }}>🛒</span> סופרמרקט קרוב
           </a>
-          <a href={`https://www.waze.com/ul?q=pharmacy&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
+          <a href={`https://www.google.com/maps/search/?api=1&query=pharmacy`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
             <span style={{ fontSize: '16px' }}>💊</span> בית מרקחת קרוב
           </a>
-          <a href={`https://www.waze.com/ul?q=gas+station&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
+          <a href={`https://www.google.com/maps/search/?api=1&query=gas+station`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
             <span style={{ fontSize: '16px' }}>⛽</span> תחנת דלק קרובה
           </a>
-          <a href={`https://www.waze.com/ul?q=gelateria&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
+          <a href={`https://www.google.com/maps/search/?api=1&query=gelateria`} target="_blank" rel="noreferrer" style={{ ...menuBtnStyle(isDark, textColor), textDecoration: 'none' }}>
             <span style={{ fontSize: '16px' }}>🍦</span> גלידריה או בית קפה
           </a>
         </div>
@@ -688,7 +688,7 @@ export default function App() {
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' ? '16px' : '24px', borderRadius: modalType === 'radar' ? 0 : '24px', width: modalType === 'radar' ? '100vw' : '100%', height: modalType === 'radar' ? '100vh' : 'auto', maxWidth: modalType === 'radar' ? 'none' : '450px', maxHeight: modalType === 'radar' ? 'none' : '85vh', overflowY: 'auto', border: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
             
-            {/* Modal Header with Metallic Silver Close Button (X) */}
+            {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: modalType === 'trivia' ? '12px' : '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', flexShrink: 0 }}>
               <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
               
