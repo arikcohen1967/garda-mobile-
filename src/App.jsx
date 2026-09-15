@@ -129,7 +129,7 @@ const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-      <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: ${isDark ? '#0f172a' : '#f8fafc'}; } #map { width: 100%; height: 100%; }</style>
+      <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0f172a' : '#f8fafc'}; } #map { width: 100%; height: 100%; }</style>
     </head>
     <body>
       <div id="map"></div>
@@ -533,7 +533,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: 'system-ui, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
+    <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
       {/* GLOBAL HALF-SCREEN RED SOS EMERGENCY BANNER */}
       {activeSosAlert && (
