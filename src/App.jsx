@@ -406,14 +406,16 @@ export default function App() {
         </div>
       )}
 
-      {/* Slide-out Menu Drawer (Professional & Polished) */}
+      {/* Slide-out Menu Drawer (Polished & Highlighted Sections) */}
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 2500, backdropFilter: 'blur(6px)', transition: 'opacity 0.3s ease' }} />}
-      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '310px', background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-10px 0 30px rgba(0,0,0,0.6)' : '-10px 0 30px rgba(0,0,0,0.1)' }}>
+      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(15, 23, 42, 0.97)' : 'rgba(255, 255, 255, 0.97)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '18px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-10px 0 30px rgba(0,0,0,0.6)' : '-10px 0 30px rgba(0,0,0,0.1)' }}>
         
         {/* Sidebar Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '20px' }}>🇮🇹</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>
+              🇮🇹
+            </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900', letterSpacing: '-0.01em' }}>תפריט הטיול</h3>
               <span style={{ fontSize: '11px', color: textSub, fontWeight: '700' }}>גארדה ואזור הטיול</span>
@@ -428,9 +430,11 @@ export default function App() {
           <span style={{ fontSize: '16px' }}>{isDark ? '🌙' : '☀️'}</span>
         </button>
 
-        {/* Navigation Group */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '800', color: '#3b82f6', paddingRight: '4px', marginBottom: '2px' }}>ניווט ראשי</span>
+        {/* Navigation Group with Highlight */}
+        <div style={categoryGroupStyle(isDark, borderColor)}>
+          <div style={categoryTitleStyle('#3b82f6')}>
+            <span>📍</span> ניווט ראשי
+          </div>
           <button onClick={() => { setSidebarOpen(false); setModalType(null); }} style={menuBtnStyle(isDark, textColor)}>
             <span style={{ fontSize: '16px' }}>📅</span> מסלול ימי הטיול
           </button>
@@ -439,9 +443,11 @@ export default function App() {
           </button>
         </div>
 
-        {/* Tools & Utilities Group */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '800', color: '#3b82f6', paddingRight: '4px', marginBottom: '2px' }}>כלים ושימושי</span>
+        {/* Tools & Utilities Group with Highlight */}
+        <div style={categoryGroupStyle(isDark, borderColor)}>
+          <div style={categoryTitleStyle('#10b981')}>
+            <span>⚡</span> כלים ושימושי
+          </div>
           <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={menuBtnStyle(isDark, textColor)}>
             <span style={{ fontSize: '16px' }}>⏱️</span> טיימר משפחתי
           </button>
@@ -457,8 +463,8 @@ export default function App() {
         </div>
 
         {/* Emergency & Support Group */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'auto', paddingTop: '10px', borderTop: `1px solid ${borderColor}` }}>
-          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...menuBtnStyle(isDark, textColor), background: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fee2e2', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'auto', paddingTop: '12px', borderTop: `1px solid ${borderColor}` }}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...menuBtnStyle(isDark, textColor), background: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fee2e2', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
             <span style={{ fontSize: '16px' }}>🆘</span> מספרי חירום ושגרירות
           </button>
         </div>
@@ -637,12 +643,34 @@ const uniformHeaderBtnStyle = (isDark, cardBg, textColor, borderColor) => ({
   whiteSpace: 'nowrap'
 });
 
+const categoryGroupStyle = (isDark, borderColor) => ({
+  background: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.015)',
+  border: `1px solid ${borderColor}`,
+  borderRadius: '16px',
+  padding: '10px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '6px'
+});
+
+const categoryTitleStyle = (accentColor) => ({
+  fontSize: '11px',
+  fontWeight: '900',
+  color: accentColor,
+  paddingRight: '6px',
+  marginBottom: '2px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '6px',
+  letterSpacing: '0.02em'
+});
+
 const menuBtnStyle = (isDark, textColor) => ({
-  background: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+  background: 'transparent',
   border: 'none',
   color: textColor,
-  padding: '12px 14px',
-  borderRadius: '12px',
+  padding: '10px 12px',
+  borderRadius: '10px',
   textAlign: 'right',
   fontWeight: '700',
   fontSize: '13px',
@@ -651,7 +679,7 @@ const menuBtnStyle = (isDark, textColor) => ({
   alignItems: 'center',
   gap: '10px',
   width: '100%',
-  transition: 'background 0.2s ease, transform 0.1s ease'
+  transition: 'all 0.2s ease'
 });
 
 const timerPresetBtn = {
