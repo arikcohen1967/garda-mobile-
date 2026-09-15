@@ -164,7 +164,42 @@ export default function App() {
   const [parkingNote, setParkingNote] = useState('');
   const [savedParking, setSavedParking] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [currentWeather, setCurrentWeather] = useState({ temp: '24°C', condition: '☀️ שמש' });
+  
+  // Real-time IOS connected weather state
+  const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
+
+  // Fetch real weather using Open-Meteo API based on device GPS location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+            const data = await res.json();
+            if (data && data.current_weather) {
+              const tempVal = Math.round(data.current_weather.temperature);
+              const code = data.current_weather.weathercode;
+              let condIcon = '☀️ שמש';
+              if (code >= 1 && code <= 3) condIcon = '🌤️ מעונן חלקית';
+              else if (code >= 51 && code <= 67) condIcon = '🌧️ גשם';
+              else if (code >= 71 && code <= 77) condIcon = '❄️ שלג';
+              else if (code >= 95) condIcon = '⛈️ סערה';
+
+              setCurrentWeather({ temp: `${tempVal}°C`, condition: condIcon });
+            }
+          } catch (e) {
+            setCurrentWeather({ temp: '24°C', condition: '☀️ שמש' });
+          }
+        },
+        () => {
+          // Fallback if permission denied
+          setCurrentWeather({ temp: '25°C', condition: '☀️ שמש נעימה' });
+        }
+      );
+    }
+  }, []);
 
   // Trivia states with persistence and 45s timer
   const [triviaIndex, setTriviaIndex] = useState(() => {
@@ -189,7 +224,7 @@ export default function App() {
     } catch (e) {}
   }, [triviaIndex, travelerIndex, travelerScores]);
 
-  // 45 seconds per question countdown effect (paused correctly without resetting)
+  // 45 seconds per question countdown effect
   useEffect(() => {
     if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
 
@@ -219,12 +254,6 @@ export default function App() {
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(() => {
-        setCurrentWeather({ temp: '25°C', condition: '🌤️ שמש נעימה' });
-      }, () => {});
-    }
 
     const channel = supabase.channel('family_trip_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
@@ -440,10 +469,10 @@ export default function App() {
           </div>
         </div>
 
-        {/* Uniform Sized Header Buttons */}
+        {/* Uniform Sized Header Buttons - Weather Connected to iOS Location */}
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-          <div style={uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor)}>
-            <span>🌤️</span>
+          <div style={uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor)} title="מזג אוויר מותאם לפי מיקום המכשיר">
+            <span>{currentWeather.condition.split(' ')[0]}</span>
             <span>{currentWeather.temp}</span>
           </div>
 
