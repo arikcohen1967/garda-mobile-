@@ -742,7 +742,7 @@ export default function App() {
       {/* Modals */}
       {modalType && (
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '18px', borderRadius: modalType === 'radar' || modalType === 'around-me' ? 0 : '24px', width: modalType === 'radar' || modalType === 'around-me' ? '100vw' : '90%', height: modalType === 'radar' || modalType === 'around-me' ? '100vh' : 'auto', maxWidth: modalType === 'radar' || modalType === 'around-me' ? 'none' : '400px', maxHeight: modalType === 'radar' || modalType === 'around-me' ? '100vh' : '75vh', overflowY: 'auto', border: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: modalType === 'radar' || modalType === 'around-me' ? 0 : '12px', position: 'relative' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '18px', borderRadius: modalType === 'radar' || modalType === 'around-me' ? 0 : '24px', width: modalType === 'radar' || modalType === 'around-me' ? '100vw' : '90%', height: modalType === 'radar' || modalType === 'around-me' ? '100vh' : 'auto', maxWidth: modalType === 'radar' || modalType === 'around-me' ? 'none' : '400px', maxHeight: modalType === 'radar' || modalType === 'around-me' ? '100vh' : '70vh', overflowY: 'auto', border: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: modalType === 'radar' || modalType === 'around-me' ? 0 : '12px', position: 'relative' }}>
             
             {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, padding: modalType === 'radar' || modalType === 'around-me' ? '14px 16px' : '0 0 8px 0', flexShrink: 0, position: modalType === 'radar' || modalType === 'around-me' ? 'absolute' : 'relative', top: 0, left: 0, right: 0, zIndex: 10, background: modalType === 'radar' || modalType === 'around-me' ? (isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)') : 'transparent', backdropFilter: modalType === 'radar' || modalType === 'around-me' ? 'blur(10px)' : 'none' }}>
@@ -777,7 +777,7 @@ export default function App() {
                     חפש
                   </a>
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: cardBg, border: `1.5px solid ${borderColor}`, borderRadius: '16px', padding: '0 14px', boxShadow: cardShadow }}>
-                    <input type="text" placeholder="הקלד או חפש כל דבר (לדוגמה: ...)" value={aroundMeQuery} onChange={e => setAroundMeQuery(e.target.value)} style={{ width: '100%', padding: '14px 0', border: 'none', background: 'transparent', color: textColor, outline: 'none', fontSize: '13px', fontWeight: '800' }} />
+                    <input type="text" placeholder="הקלד או חפש כל דבר (לדוגמה: ...)" value={aroundMeQuery} onChange={e => setAroundMeQuery(e.target.value)} style={{ width: '100%', padding: '14px 0', border: 'none', background: 'transparent', color: textColor, outline: 'none', fontSize: '16px', fontWeight: '800' }} />
                     <span style={{ fontSize: '18px', cursor: 'pointer' }}>🎙️</span>
                   </div>
                 </div>
@@ -864,7 +864,7 @@ export default function App() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
-                  <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="הקלד דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, minWidth: 0, padding: '10px 12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="הקלד דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, minWidth: 0, padding: '10px 12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} />
                   <button onClick={() => startTimer(customTimerMinutes)} style={{ padding: '10px 16px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>הפעל</button>
                 </div>
 
@@ -1018,7 +1018,7 @@ export default function App() {
 
                 <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '20px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <span style={{ fontSize: '12px', fontWeight: '800', color: textSub, textAlign: 'center' }}>תיאור מקום החניה / קומה / עמוד:</span>
-                  <input type="text" placeholder="לדוגמה: קומה 2, עמוד 14B..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, outline: 'none', boxSizing: 'border-box' }} />
+                  <input type="text" placeholder="לדוגמה: קומה 2, עמוד 14B..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} />
                   <button onClick={() => alert('📷 מצלמה נפתחת לצילום עמוד החניה!')} style={{ width: '100%', padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1px solid ${borderColor}`, borderRadius: '12px', fontWeight: '800', cursor: 'pointer', textAlign: 'center' }}>
                     📸 צלם תמונה של עמוד החניה
                   </button>
