@@ -1082,7 +1082,7 @@ const menuBtnStyle = (isDark, textColor) => ({
   gap: '10px',
   width: '100%',
   transition: 'all 0.2s ease'
-};
+});
 
 const timerPresetBtn = {
   padding: '16px',
