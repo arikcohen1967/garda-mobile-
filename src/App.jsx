@@ -173,6 +173,31 @@ export default function App() {
   const [savedParking, setSavedParking] = useState(null);
   const [parkingNote, setParkingNote] = useState('');
 
+  // Online / Offline Status State
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  // Weather GPS State
+  const [currentWeather, setCurrentWeather] = useState({ temp: '24°C', condition: '☀️ שמש נעימה' });
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Fetch GPS Weather simulation based on geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(() => {
+        setCurrentWeather({ temp: '25°C', condition: '🌤️ מעונן חלקית / שמש' });
+      }, () => {});
+    }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const [triviaQuestions] = useState(() => generate1000TriviaQuestions());
   const [triviaIndex, setTriviaIndex] = useState(0);
   const [travelerIndex, setTravelerIndex] = useState(0);
@@ -259,18 +284,40 @@ export default function App() {
   return (
     <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: 'system-ui, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
-      {/* Top Header Bar */}
-      <header style={{ background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '14px 20px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: 'none', width: '40px', height: '40px', borderRadius: '12px', fontSize: '20px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          ☰
-        </button>
+      {/* Top Header Bar with Version & Uniform Buttons */}
+      <header style={{ background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '12px 16px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: 'none', width: '38px', height: '38px', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0' }}>
+            ☰
+          </button>
+          
+          {/* Version badge */}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '10px', fontWeight: '800', color: textSub }}>גרסה 2.6</span>
+            <span style={{ fontSize: '12px', fontWeight: '900', color: isOnline ? '#22c55e' : '#f59e0b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#22c55e' : '#f59e0b', display: 'inline-block' }}></span>
+              {isOnline ? 'Online' : 'Offline'}
+            </span>
+          </div>
+        </div>
 
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#33ccff', color: '#000', padding: '10px 14px', borderRadius: '12px', textDecoration: 'none', fontWeight: '800', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(51,204,255,0.3)' }}>
+        {/* Uniform Sized Header Buttons */}
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          
+          {/* Weather GPS Button */}
+          <div style={uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor)}>
+            <span>🌤️</span>
+            <span>{currentWeather.temp}</span>
+          </div>
+
+          {/* Hotel Waze Button */}
+          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor), textDecoration: 'none', background: '#33ccff', color: '#000', borderColor: '#33ccff' }}>
             {WAZE_SVG} למלון
           </a>
           
-          <button onClick={triggerSos} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '10px 14px', borderRadius: '12px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}>
+          {/* SOS Button */}
+          <button onClick={triggerSos} style={{ ...uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor), background: '#ef4444', color: '#fff', borderColor: '#ef4444', border: 'none', cursor: 'pointer' }}>
             🚨 SOS
           </button>
         </div>
@@ -454,6 +501,24 @@ export default function App() {
     </div>
   );
 }
+
+const uniformHeaderBtnStyle = (isDark, cardBg, textColor, borderColor) => ({
+  height: '38px',
+  padding: '0 10px',
+  borderRadius: '12px',
+  background: cardBg,
+  color: textColor,
+  border: `1px solid ${borderColor}`,
+  fontWeight: '800',
+  fontSize: '12px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '5px',
+  boxSizing: 'border-box',
+  cursor: 'pointer',
+  whiteSpace: 'nowrap'
+});
 
 const menuBtnStyle = {
   background: 'transparent',
