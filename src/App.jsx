@@ -34,7 +34,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
@@ -194,14 +194,13 @@ export default function App() {
           }
         },
         () => {
-          // Fallback if permission denied
           setCurrentWeather({ temp: '25°C', condition: '☀️ שמש נעימה' });
         }
       );
     }
   }, []);
 
-  // Trivia states with persistence and 45s timer
+  // Trivia states with persistence and 45s timer (defaults to paused on reset/new game)
   const [triviaIndex, setTriviaIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
@@ -212,7 +211,7 @@ export default function App() {
   const [travelerScores, setTravelerScores] = useState(() => {
     try { const saved = localStorage.getItem('garda-traveler-scores'); return saved ? JSON.parse(saved) : { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; } catch (e) { return { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; }
   });
-  const [isTriviaPaused, setIsTriviaPaused] = useState(false);
+  const [isTriviaPaused, setIsTriviaPaused] = useState(true); // מתחיל מושהה כברירת מחדל עד לחיצה על המשך
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [questionTimeLeft, setQuestionTimeLeft] = useState(45);
 
@@ -413,9 +412,9 @@ export default function App() {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(false);
+      setIsTriviaPaused(true); // מאפס ומשהה מיד כדי לא להריץ את הזמן אוטומטית
       setQuestionTimeLeft(45);
-      alert("🔄 המשחק אותחל בהצלחה על ידי המנהל!");
+      alert("🔄 המשחק אותחל בהצלחה על ידי המנהל (מושהה עד ללחיצה על המשך)!");
     } else if (adminPassword !== null) {
       alert("❌ סיסמה שגויה!");
     }
@@ -426,7 +425,7 @@ export default function App() {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(false);
+      setIsTriviaPaused(true); // משחק חדש מתחיל במצב מושהה
       setQuestionTimeLeft(45);
     }
   };
