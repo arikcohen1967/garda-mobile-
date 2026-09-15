@@ -662,7 +662,7 @@ export default function App() {
             <span>📍</span> סביבי (בקרבת מקום)
           </div>
           <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={menuBtnStyle(isDark, textColor)}>
-            <span style={{ fontSize: '16px' }}>📍</span> חפש סביבי (Around Me)
+            <span style={{ fontSize: '16px' }}>📍</span> סביבי (Around Me)
           </button>
         </div>
 
@@ -724,7 +724,7 @@ export default function App() {
             {day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={{ background: isDark ? 'rgba(15, 23, 42, 0.4)' : '#f8fafc', borderRadius: '16px', padding: '16px', border: `1px solid ${borderColor}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800'}>{stop.name}</h4>
+                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800' }}>{stop.name}</h4>
                   <span style={{ fontSize: '11px', fontWeight: '800', color: textSub, background: isDark ? '#1e293b' : '#e2e8f0', padding: '4px 8px', borderRadius: '8px' }}>{stop.time}</span>
                 </div>
                 <p style={{ margin: '0 0 12px', fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{stop.note}</p>
@@ -741,15 +741,26 @@ export default function App() {
 
       {/* Modals */}
       {modalType && (
-        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
+        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '18px', borderRadius: modalType === 'radar' || modalType === 'around-me' ? 0 : '24px', width: modalType === 'radar' || modalType === 'around-me' ? '100vw' : '100%', height: modalType === 'radar' || modalType === 'around-me' ? '100vh' : 'auto', maxWidth: modalType === 'radar' || modalType === 'around-me' ? 'none' : '440px', maxHeight: modalType === 'radar' || modalType === 'around-me' ? 'none' : '96vh', overflowY: 'auto', border: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: modalType === 'radar' || modalType === 'around-me' ? 0 : '10px' }}>
             
             {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, padding: modalType === 'radar' || modalType === 'around-me' ? '14px 16px' : '0 0 8px 0', flexShrink: 0, position: modalType === 'radar' || modalType === 'around-me' ? 'absolute' : 'relative', top: 0, left: 0, right: 0, zIndex: 10, background: modalType === 'radar' || modalType === 'around-me' ? (isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)') : 'transparent', backdropFilter: modalType === 'radar' || modalType === 'around-me' ? 'blur(10px)' : 'none' }}>
               <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '32px', height: '32px', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
               
+              {modalType === 'trivia' ? (
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
+                  </button>
+                  <button onClick={handleAdminReset} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    🔒 איפוס
+                  </button>
+                </div>
+              ) : null}
+
               <h2 style={{ margin: 0, fontSize: '17px', fontWeight: '900' }}>
-                {modalType === 'radar' && '📡 רדאר משפחתי חי'}
+                {modalType === 'radar' && '📡 רדאר משפחתי חי ומופת האגם'}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 שמירת מיקום רכב חכם'}
@@ -760,42 +771,42 @@ export default function App() {
             </div>
 
             {modalType === 'around-me' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '70px 16px 20px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px' }}>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(aroundMeQuery || 'supermarket')}`} target="_blank" rel="noreferrer" style={{ padding: '12px 20px', background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, borderRadius: '14px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', textAlign: 'center', flexShrink: 0 }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '75px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(aroundMeQuery || 'supermarket')}`} target="_blank" rel="noreferrer" style={{ padding: '14px 24px', background: accentGradient, color: '#fff', borderRadius: '16px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', textAlign: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>
                     חפש
                   </a>
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: isDark ? '#1e293b' : '#fff', border: `1px solid ${borderColor}`, borderRadius: '14px', padding: '0 12px' }}>
-                    <input type="text" placeholder="הקלד או חפש כל דבר (לדוגמה: מסעדה...)" value={aroundMeQuery} onChange={e => setAroundMeQuery(e.target.value)} style={{ width: '100%', padding: '12px 0', border: 'none', background: 'transparent', color: textColor, outline: 'none', fontSize: '13px', fontWeight: '800' }} />
-                    <span style={{ fontSize: '16px', cursor: 'pointer' }}>🎙️</span>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: cardBg, border: `1.5px solid ${borderColor}`, borderRadius: '16px', padding: '0 14px', boxShadow: cardShadow }}>
+                    <input type="text" placeholder="הקלד או חפש כל דבר (לדוגמה: ...)" value={aroundMeQuery} onChange={e => setAroundMeQuery(e.target.value)} style={{ width: '100%', padding: '14px 0', border: 'none', background: 'transparent', color: textColor, outline: 'none', fontSize: '13px', fontWeight: '800' }} />
+                    <span style={{ fontSize: '18px', cursor: 'pointer' }}>🎙️</span>
                   </div>
                 </div>
 
-                <p style={{ fontSize: '12px', fontWeight: '800', color: textSub, margin: '4px 0 0' }}>או בחר קטגוריה מהירה לחיפוש במפה:</p>
+                <p style={{ fontSize: '13px', fontWeight: '800', color: textSub, margin: '4px 0 0' }}>או בחר קטגוריה מהירה לחיפוש במפה:</p>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <a href="https://www.google.com/maps/search/?api=1&query=Autogrill" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1px solid ${borderColor}`, padding: '16px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: '#d97706', fontWeight: '900', fontSize: '15px', boxShadow: cardShadow }}>
-                    ☕ עצירת דרך / Autogrill & שירותים
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <a href="https://www.google.com/maps/search/?api=1&query=Autogrill" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1.5px solid ${borderColor}`, padding: '18px', borderRadius: '20px', textAlign: 'center', textDecoration: 'none', color: '#d97706', fontWeight: '900', fontSize: '15px', boxShadow: cardShadow, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <span>☕</span> עצרת דרך / Autogrill & שירותים
                   </a>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                    <a href="https://www.google.com/maps/search/?api=1&query=pharmacy" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1px solid ${borderColor}`, padding: '16px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '14px', boxShadow: cardShadow }}>
-                      💊 פארם
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <a href="https://www.google.com/maps/search/?api=1&query=pharmacy" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '20px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: cardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '22px' }}>💊</span> פארם
                     </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=gas+station" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1px solid ${borderColor}`, padding: '16px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '14px', boxShadow: cardShadow }}>
-                      ⛽ תחנת דלק
+                    <a href="https://www.google.com/maps/search/?api=1&query=gas+station" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '20px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: cardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '22px' }}>⛽</span> תחנת דלק
                     </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=gelateria" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1px solid ${borderColor}`, padding: '16px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '14px', boxShadow: cardShadow }}>
-                      🍦 גלידריה
+                    <a href="https://www.google.com/maps/search/?api=1&query=gelateria" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '20px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: cardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '22px' }}>🍦</span> גלידריה
                     </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=pizza" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1px solid ${borderColor}`, padding: '16px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '14px', boxShadow: cardShadow }}>
-                      🍕 פיצה
+                    <a href="https://www.google.com/maps/search/?api=1&query=pizza" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '20px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: cardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '22px' }}>🍕</span> פיצה
                     </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=restaurant" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1px solid ${borderColor}`, padding: '16px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '14px', boxShadow: cardShadow }}>
-                      🍲 מסעדות
+                    <a href="https://www.google.com/maps/search/?api=1&query=restaurant" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '20px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: cardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '22px' }}>🍲</span> מסעדות
                     </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=supermarket" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1px solid ${borderColor}`, padding: '16px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '14px', boxShadow: cardShadow }}>
-                      🛒 סופרמרקט
+                    <a href="https://www.google.com/maps/search/?api=1&query=supermarket" target="_blank" rel="noreferrer" style={{ background: cardBg, border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '20px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: cardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '22px' }}>🛒</span> סופרמרקט
                     </a>
                   </div>
                 </div>
