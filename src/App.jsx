@@ -170,7 +170,7 @@ export default function App() {
     'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו' }
   });
   const [activeSosAlert, setActiveSosAlert] = useState(null);
-  const [activeSoundAlert, setActiveSoundAlert] = useState(null); // State for incoming sound & message alert
+  const [activeSoundAlert, setActiveSoundAlert] = useState(null);
   
   const [activeTimer, setActiveTimer] = useState(null);
   const [customTimerMinutes, setCustomTimerMinutes] = useState('10');
@@ -260,10 +260,9 @@ export default function App() {
   const audioCtxRef = useRef(null);
   const alarmIntervalRef = useRef(null);
 
-  // Extended long alert chime and message sender
   const sendSoundAlert = async (targetName) => {
     const customMsg = prompt(`שלח הודעה וצליל אל ${targetName}:`, "נא להגיע אל נקודת המפגש!");
-    if (customMsg === null) return; // Cancelled
+    if (customMsg === null) return;
 
     playLongChime();
 
@@ -289,8 +288,7 @@ export default function App() {
       const ctx = audioCtxRef.current;
       if (ctx.state === 'suspended') ctx.resume();
 
-      // Play a sequence of 3 melodious chimes
-      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      const notes = [523.25, 659.25, 783.99, 1046.50];
       notes.forEach((freq, idx) => {
         setTimeout(() => {
           try {
@@ -730,11 +728,11 @@ export default function App() {
 
       {/* Modals */}
       {modalType && (
-        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? '8px' : '16px', backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '18px', borderRadius: '24px', width: '100%', maxWidth: '440px', maxHeight: '96vh', overflowY: 'auto', border: `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' ? 0 : '18px', borderRadius: modalType === 'radar' ? 0 : '24px', width: modalType === 'radar' ? '100vw' : '100%', height: modalType === 'radar' ? '100vh' : 'auto', maxWidth: modalType === 'radar' ? 'none' : '440px', maxHeight: modalType === 'radar' ? 'none' : '96vh', overflowY: 'auto', border: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: modalType === 'radar' ? 0 : '10px' }}>
             
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '8px', flexShrink: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, padding: modalType === 'radar' ? '14px 16px' : '0 0 8px 0', flexShrink: 0, position: modalType === 'radar' ? 'absolute' : 'relative', top: 0, left: 0, right: 0, zIndex: 10, background: modalType === 'radar' ? (isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)') : 'transparent', backdropFilter: modalType === 'radar' ? 'blur(10px)' : 'none' }}>
               <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '32px', height: '32px', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
               
               {modalType === 'trivia' ? (
@@ -759,39 +757,41 @@ export default function App() {
             </div>
 
             {modalType === 'radar' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {/* BIG EXPANDED MAP PULLED UPWARD */}
-                <div style={{ width: '100%', height: '380px', borderRadius: '16px', overflow: 'hidden', border: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', position: 'relative', boxSizing: 'border-box' }}>
+                {/* EDGE-TO-EDGE FULL SCREEN MAP */}
+                <div style={{ width: '100%', flex: 1, minHeight: '65vh', overflow: 'hidden', boxSizing: 'border-box' }}>
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
-                {/* Compact Family Members List */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '120px', overflowY: 'auto', paddingRight: '2px', paddingLeft: '2px' }}>
+                {/* BOTTOM FLOATING PANEL FOR FAMILY & CONTROLS */}
+                <div style={{ background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(15px)', padding: '12px 16px 20px', borderTop: `1px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box' }}>
                   <span style={{ fontSize: '11px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
-                  {Object.values(familyLocations).map((person, pIdx) => (
-                    <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(15, 23, 42, 0.5)' : '#f8fafc', padding: '6px 10px', borderRadius: '10px', border: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontSize: '13px' }}>👤</span>
-                        <div>
-                          <div style={{ fontSize: '11px', fontWeight: '900', color: textColor }}>{person.name}</div>
-                          <div style={{ fontSize: '8px', color: textSub }}>עודכן: {person.updated_at || 'עכשיו'}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '130px', overflowY: 'auto' }}>
+                    {Object.values(familyLocations).map((person, pIdx) => (
+                      <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#f8fafc', padding: '6px 10px', borderRadius: '10px', border: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '13px' }}>👤</span>
+                          <div>
+                            <div style={{ fontSize: '11px', fontWeight: '900', color: textColor }}>{person.name}</div>
+                            <div style={{ fontSize: '8px', color: textSub }}>עודכן: {person.updated_at || 'עכשיו'}</div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, padding: '4px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: '800', cursor: 'pointer' }}>
+                            🔔 צליל
+                          </button>
+                          <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '10px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                            Directions 🧭
+                          </a>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '4px' }}>
-                        <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, padding: '3px 6px', borderRadius: '6px', fontSize: '9px', fontWeight: '800', cursor: 'pointer' }}>
-                          🔔 צליל
-                        </button>
-                        <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '3px 8px', borderRadius: '6px', fontSize: '9px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                          Directions 🧭
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
 
-                <div style={{ display: 'flex', gap: '8px', marginTop: '2px' }}>
-                  <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ flex: 1, padding: '10px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>📍 עדכן מיקום יום</button>
-                  <button onClick={() => alert('🔄 המיקומים עודכנו בהצלחה!')} style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: `1px solid ${borderColor}`, borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן מיקומים</button>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ flex: 1, padding: '10px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>📍 עדכן מיקום יום</button>
+                    <button onClick={() => alert('🔄 המיקומים עודכנו בהצלחה!')} style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: `1px solid ${borderColor}`, borderRadius: '10px', fontWeight: '800', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן מיקומים</button>
+                  </div>
                 </div>
               </div>
             )}
