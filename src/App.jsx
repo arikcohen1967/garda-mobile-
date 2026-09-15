@@ -34,7 +34,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
@@ -683,17 +683,17 @@ export default function App() {
 
       </main>
 
-      {/* Modals */}
+      {/* Modals with Clean Spacing & Margins */}
       {modalType && (
-        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' ? '16px' : '24px', borderRadius: modalType === 'radar' ? 0 : '24px', width: modalType === 'radar' ? '100vw' : '100%', height: modalType === 'radar' ? '100vh' : 'auto', maxWidth: modalType === 'radar' ? 'none' : '450px', maxHeight: modalType === 'radar' ? 'none' : '85vh', overflowY: 'auto', border: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
+        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? '12px' : '16px', backdropFilter: 'blur(10px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '24px', borderRadius: '24px', width: '100%', maxWidth: '450px', maxHeight: '90vh', overflowY: 'auto', border: `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: modalType === 'trivia' ? '12px' : '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', flexShrink: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', flexShrink: 0 }}>
               <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
               
               {modalType === 'trivia' ? (
-                <div style={{ display: 'flex', gap: '6px' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
                   <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
                     {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
                   </button>
@@ -714,15 +714,15 @@ export default function App() {
             </div>
 
             {modalType === 'radar' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div style={{ flex: 1, width: '100%', minHeight: '260px', borderRadius: '16px', overflow: 'hidden', border: `1px solid ${borderColor}` }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ width: '100%', height: '220px', borderRadius: '16px', overflow: 'hidden', border: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '2px', paddingLeft: '2px' }}>
                   <span style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
                   {Object.values(familyLocations).map((person, pIdx) => (
-                    <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(15, 23, 42, 0.5)' : '#f8fafc', padding: '10px 14px', borderRadius: '14px', border: `1px solid ${borderColor}` }}>
+                    <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(15, 23, 42, 0.5)' : '#f8fafc', padding: '12px 14px', borderRadius: '14px', border: `1px solid ${borderColor}`, boxSizing: 'border-box' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '16px' }}>👤</span>
                         <div>
@@ -742,7 +742,7 @@ export default function App() {
                   ))}
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                   <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ flex: 1, padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>📍 עדכן מיקום יום</button>
                   <button onClick={() => alert('🔄 המיקומים עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: `1px solid ${borderColor}`, borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>🔄 רענן מיקומים</button>
                 </div>
@@ -750,26 +750,26 @@ export default function App() {
             )}
 
             {modalType === 'timer' && (
-              <div>
-                <p style={{ fontSize: '13px', color: textSub, marginBottom: '14px' }}>בחר מצב זמן מהיר או הזן זמן משלך:</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <p style={{ fontSize: '13px', color: textSub, margin: 0 }}>בחר מצב זמן מהיר או הזן זמן משלך:</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                   <button onClick={() => startTimer(5)} style={timerPresetBtn}>⚡ 5 דקות</button>
                   <button onClick={() => startTimer(10)} style={timerPresetBtn}>☕ 10 דקות</button>
                   <button onClick={() => startTimer(15)} style={timerPresetBtn}>🍕 15 דקות</button>
                   <button onClick={() => startTimer(30)} style={timerPresetBtn}>⏳ 30 דקות</button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input type="number" placeholder="דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none' }} />
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                  <input type="number" placeholder="דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none', boxSizing: 'border-box' }} />
                   <button onClick={() => startTimer(customTimerMinutes)} style={{ padding: '12px 18px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>הפעל מותאם</button>
                 </div>
 
                 {activeTimer && (
-                  <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
-                    <button onClick={stopTimer} style={{ flex: 1, padding: '10px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>
+                  <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                    <button onClick={stopTimer} style={{ flex: 1, padding: '12px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>
                       {isTimerPaused ? '▶️ המשך טיימר' : '⏸️ עצור טיימר'}
                     </button>
-                    <button onClick={resetTimer} style={{ flex: 1, padding: '10px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>
+                    <button onClick={resetTimer} style={{ flex: 1, padding: '12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>
                       🔄 איפוס טיימר
                     </button>
                   </div>
@@ -796,10 +796,10 @@ export default function App() {
 
                 {/* Turn Info & New Game Button */}
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <div style={{ flex: 1, height: '44px', background: isDark ? '#1e293b' : '#f8fafc', padding: '0 14px', borderRadius: '14px', border: `1px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor }}>
+                  <div style={{ flex: 1, height: '46px', background: isDark ? '#1e293b' : '#f8fafc', padding: '0 14px', borderRadius: '14px', border: `1px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor, boxSizing: 'border-box' }}>
                     <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
                   </div>
-                  <button onClick={handleNewGame} style={{ flex: 1, height: '44px', background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: `1px solid ${borderColor}`, padding: '0 14px', borderRadius: '14px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <button onClick={handleNewGame} style={{ flex: 1, height: '46px', background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: `1px solid ${borderColor}`, padding: '0 14px', borderRadius: '14px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
                     משחק חדש
                   </button>
                 </div>
@@ -809,7 +809,7 @@ export default function App() {
                   {travelers.map((t, tIdx) => {
                     const isCurrent = tIdx === travelerIndex;
                     return (
-                      <div key={tIdx} style={{ background: isCurrent ? (isDark ? '#334155' : '#cbd5e1') : (isDark ? '#1e293b' : '#fff'), color: textColor, padding: '10px 4px', borderRadius: '12px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#64748b' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(0,0,0,0.1)' : 'none' }}>
+                      <div key={tIdx} style={{ background: isCurrent ? (isDark ? '#334155' : '#cbd5e1') : (isDark ? '#1e293b' : '#fff'), color: textColor, padding: '10px 4px', borderRadius: '12px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#64748b' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(0,0,0,0.1)' : 'none', boxSizing: 'border-box' }}>
                         <div style={{ fontSize: '12px', fontWeight: '900', marginBottom: '2px' }}>{t}</div>
                         <div style={{ fontSize: '11px', fontWeight: '800', color: textSub }}>{travelerScores[t] || 0} נק'</div>
                       </div>
@@ -818,7 +818,7 @@ export default function App() {
                 </div>
 
                 {/* Question Box */}
-                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(59, 130, 246, 0.2)', boxSizing: 'border-box' }}>
                   <span style={{ fontSize: '15px', fontWeight: '900', color: textColor }}>
                     (שאלה #{ (triviaIndex % ROAD_TRIVIA_QUESTIONS.length) + 1 }) {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].q}
                   </span>
@@ -839,7 +839,7 @@ export default function App() {
                       }
                     }
                     return (
-                      <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ width: '100%', height: '48px', borderRadius: '14px', background: btnBg, color: btnColor, border: `1.5px solid ${btnBorder}`, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                      <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ width: '100%', height: '48px', borderRadius: '14px', background: btnBg, color: btnColor, border: `1.5px solid ${btnBorder}`, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s ease', boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                         {opt}
                       </button>
                     );
@@ -883,9 +883,9 @@ export default function App() {
             )}
 
             {modalType === 'parking' && (
-              <div>
-                <p style={{ fontSize: '13px', color: textSub }}>שמור את מיקום הרכב כדי למצוא אותו בקלות אחר כך.</p>
-                <input type="text" placeholder="תיאור חניה..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, margin: '10px 0', boxSizing: 'border-box' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <p style={{ fontSize: '13px', color: textSub, margin: 0 }}>שמור את מיקום הרכב כדי למצוא אותו בקלות אחר כך.</p>
+                <input type="text" placeholder="תיאור חניה..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, outline: 'none', boxSizing: 'border-box' }} />
                 <button onClick={() => { navigator.geolocation.getCurrentPosition(pos => { setSavedParking({ lat: pos.coords.latitude, lng: pos.coords.longitude, note: parkingNote }); alert('החניה נשמרה!'); setModalType(null); }); }} style={{ width: '100%', padding: '12px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>📍 שמור מיקום GPS</button>
               </div>
             )}
