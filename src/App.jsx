@@ -742,7 +742,7 @@ export default function App() {
       {/* Modals */}
       {modalType && (
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '18px', borderRadius: modalType === 'radar' || modalType === 'around-me' ? 0 : '24px', width: modalType === 'radar' || modalType === 'around-me' ? '100vw' : '90%', height: modalType === 'radar' || modalType === 'around-me' ? '100vh' : 'auto', maxWidth: modalType === 'radar' || modalType === 'around-me' ? 'none' : '400px', maxHeight: modalType === 'radar' || modalType === 'around-me' ? '100vh' : '85vh', overflowY: 'auto', border: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: modalType === 'radar' || modalType === 'around-me' ? 0 : '12px', position: 'relative' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' || modalType === 'around-me' ? 0 : '18px', borderRadius: modalType === 'radar' || modalType === 'around-me' ? 0 : '24px', width: modalType === 'radar' || modalType === 'around-me' ? '100vw' : '90%', height: modalType === 'radar' || modalType === 'around-me' ? '100vh' : 'auto', maxWidth: modalType === 'radar' || modalType === 'around-me' ? 'none' : '400px', maxHeight: modalType === 'radar' || modalType === 'around-me' ? '100vh' : '75vh', overflowY: 'auto', border: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: modalType === 'radar' || modalType === 'around-me' ? 0 : '12px', position: 'relative' }}>
             
             {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: modalType === 'radar' || modalType === 'around-me' ? 'none' : `1px solid ${borderColor}`, padding: modalType === 'radar' || modalType === 'around-me' ? '14px 16px' : '0 0 8px 0', flexShrink: 0, position: modalType === 'radar' || modalType === 'around-me' ? 'absolute' : 'relative', top: 0, left: 0, right: 0, zIndex: 10, background: modalType === 'radar' || modalType === 'around-me' ? (isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)') : 'transparent', backdropFilter: modalType === 'radar' || modalType === 'around-me' ? 'blur(10px)' : 'none' }}>
@@ -854,27 +854,27 @@ export default function App() {
             )}
 
             {modalType === 'timer' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', boxSizing: 'border-box' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', boxSizing: 'border-box' }}>
                 <p style={{ fontSize: '13px', color: textSub, margin: 0 }}>בחר מצב זמן מהיר או הזן זמן משלך:</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
                   <button onClick={() => startTimer(5)} style={timerPresetBtn}>⚡ 5 דקות</button>
                   <button onClick={() => startTimer(10)} style={timerPresetBtn}>☕ 10 דקות</button>
                   <button onClick={() => startTimer(15)} style={timerPresetBtn}>🍕 15 דקות</button>
                   <button onClick={() => startTimer(30)} style={timerPresetBtn}>⏳ 30 דקות</button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px', width: '100%', boxSizing: 'border-box' }}>
-                  <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="הקלד דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }} />
-                  <button onClick={() => startTimer(customTimerMinutes)} style={{ padding: '12px 16px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>הפעל מותאם</button>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
+                  <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="הקלד דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, minWidth: 0, padding: '10px 12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <button onClick={() => startTimer(customTimerMinutes)} style={{ padding: '10px 16px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>הפעל</button>
                 </div>
 
                 {activeTimer && (
-                  <div style={{ marginTop: '8px', display: 'flex', gap: '8px', width: '100%', boxSizing: 'border-box' }}>
-                    <button onClick={stopTimer} style={{ flex: 1, padding: '12px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}>
-                      {isTimerPaused ? '▶️ המשך טיימר' : '⏸️ עצור טיימר'}
+                  <div style={{ display: 'flex', gap: '8px', width: '100%', boxSizing: 'border-box' }}>
+                    <button onClick={stopTimer} style={{ flex: 1, padding: '10px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}>
+                      {isTimerPaused ? '▶️ המשך' : '⏸️ עצור'}
                     </button>
-                    <button onClick={resetTimer} style={{ flex: 1, padding: '12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}>
-                      🔄 איפוס טיימר
+                    <button onClick={resetTimer} style={{ flex: 1, padding: '10px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}>
+                      🔄 איפוס
                     </button>
                   </div>
                 )}
