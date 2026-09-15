@@ -854,7 +854,7 @@ export default function App() {
             )}
 
             {modalType === 'timer' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', boxSizing: 'border-box' }}>
                 <p style={{ fontSize: '13px', color: textSub, margin: 0 }}>בחר מצב זמן מהיר או הזן זמן משלך:</p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                   <button onClick={() => startTimer(5)} style={timerPresetBtn}>⚡ 5 דקות</button>
@@ -863,17 +863,17 @@ export default function App() {
                   <button onClick={() => startTimer(30)} style={timerPresetBtn}>⏳ 30 דקות</button>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
-                  <input type="number" placeholder="דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none', boxSizing: 'border-box' }} />
-                  <button onClick={() => startTimer(customTimerMinutes)} style={{ padding: '12px 18px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>הפעל מותאם</button>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px', width: '100%', boxSizing: 'border-box' }}>
+                  <input type="text" inputMode="numeric" pattern="[0-9]*" placeholder="הקלד דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <button onClick={() => startTimer(customTimerMinutes)} style={{ padding: '12px 16px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>הפעל מותאם</button>
                 </div>
 
                 {activeTimer && (
-                  <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-                    <button onClick={stopTimer} style={{ flex: 1, padding: '12px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>
+                  <div style={{ marginTop: '8px', display: 'flex', gap: '8px', width: '100%', boxSizing: 'border-box' }}>
+                    <button onClick={stopTimer} style={{ flex: 1, padding: '12px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}>
                       {isTimerPaused ? '▶️ המשך טיימר' : '⏸️ עצור טיימר'}
                     </button>
-                    <button onClick={resetTimer} style={{ flex: 1, padding: '12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>
+                    <button onClick={resetTimer} style={{ flex: 1, padding: '12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '13px' }}>
                       🔄 איפוס טיימר
                     </button>
                   </div>
