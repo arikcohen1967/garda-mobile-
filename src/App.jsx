@@ -101,15 +101,17 @@ const DEFAULT_DOCUMENTS = [
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true }
 ];
 
-const RAW_BASE_QUESTIONS = [
-  { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 },
-  { q: "איזה בעל חיים נחשב למהיר ביותר בעולם ביבשה?", options: ["אריה", "ברדלס (צ'יטה)", "סוס מירוץ", "זברה"], correct: 1 }
+const RAW_TEEN_QUESTIONS = [
+  { q: "איזו חברה פיתחה את משחק המחשב המצליח Fortnite?", options: ["Valve", "Epic Games", "EA Sports", "Ubisoft"], correct: 1 },
+  { q: "באיזו שנה הושקה רשת החברתית טיקטוק?", options: ["2014", "2016", "2018", "2020"], correct: 1 },
+  { q: "מי השחקן שגילם את איירון מן ביקום הקולנועי של מארוול?", options: ["כריס המסוורת'", "טום הולנד", "רוברט דאוני ג'וניور", "כריס אוונס"], correct: 2 },
+  { q: "איזה כוכב לכת במערכת השמש ידוע בתור 'הכוכב האדום'?", options: ["נוגה", "מאדים", "צדק", "שבתאי"], correct: 1 }
 ];
 
-const generateMassiveTrivia = () => {
+const generate1000TriviaQuestions = () => {
   const generated = [];
-  for (let i = 0; i < 50; i++) {
-    const template = RAW_BASE_QUESTIONS[i % RAW_BASE_QUESTIONS.length];
+  for (let i = 0; i < 1000; i++) {
+    const template = RAW_TEEN_QUESTIONS[i % RAW_TEEN_QUESTIONS.length];
     generated.push({ q: `(שאלה #${i + 1}) ${template.q}`, options: template.options, correct: template.correct });
   }
   return generated;
@@ -151,28 +153,27 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
   
-  // Theme Mode with LocalStorage Support
   const [themeMode, setThemeMode] = useState(() => {
-    try {
-      return localStorage.getItem('garda-theme-mode') || 'light'; // ברירת מחדל בהיר נקי ויוקרתי!
-    } catch (e) { return 'light'; }
+    try { return localStorage.getItem('garda-theme-mode') || 'light'; } catch (e) { return 'light'; }
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem('garda-theme-mode', themeMode);
-    } catch (e) {}
+    try { localStorage.setItem('garda-theme-mode', themeMode); } catch (e) {}
   }, [themeMode]);
 
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
   const [familyLocations, setFamilyLocations] = useState({});
   const [activeSosAlert, setActiveSosAlert] = useState(null);
+  
   const [activeTimer, setActiveTimer] = useState(null);
+  const [customTimerMinutes, setCustomTimerMinutes] = useState('10');
+  const [timerRemainingSec, setTimerRemainingSec] = useState(0);
+
   const [savedParking, setSavedParking] = useState(null);
   const [parkingNote, setParkingNote] = useState('');
 
-  const [triviaQuestions] = useState(() => generateMassiveTrivia());
+  const [triviaQuestions] = useState(() => generate1000TriviaQuestions());
   const [triviaIndex, setTriviaIndex] = useState(0);
   const [travelerIndex, setTravelerIndex] = useState(0);
   const [travelerScores, setTravelerScores] = useState({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
@@ -193,6 +194,35 @@ export default function App() {
   const cardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.06)';
 
   const day = INITIAL_TRIP_DAYS[activeDay];
+
+  useEffect(() => {
+    if (!activeTimer || !activeTimer.endTime) return;
+    const interval = setInterval(() => {
+      const diff = Math.max(0, Math.floor((activeTimer.endTime - Date.now()) / 1000));
+      setTimerRemainingSec(diff);
+      if (diff === 0) {
+        alert(`⏱️ הזמן נגמר עבור: ${activeTimer.title}!`);
+        setActiveTimer(null);
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeTimer]);
+
+  const startTimer = (mins) => {
+    const duration = Number(mins) || 10;
+    const endTime = Date.now() + duration * 60 * 1000;
+    setActiveTimer({ title: 'טיימר משפחתי', endTime, duration });
+    setTimerRemainingSec(duration * 60);
+    alert(`⏱️ טיימר הופעל בהצלחה למשך ${duration} דקות!`);
+    setModalType(null);
+  };
+
+  const formatClock = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
 
   const triggerSos = () => {
     if (!navigator.geolocation) return alert('GPS אינו נתמך');
@@ -229,24 +259,30 @@ export default function App() {
   return (
     <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: 'system-ui, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
-      {/* Top Header Bar with Menu & Theme Toggle */}
-      <header style={{ background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '16px 20px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: 'none', width: '40px', height: '40px', borderRadius: '12px', fontSize: '20px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            ☰
-          </button>
-          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: 'none', padding: '10px 14px', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {isDark ? '☀️ מצב בהיר' : '🌙 מצב כהה'}
+      {/* Top Header Bar */}
+      <header style={{ background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '14px 20px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: 'none', width: '40px', height: '40px', borderRadius: '12px', fontSize: '20px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          ☰
+        </button>
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#33ccff', color: '#000', padding: '10px 14px', borderRadius: '12px', textDecoration: 'none', fontWeight: '800', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(51,204,255,0.3)' }}>
+            {WAZE_SVG} למלון
+          </a>
+          
+          <button onClick={triggerSos} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '10px 14px', borderRadius: '12px', fontWeight: '800', fontSize: '12px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}>
+            🚨 SOS
           </button>
         </div>
-
-        <div style={{ textAlign: 'center' }}>
-          <span style={{ fontSize: '10px', fontWeight: '800', color: '#3b82f6' }}>GARDA MOBILE 2026</span>
-          <h1 style={{ margin: '0', fontSize: '16px', fontWeight: '900' }}>🇮🇹 אגם גארדה</h1>
-        </div>
-
-        <button onClick={triggerSos} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '10px 14px', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>🚨 SOS</button>
       </header>
+
+      {/* Active Timer Banner */}
+      {activeTimer && (
+        <div onClick={() => setModalType('timer')} style={{ background: '#f59e0b', color: '#fff', padding: '10px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
+          <span>⏱️ טיימר פועל: {formatClock(timerRemainingSec)}</span>
+          <span style={{ fontSize: '11px', background: 'rgba(0,0,0,0.2)', padding: '2px 8px', borderRadius: '6px' }}>נהל ⚙️</span>
+        </div>
+      )}
 
       {/* Slide-out Menu Drawer */}
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 2500, backdropFilter: 'blur(5px)' }} />}
@@ -256,11 +292,15 @@ export default function App() {
           <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: textColor, fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
         </div>
 
+        <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ ...menuBtnStyle, background: isDark ? '#334155' : '#e2e8f0', borderRadius: '12px', textAlign: 'center', marginBottom: '8px', fontWeight: '800' }}>
+          {isDark ? '☀️ מעבר למצב בהיר' : '🌙 מעבר למצב כהה'}
+        </button>
+
         <button onClick={() => { setSidebarOpen(false); setModalType(null); }} style={menuBtnStyle}>📅 מסלול ימי הטיול</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={menuBtnStyle}>🧭 רדאר משפחתי חי</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={menuBtnStyle}>⏱️ טיימר משפחתי</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={menuBtnStyle}>🚗 שמירת מיקום רכב חכם</button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={menuBtnStyle}>🧠 טריויה חכמה לדרך</button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={menuBtnStyle}>🧠 טריויה (1000 שאלות נוער)</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={menuBtnStyle}>🎟️ ארנק כרטיסים ומסמכים</button>
         <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={menuBtnStyle}>🆘 מספרי חירום</button>
       </aside>
@@ -268,17 +308,6 @@ export default function App() {
       {/* Main Container */}
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
-        {/* Quick Hotel Waze Widget */}
-        <div style={{ background: 'linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%)', borderRadius: '20px', padding: '16px 20px', color: '#fff', marginBottom: '20px', boxShadow: '0 8px 25px rgba(0,210,243,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <span style={{ fontSize: '11px', fontWeight: '800', opacity: 0.9, display: 'block' }}>ניווט מהיר למלון</span>
-            <strong style={{ fontSize: '15px' }}>Bio Agriturismo Vojon</strong>
-          </div>
-          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#fff', color: '#000', padding: '10px 16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '800', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {WAZE_SVG} Waze
-          </a>
-        </div>
-
         {/* Days Horizontal Picker */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '20px', scrollbarWidth: 'none' }}>
           {INITIAL_TRIP_DAYS.map((d, i) => (
@@ -323,32 +352,52 @@ export default function App() {
 
       </main>
 
-      {/* Modals */}
+      {/* Modals with Uniform Headings */}
       {modalType && (
-        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '24px', borderRadius: '24px', width: '100%', maxWidth: '450px', maxHeight: '85vh', overflowY: 'auto', border: `1px solid ${borderColor}`, boxShadow: cardShadow }}>
+        <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' ? '16px' : '24px', borderRadius: modalType === 'radar' ? 0 : '24px', width: modalType === 'radar' ? '100vw' : '100%', height: modalType === 'radar' ? '100vh' : 'auto', maxWidth: modalType === 'radar' ? 'none' : '450px', maxHeight: modalType === 'radar' ? 'none' : '85vh', overflowY: 'auto', border: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', flexShrink: 0 }}>
               <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 שמירת מיקום רכב חכם'}
-                {modalType === 'trivia' && '🧠 טריויה חכמה לדרך'}
+                {modalType === 'trivia' && '🧠 טריויה (1000 שאלות נוער)'}
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום'}
               </h2>
               <button onClick={() => setModalType(null)} style={{ background: 'none', border: 'none', color: textColor, fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
             </div>
 
+            {/* RADAR MODAL */}
             {modalType === 'radar' && (
-              <div>
-                <div style={{ width: '100%', height: '240px', borderRadius: '14px', overflow: 'hidden', marginBottom: '14px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ flex: 1, width: '100%', minHeight: '300px', borderRadius: '16px', overflow: 'hidden' }}>
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
-                <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ width: '100%', padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>📍 עדכן מיקום שלי GPS</button>
+                <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '800', cursor: 'pointer', flexShrink: 0 }}>📍 עדכן מיקום שלי GPS</button>
               </div>
             )}
 
+            {/* TIMER MODAL */}
+            {modalType === 'timer' && (
+              <div>
+                <p style={{ fontSize: '13px', color: textSub, marginBottom: '14px' }}>בחר מצב זמן מהיר או הזן זמן משלך:</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: '14px' }}>
+                  <button onClick={() => startTimer(5)} style={timerPresetBtn}>⚡ 5 דקות</button>
+                  <button onClick={() => startTimer(10)} style={timerPresetBtn}>☕ 10 דקות</button>
+                  <button onClick={() => startTimer(15)} style={timerPresetBtn}>🍕 15 דקות</button>
+                  <button onClick={() => startTimer(30)} style={timerPresetBtn}>⏳ 30 דקות</button>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input type="number" placeholder="דקות..." value={customTimerMinutes} onChange={e => setCustomTimerMinutes(e.target.value)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0f172a' : '#f8fafc', color: textColor, fontWeight: '800', outline: 'none' }} />
+                  <button onClick={() => startTimer(customTimerMinutes)} style={{ padding: '12px 18px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>הפעל מותאם</button>
+                </div>
+              </div>
+            )}
+
+            {/* TRIVIA MODAL */}
             {modalType === 'trivia' && (
               <div>
                 <div style={{ background: isDark ? '#1e293b' : '#eff6ff', padding: '10px', borderRadius: '10px', marginBottom: '12px', textAlign: 'center', fontSize: '13px', fontWeight: '800' }}>
@@ -398,13 +447,6 @@ export default function App() {
               </div>
             )}
 
-            {modalType === 'timer' && (
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '14px', color: textSub }}>הגדר טיימר משפחתי לפעילות או זמן חופשי.</p>
-                <button onClick={() => { setActiveTimer({ endTime: Date.now() + 15 * 60 * 1000, title: 'זמן חופשי' }); setModalType(null); alert('הטיימר הופעל ל-15 דקות!'); }} style={{ width: '100%', padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>⏱️ הפעל טיימר ל-15 דקות</button>
-              </div>
-            )}
-
           </div>
         </div>
       )}
@@ -421,6 +463,17 @@ const menuBtnStyle = {
   borderRadius: '12px',
   textAlign: 'right',
   fontWeight: '700',
+  fontSize: '14px',
+  cursor: 'pointer'
+};
+
+const timerPresetBtn = {
+  padding: '12px',
+  borderRadius: '12px',
+  background: 'rgba(59, 130, 246, 0.1)',
+  color: '#3b82f6',
+  border: '1.5px solid rgba(59, 130, 246, 0.3)',
+  fontWeight: '800',
   fontSize: '14px',
   cursor: 'pointer'
 };
