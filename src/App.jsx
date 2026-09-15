@@ -1,14 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeDay, setActiveDay] = useState(1);
+  const [documents, setDocuments] = useState(() => {
+    const saved = localStorage.getItem('trip_documents');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const hotelName = "Bio Agriturismo Vojon";
-  // Waze generic search or location query for hotel/attractions
   const getWazeUrl = (destination) => `https://waze.com/ul?q=${encodeURIComponent(destination)}&navigate=yes`;
   const getGoogleMapsUrl = (destination) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
+
+  useEffect(() => {
+    localStorage.setItem('trip_documents', JSON.stringify(documents));
+  }, [documents]);
+
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const newDoc = {
+          id: Date.now() + Math.random(),
+          name: file.name,
+          type: file.type,
+          url: e.target.result
+        };
+        setDocuments(prev => [...prev, newDoc]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const deleteDocument = (id) => {
+    setDocuments(prev => prev.filter(doc => doc.id !== id));
+  };
 
   const tripDays = [
     {
@@ -72,7 +100,7 @@ export default function App() {
         <div style={{ width: '24px' }}></div>
       </header>
 
-      {/* Quick Return to Hotel Banner / Button */}
+      {/* Quick Return to Hotel Banner */}
       <div style={{ backgroundColor: '#e74c3c', color: 'white', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>
         <a 
           href={getWazeUrl(hotelName)} 
@@ -87,7 +115,7 @@ export default function App() {
       {/* Main Content Area */}
       <main style={{ padding: '20px' }}>
         {currentData && (
-          <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
             <h2 style={{ color: '#2c3e50', marginTop: 0 }}>{currentData.title}</h2>
             
             <h3 style={{ fontSize: '16px', color: '#16a085', borderBottom: '2px solid #eee', paddingBottom: '5px' }}>📍 נקודות מרכזיות:</h3>
@@ -102,7 +130,7 @@ export default function App() {
             <p><strong>🍝 פסטה:</strong> {currentData.food.pasta}</p>
             <p><strong>🍦 גלידה:</strong> {currentData.food.ice_cream}</p>
 
-            {/* Navigation Buttons for Day */}
+            {/* Navigation Buttons */}
             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
               <a 
                 href={getWazeUrl(currentData.title)} 
@@ -123,13 +151,42 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* Universal File/PDF Upload Section */}
+        <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+          <h3 style={{ color: '#2c3e50', marginTop: 0 }}>📂 מסמכים וכרטיסים (PDF / תמונות)</h3>
+          <p style={{ fontSize: '13px', color: '#666' }}>העלה לכאן כרטיסי טיסה, ביטוח AIG, אישורי מלון או תמונות לגיבוי מלא אופליין:</p>
+          
+          <label style={{ display: 'inline-block', backgroundColor: '#8e44ad', color: 'white', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px' }}>
+            ➕ בחר קבצים להעלאה
+            <input type="file" multiple accept="image/*,application/pdf" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
+          {documents.length > 0 && (
+            <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {documents.map((doc) => (
+                <div key={doc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#f1f2f6', borderRadius: '8px' }}>
+                  <a href={doc.url} target="_blank" rel="noopener noreferrer" style={{ color: '#2980b9', textDecoration: 'none', fontWeight: 'bold', wordBreak: 'break-all' }}>
+                    📄 {doc.name}
+                  </a>
+                  <button 
+                    onClick={() => deleteDocument(doc.id)}
+                    style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer', fontSize: '12px' }}
+                  >
+                    מחק
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
 
       {/* Right Sidebar (Drawer) */}
       {sidebarOpen && (
         <div style={{ position: 'fixed', top: 0, right: 0, width: '280px', height: '100%', backgroundColor: 'white', boxShadow: '-5px 0 15px rgba(0,0,0,0.2)', zIndex: 1000, padding: '20px', boxSizing: 'border-box', overflowY: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '18px', margin: 0, color: '#2c3e50' }}>תפריט ימים</h2>
+            <h2 style={{ fontSize: '18px', margin: 0, color: '#2c3e50' }}>תפריט הטיול</h2>
             <button 
               onClick={() => setSidebarOpen(false)}
               style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}
