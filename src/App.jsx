@@ -179,7 +179,6 @@ export default function App() {
   const [savedParking, setSavedParking] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   
-  // Real-time IOS connected weather state
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
   useEffect(() => {
@@ -213,7 +212,6 @@ export default function App() {
     }
   }, []);
 
-  // Trivia states with persistence and 45s timer
   const [triviaIndex, setTriviaIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
@@ -480,7 +478,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Uniform Sized Header Buttons - Weather Connected to iOS Location */}
+        {/* Uniform Sized Header Buttons */}
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
           <div style={uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor)} title="מזג אוויר מותאם לפי מיקום המכשיר">
             <span>{currentWeather.condition.split(' ')[0]}</span>
@@ -641,12 +639,12 @@ export default function App() {
               
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  {/* Pause Button */}
-                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#475569' : '#cbd5e1', color: isDark ? '#f8fafc' : '#334155', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+                  {/* Pause/Resume Button in Modern Silver */}
+                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
                     {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
                   </button>
-                  {/* Reset Button */}
-                  <button onClick={handleAdminReset} style={{ background: '#10b981', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 5px rgba(16, 185, 129, 0.3)' }}>
+                  {/* Reset Button in Emerald Green */}
+                  <button onClick={handleAdminReset} style={{ background: '#10b981', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)', transition: 'all 0.2s' }}>
                     🔒 איפוס
                   </button>
                 </div>
@@ -717,9 +715,9 @@ export default function App() {
             )}
 
             {modalType === 'trivia' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: isTriviaPaused ? 0.6 : 1, pointerEvents: isTriviaPaused ? 'none' : 'auto' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {isTriviaPaused && (
-                  <div style={{ background: '#f59e0b', color: '#fff', padding: '8px', borderRadius: '10px', textAlign: 'center', fontWeight: '900', fontSize: '13px', marginBottom: '4px', pointerEvents: 'auto' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff', padding: '12px 16px', borderRadius: '14px', textAlign: 'center', fontWeight: '900', fontSize: '13px', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)' }}>
                     ⏸️ המשחק מושהה (לחץ למעלה על "המשך" כדי להפעיל את הזמן)
                   </div>
                 )}
@@ -728,17 +726,17 @@ export default function App() {
                 <div style={{ background: isDark ? '#1e293b' : '#e2e8f0', borderRadius: '8px', height: '8px', width: '100%', overflow: 'hidden', display: 'flex' }}>
                   <div style={{ background: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6', width: `${(questionTimeLeft / 45) * 100}%`, transition: 'width 1s linear' }} />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '800', color: textSub, marginTop: '-6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '800', color: textSub, marginTop: '-6px' }}>
                   <span>⏳ זמן נותר לשאלה:</span>
                   <span style={{ color: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6' }}>{questionTimeLeft} שניות</span>
                 </div>
 
-                {/* Turn Info Box */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? '#1e293b' : '#f1f5f9', padding: '10px 14px', borderRadius: '14px', border: `1px solid ${borderColor}`, pointerEvents: 'auto' }}>
-                  <span style={{ fontSize: '13px', fontWeight: '900' }}>
-                    🎯 תורו/ה של: <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
-                  </span>
-                  <button onClick={handleNewGame} style={{ background: accentGradient, color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
+                {/* Turn Info & New Game Button (Uniform Style) */}
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <div style={{ flex: 1, background: isDark ? '#1e293b' : '#f8fafc', padding: '12px 16px', borderRadius: '14px', border: `1px solid ${borderColor}`, fontWeight: '900', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>🎯 תורו/ה של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
+                  </div>
+                  <button onClick={handleNewGame} style={{ flex: 1, background: accentGradient, color: '#fff', border: 'none', padding: '12px 16px', borderRadius: '14px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)', transition: 'all 0.2s' }}>
                     🎮 משחק חדש
                   </button>
                 </div>
@@ -748,9 +746,9 @@ export default function App() {
                   {travelers.map((t, tIdx) => {
                     const isCurrent = tIdx === travelerIndex;
                     return (
-                      <div key={tIdx} style={{ background: isCurrent ? '#1e3a8a' : (isDark ? '#1e293b' : '#fff'), color: isCurrent ? '#fff' : textColor, padding: '8px 4px', borderRadius: '12px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#3b82f6' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none' }}>
+                      <div key={tIdx} style={{ background: isCurrent ? '#3b82f6' : (isDark ? '#1e293b' : '#fff'), color: isCurrent ? '#fff' : textColor, padding: '10px 4px', borderRadius: '12px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#2563eb' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none' }}>
                         <div style={{ fontSize: '12px', fontWeight: '900', marginBottom: '2px' }}>{t}</div>
-                        <div style={{ fontSize: '11px', fontWeight: '800', color: isCurrent ? '#93c5fd' : textSub }}>{travelerScores[t] || 0} נק'</div>
+                        <div style={{ fontSize: '11px', fontWeight: '800', color: isCurrent ? '#e0e7ff' : textSub }}>{travelerScores[t] || 0} נק'</div>
                       </div>
                     );
                   })}
@@ -758,26 +756,27 @@ export default function App() {
 
                 {/* Question Box */}
                 <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                  <span style={{ fontSize: '14px', fontWeight: '900', color: textColor }}>
+                  <span style={{ fontSize: '15px', fontWeight: '900', color: textColor }}>
                     (שאלה #{ (triviaIndex % ROAD_TRIVIA_QUESTIONS.length) + 1 }) {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].q}
                   </span>
                 </div>
 
-                {/* Options */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* Options - Uniform Sized Buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].options.map((opt, oIdx) => {
                     const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
                     let btnBg = isDark ? '#1e293b' : '#fff';
                     let btnColor = textColor;
+                    let btnBorder = borderColor;
                     if (selectedAnswer !== null) {
                       if (oIdx === currentQ.correct) {
-                        btnBg = '#22c55e'; btnColor = '#fff';
+                        btnBg = '#10b981'; btnColor = '#fff'; btnBorder = '#10b981';
                       } else if (oIdx === selectedAnswer) {
-                        btnBg = '#ef4444'; btnColor = '#fff';
+                        btnBg = '#ef4444'; btnColor = '#fff'; btnBorder = '#ef4444';
                       }
                     }
                     return (
-                      <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ padding: '14px 16px', borderRadius: '14px', background: btnBg, color: btnColor, border: `1.5px solid ${borderColor}`, fontWeight: '800', fontSize: '15px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s ease' }}>
+                      <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ width: '100%', height: '48px', borderRadius: '14px', background: btnBg, color: btnColor, border: `1.5px solid ${btnBorder}`, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                         {opt}
                       </button>
                     );
