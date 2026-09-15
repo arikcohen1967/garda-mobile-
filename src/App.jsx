@@ -114,6 +114,13 @@ const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
   if (sosState?.lat) { centerLat = sosState.lat; centerLng = sosState.lng; }
   else if (myLoc?.lat) { centerLat = myLoc.lat; centerLng = myLoc.lng; }
 
+  let markersJS = '';
+  Object.values(familyLocs).forEach(loc => {
+    if (loc && loc.lat) {
+      markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>עודכן: ${loc.updated_at || 'עכשיו'}');\n`;
+    }
+  });
+
   return `
     <!DOCTYPE html>
     <html>
@@ -133,6 +140,7 @@ const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
         if (myLocData && myLocData.lat) {
           L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
         }
+        ${markersJS}
       </script>
     </body>
     </html>
@@ -154,7 +162,13 @@ export default function App() {
 
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
-  const [familyLocations, setFamilyLocations] = useState({});
+  const [familyLocations, setFamilyLocations] = useState({
+    'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה' },
+    'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות' },
+    'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות' },
+    'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות' },
+    'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו' }
+  });
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   
   const [activeTimer, setActiveTimer] = useState(null);
@@ -168,7 +182,6 @@ export default function App() {
   // Real-time IOS connected weather state
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // Fetch real weather using Open-Meteo API based on device GPS location
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -200,7 +213,7 @@ export default function App() {
     }
   }, []);
 
-  // Trivia states with persistence and 45s timer (defaults to paused on reset/new game)
+  // Trivia states with persistence and 45s timer
   const [triviaIndex, setTriviaIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
@@ -211,7 +224,7 @@ export default function App() {
   const [travelerScores, setTravelerScores] = useState(() => {
     try { const saved = localStorage.getItem('garda-traveler-scores'); return saved ? JSON.parse(saved) : { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; } catch (e) { return { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; }
   });
-  const [isTriviaPaused, setIsTriviaPaused] = useState(true); // מתחיל מושהה כברירת מחדל עד לחיצה על המשך
+  const [isTriviaPaused, setIsTriviaPaused] = useState(true);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [questionTimeLeft, setQuestionTimeLeft] = useState(45);
 
@@ -223,7 +236,6 @@ export default function App() {
     } catch (e) {}
   }, [triviaIndex, travelerIndex, travelerScores]);
 
-  // 45 seconds per question countdown effect
   useEffect(() => {
     if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
 
@@ -412,7 +424,7 @@ export default function App() {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(true); // מאפס ומשהה מיד כדי לא להריץ את הזמן אוטומטית
+      setIsTriviaPaused(true);
       setQuestionTimeLeft(45);
       alert("🔄 המשחק אותחל בהצלחה על ידי המנהל (מושהה עד ללחיצה על המשך)!");
     } else if (adminPassword !== null) {
@@ -425,7 +437,7 @@ export default function App() {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(true); // משחק חדש מתחיל במצב מושהה
+      setIsTriviaPaused(true);
       setQuestionTimeLeft(45);
     }
   };
@@ -507,7 +519,7 @@ export default function App() {
               <span style={{ fontSize: '11px', color: textSub, fontWeight: '700' }}>גארדה ואזור הטיול</span>
             </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', border: 'none', color: textColor, width: '32px', height: '32px', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: '#ef4444', border: 'none', color: '#fff', width: '32px', height: '32px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)' }}>✕</button>
         </div>
 
         <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, padding: '12px 16px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
@@ -623,17 +635,17 @@ export default function App() {
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' ? '16px' : '24px', borderRadius: modalType === 'radar' ? 0 : '24px', width: modalType === 'radar' ? '100vw' : '100%', height: modalType === 'radar' ? '100vh' : 'auto', maxWidth: modalType === 'radar' ? 'none' : '450px', maxHeight: modalType === 'radar' ? 'none' : '85vh', overflowY: 'auto', border: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
             
-            {/* Modal Header */}
+            {/* Modal Header with Prominent Red Close Button (X) */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: modalType === 'trivia' ? '12px' : '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', flexShrink: 0 }}>
-              <button onClick={() => setModalType(null)} style={{ background: 'none', border: 'none', color: textColor, fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+              <button onClick={() => setModalType(null)} style={{ background: '#ef4444', border: 'none', color: '#fff', width: '34px', height: '34px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)' }}>✕</button>
               
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  {/* Pause Button in pleasant silver */}
+                  {/* Pause Button */}
                   <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#475569' : '#cbd5e1', color: isDark ? '#f8fafc' : '#334155', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
                     {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
                   </button>
-                  {/* Reset Button in green */}
+                  {/* Reset Button */}
                   <button onClick={handleAdminReset} style={{ background: '#10b981', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 5px rgba(16, 185, 129, 0.3)' }}>
                     🔒 איפוס
                   </button>
@@ -651,11 +663,28 @@ export default function App() {
             </div>
 
             {modalType === 'radar' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ flex: 1, width: '100%', minHeight: '300px', borderRadius: '16px', overflow: 'hidden' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ flex: 1, width: '100%', minHeight: '260px', borderRadius: '16px', overflow: 'hidden', border: `1px solid ${borderColor}` }}>
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
-                <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '800', cursor: 'pointer', flexShrink: 0 }}>📍 עדכן מיקום שלי GPS</button>
+                
+                {/* Family Members List with One-Click Navigation Buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
+                  <span style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>בני המשפחה ברדאר (לחץ לניווט אליהם):</span>
+                  {Object.values(familyLocations).map((person, pIdx) => (
+                    <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(15, 23, 42, 0.5)' : '#f8fafc', padding: '10px 12px', borderRadius: '12px', border: `1px solid ${borderColor}` }}>
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>👤 {person.name}</div>
+                        <div style={{ fontSize: '10px', color: textSub }}>עודכן: {person.updated_at || 'עכשיו'}</div>
+                      </div>
+                      <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        נווט אל 🗺️
+                      </a>
+                    </div>
+                  ))}
+                </div>
+
+                <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', flexShrink: 0 }}>📍 עדכן מיקום שלי GPS</button>
               </div>
             )}
 
@@ -677,10 +706,10 @@ export default function App() {
             )}
 
             {modalType === 'trivia' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: isTriviaPaused ? 0.5 : 1, pointerEvents: isTriviaPaused ? 'none' : 'auto' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: isTriviaPaused ? 0.6 : 1, pointerEvents: isTriviaPaused ? 'none' : 'auto' }}>
                 {isTriviaPaused && (
-                  <div style={{ background: '#f59e0b', color: '#fff', padding: '8px', borderRadius: '10px', textAlign: 'center', fontWeight: '900', fontSize: '13px', marginBottom: '4px' }}>
-                    ⏸️ המשחק מושהה ללא הגבלת זמן (לחץ על "המשך" כשאתה מוכן)
+                  <div style={{ background: '#f59e0b', color: '#fff', padding: '8px', borderRadius: '10px', textAlign: 'center', fontWeight: '900', fontSize: '13px', marginBottom: '4px', pointerEvents: 'auto' }}>
+                    ⏸️ המשחק מושהה (לחץ למעלה על "המשך" כדי להפעיל את הזמן)
                   </div>
                 )}
 
@@ -694,7 +723,7 @@ export default function App() {
                 </div>
 
                 {/* Turn Info Box */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? '#1e293b' : '#f1f5f9', padding: '10px 14px', borderRadius: '14px', border: `1px solid ${borderColor}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? '#1e293b' : '#f1f5f9', padding: '10px 14px', borderRadius: '14px', border: `1px solid ${borderColor}`, pointerEvents: 'auto' }}>
                   <span style={{ fontSize: '13px', fontWeight: '900' }}>
                     🎯 תורו/ה של: <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
                   </span>
