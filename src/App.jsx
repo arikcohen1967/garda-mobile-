@@ -364,7 +364,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header Bar - Optimized for Mobile */}
+      {/* Top Header Bar */}
       <header style={{ background: isDark ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '14px 16px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -381,9 +381,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Uniform Sized Header Buttons - Perfectly fitted for mobile */}
+        {/* Uniform Sized Header Buttons */}
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-          
           <div style={uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor)}>
             <span>🌤️</span>
             <span>{currentWeather.temp}</span>
