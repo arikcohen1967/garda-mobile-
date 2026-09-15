@@ -34,7 +34,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
@@ -257,6 +257,34 @@ export default function App() {
 
   const audioCtxRef = useRef(null);
   const alarmIntervalRef = useRef(null);
+
+  const playAlertSound = (name) => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.8);
+
+      alert(`🔔 צליל התראה הושמע בהצלחה עבור ${name}!`);
+    } catch (e) {
+      alert(`🔔 נשלח צליל אל ${name}!`);
+    }
+  };
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -633,28 +661,28 @@ export default function App() {
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' ? '16px' : '24px', borderRadius: modalType === 'radar' ? 0 : '24px', width: modalType === 'radar' ? '100vw' : '100%', height: modalType === 'radar' ? '100vh' : 'auto', maxWidth: modalType === 'radar' ? 'none' : '450px', maxHeight: modalType === 'radar' ? 'none' : '85vh', overflowY: 'auto', border: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
             
-            {/* Modal Header with Prominent Red Close Button (X) */}
+            {/* Modal Header with Prominent Refined Gray Close Button (X) */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: modalType === 'trivia' ? '12px' : '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', flexShrink: 0 }}>
-              <button onClick={() => setModalType(null)} style={{ background: '#ef4444', border: 'none', color: '#fff', width: '34px', height: '34px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)' }}>✕</button>
+              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#334155' : '#cbd5e1', border: 'none', color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '10px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }}>✕</button>
               
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  {/* Pause/Resume Button in Modern Silver */}
+                  {/* Pause/Resume Button */}
                   <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
                     {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
                   </button>
-                  {/* Reset Button in Emerald Green */}
-                  <button onClick={handleAdminReset} style={{ background: '#10b981', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)', transition: 'all 0.2s' }}>
+                  {/* Reset Button styled exactly like Resume */}
+                  <button onClick={handleAdminReset} style={{ background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: 'none', padding: '8px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
                     🔒 איפוס
                   </button>
                 </div>
               ) : null}
 
-              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 שמירת מיקום רכב חכם'}
-                {modalType === 'trivia' && <><span>טריויה חכמה לדרך</span> <span style={{ fontSize: '20px' }}>🚗🧠</span></>}
+                {modalType === 'trivia' && 'טריויה'}
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום ושגרירות'}
               </h2>
@@ -666,7 +694,7 @@ export default function App() {
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
-                {/* Family Members List matching the second app design */}
+                {/* Family Members List */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
                   <span style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
                   {Object.values(familyLocations).map((person, pIdx) => (
@@ -679,7 +707,7 @@ export default function App() {
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: '6px' }}>
-                        <button onClick={() => alert(`🔔 נשלח צליל אל ${person.name}!`)} style={{ background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+                        <button onClick={() => playAlertSound(person.name)} style={{ background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
                           🔔 צליל
                         </button>
                         <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -717,12 +745,12 @@ export default function App() {
             {modalType === 'trivia' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {isTriviaPaused && (
-                  <div style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff', padding: '12px 16px', borderRadius: '14px', textAlign: 'center', fontWeight: '900', fontSize: '13px', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)' }}>
+                  <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1px solid ${borderColor}`, padding: '12px 16px', borderRadius: '14px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
                     ⏸️ המשחק מושהה (לחץ למעלה על "המשך" כדי להפעיל את הזמן)
                   </div>
                 )}
 
-                {/* Question Timer Progress Bar (45 Seconds) */}
+                {/* Question Timer Progress Bar */}
                 <div style={{ background: isDark ? '#1e293b' : '#e2e8f0', borderRadius: '8px', height: '8px', width: '100%', overflow: 'hidden', display: 'flex' }}>
                   <div style={{ background: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6', width: `${(questionTimeLeft / 45) * 100}%`, transition: 'width 1s linear' }} />
                 </div>
@@ -731,13 +759,13 @@ export default function App() {
                   <span style={{ color: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6' }}>{questionTimeLeft} שניות</span>
                 </div>
 
-                {/* Turn Info & New Game Button (Uniform Style) */}
+                {/* Turn Info & New Game Button - Uniform Size & Neutral Style */}
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <div style={{ flex: 1, background: isDark ? '#1e293b' : '#f8fafc', padding: '12px 16px', borderRadius: '14px', border: `1px solid ${borderColor}`, fontWeight: '900', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span>🎯 תורו/ה של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
+                  <div style={{ flex: 1, height: '44px', background: isDark ? '#1e293b' : '#f8fafc', padding: '0 14px', borderRadius: '14px', border: `1px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor }}>
+                    <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
                   </div>
-                  <button onClick={handleNewGame} style={{ flex: 1, background: accentGradient, color: '#fff', border: 'none', padding: '12px 16px', borderRadius: '14px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)', transition: 'all 0.2s' }}>
-                    🎮 משחק חדש
+                  <button onClick={handleNewGame} style={{ flex: 1, height: '44px', background: isDark ? '#334155' : '#e2e8f0', color: textColor, border: `1px solid ${borderColor}`, padding: '0 14px', borderRadius: '14px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    משחק חדש
                   </button>
                 </div>
 
@@ -746,9 +774,9 @@ export default function App() {
                   {travelers.map((t, tIdx) => {
                     const isCurrent = tIdx === travelerIndex;
                     return (
-                      <div key={tIdx} style={{ background: isCurrent ? '#3b82f6' : (isDark ? '#1e293b' : '#fff'), color: isCurrent ? '#fff' : textColor, padding: '10px 4px', borderRadius: '12px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#2563eb' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none' }}>
+                      <div key={tIdx} style={{ background: isCurrent ? (isDark ? '#334155' : '#cbd5e1') : (isDark ? '#1e293b' : '#fff'), color: textColor, padding: '10px 4px', borderRadius: '12px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#64748b' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(0,0,0,0.1)' : 'none' }}>
                         <div style={{ fontSize: '12px', fontWeight: '900', marginBottom: '2px' }}>{t}</div>
-                        <div style={{ fontSize: '11px', fontWeight: '800', color: isCurrent ? '#e0e7ff' : textSub }}>{travelerScores[t] || 0} נק'</div>
+                        <div style={{ fontSize: '11px', fontWeight: '800', color: textSub }}>{travelerScores[t] || 0} נק'</div>
                       </div>
                     );
                   })}
