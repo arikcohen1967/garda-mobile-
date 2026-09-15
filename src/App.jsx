@@ -162,6 +162,7 @@ export default function App() {
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
 
   const [parkingNote, setParkingNote] = useState('');
+  const [savedParking, setSavedParking] = useState(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [currentWeather, setCurrentWeather] = useState({ temp: '24°C', condition: '☀️ שמש' });
 
@@ -405,25 +406,63 @@ export default function App() {
         </div>
       )}
 
-      {/* Slide-out Menu Drawer */}
-      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 2500, backdropFilter: 'blur(5px)' }} />}
-      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '300px', background: cardBg, backdropFilter: 'blur(20px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.3s ease', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '10px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}` }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', marginBottom: '10px' }}>
-          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>תפריט מהיר</h3>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: textColor, fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+      {/* Slide-out Menu Drawer (Professional & Polished) */}
+      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 2500, backdropFilter: 'blur(6px)', transition: 'opacity 0.3s ease' }} />}
+      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '310px', background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-10px 0 30px rgba(0,0,0,0.6)' : '-10px 0 30px rgba(0,0,0,0.1)' }}>
+        
+        {/* Sidebar Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '20px' }}>🇮🇹</span>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900', letterSpacing: '-0.01em' }}>תפריט הטיול</h3>
+              <span style={{ fontSize: '11px', color: textSub, fontWeight: '700' }}>גארדה ואזור הטיול</span>
+            </div>
+          </div>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', border: 'none', color: textColor, width: '32px', height: '32px', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
 
-        <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ ...menuBtnStyle, background: isDark ? '#334155' : '#e2e8f0', borderRadius: '12px', textAlign: 'center', marginBottom: '8px', fontWeight: '800' }}>
-          {isDark ? '☀️ מעבר למצב בהיר' : '🌙 מעבר למצב כהה'}
+        {/* Theme Toggle Button */}
+        <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, padding: '12px 16px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
+          <span>{isDark ? 'מצב תצוגה: כהה' : 'מצב תצוגה: בהיר'}</span>
+          <span style={{ fontSize: '16px' }}>{isDark ? '🌙' : '☀️'}</span>
         </button>
 
-        <button onClick={() => { setSidebarOpen(false); setModalType(null); }} style={menuBtnStyle}>📅 מסלול ימי הטיול</button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={menuBtnStyle}>🧭 רדאר משפחתי חי</button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={menuBtnStyle}>⏱️ טיימר משפחתי</button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={menuBtnStyle}>🚗 שמירת מיקום רכב חכם</button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={menuBtnStyle}>🧠 טריויה משפחתית</button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={menuBtnStyle}>🎟️ ארנק כרטיסים ומסמכים</button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={menuBtnStyle}>🆘 מספרי חירום ושגרירות</button>
+        {/* Navigation Group */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: '800', color: '#3b82f6', paddingRight: '4px', marginBottom: '2px' }}>ניווט ראשי</span>
+          <button onClick={() => { setSidebarOpen(false); setModalType(null); }} style={menuBtnStyle(isDark, textColor)}>
+            <span style={{ fontSize: '16px' }}>📅</span> מסלול ימי הטיול
+          </button>
+          <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={menuBtnStyle(isDark, textColor)}>
+            <span style={{ fontSize: '16px' }}>🧭</span> רדאר משפחתי חי
+          </button>
+        </div>
+
+        {/* Tools & Utilities Group */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: '800', color: '#3b82f6', paddingRight: '4px', marginBottom: '2px' }}>כלים ושימושי</span>
+          <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={menuBtnStyle(isDark, textColor)}>
+            <span style={{ fontSize: '16px' }}>⏱️</span> טיימר משפחתי
+          </button>
+          <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={menuBtnStyle(isDark, textColor)}>
+            <span style={{ fontSize: '16px' }}>🚗</span> שמירת מיקום רכב חכם
+          </button>
+          <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={menuBtnStyle(isDark, textColor)}>
+            <span style={{ fontSize: '16px' }}>🧠</span> טריויה משפחתית
+          </button>
+          <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={menuBtnStyle(isDark, textColor)}>
+            <span style={{ fontSize: '16px' }}>🎟️</span> ארנק כרטיסים ומסמכים
+          </button>
+        </div>
+
+        {/* Emergency & Support Group */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'auto', paddingTop: '10px', borderTop: `1px solid ${borderColor}` }}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...menuBtnStyle(isDark, textColor), background: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fee2e2', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+            <span style={{ fontSize: '16px' }}>🆘</span> מספרי חירום ושגרירות
+          </button>
+        </div>
+
       </aside>
 
       {/* Main Container */}
@@ -598,17 +637,22 @@ const uniformHeaderBtnStyle = (isDark, cardBg, textColor, borderColor) => ({
   whiteSpace: 'nowrap'
 });
 
-const menuBtnStyle = {
-  background: 'transparent',
+const menuBtnStyle = (isDark, textColor) => ({
+  background: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
   border: 'none',
-  color: 'inherit',
+  color: textColor,
   padding: '12px 14px',
   borderRadius: '12px',
   textAlign: 'right',
   fontWeight: '700',
-  fontSize: '14px',
-  cursor: 'pointer'
-};
+  fontSize: '13px',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  width: '100%',
+  transition: 'background 0.2s ease, transform 0.1s ease'
+});
 
 const timerPresetBtn = {
   padding: '12px',
