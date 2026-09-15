@@ -101,11 +101,11 @@ const DEFAULT_DOCUMENTS = [
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true }
 ];
 
-const SAFE_TRIVIA_QUESTIONS = [
-  { q: "איזו חברה פיתחה את משחק המחשב המצליח Fortnite?", options: ["Valve", "Epic Games", "EA Sports", "Ubisoft"], correct: 1 },
-  { q: "באיזו שנה הושקה רשת החברתית טיקטוק?", options: ["2014", "2016", "2018", "2020"], correct: 1 },
-  { q: "מי השחקן שגילם את איירון מן ביקום הקולנועי של מארוול?", options: ["כריס המסוורת'", "טום הולנד", "רוברט דאוני ג'וניור", "כריס אוונס"], correct: 2 },
-  { q: "איזה כוכב לכת במערכת השמש ידוע בתור 'הכוכב האדום'?", options: ["נוגה", "מאדים", "צדק", "שבתאי"], correct: 1 },
+const ROAD_TRIVIA_QUESTIONS = [
+  { q: "כמה שיניים יש לאדם מבוגר בדרך כלל (כולל שיני בינה)?", options: ["28", "32", "36", "24"], correct: 1 },
+  { q: "באיזו מדינה באירופה נמצא אגם גארדה?", options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+  { q: "איזה בעל חיים ימי נחשב למהיר ביותר באוקיינוס?", options: ["כריש לבן", "דג מפרש", "דולפין", "לווייתן כחול"], correct: 1 },
+  { q: "מהי בירת איטליה?", options: ["מילانو", "ונציה", "רומא", "פירנצה"], correct: 2 },
   { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 }
 ];
 
@@ -166,12 +166,27 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [currentWeather, setCurrentWeather] = useState({ temp: '24°C', condition: '☀️ שמש' });
 
-  // Trivia states
-  const [triviaIndex, setTriviaIndex] = useState(0);
-  const [travelerIndex, setTravelerIndex] = useState(0);
-  const [travelerScores, setTravelerScores] = useState({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  // Trivia states with persistence in localStorage for continuity
+  const [triviaIndex, setTriviaIndex] = useState(() => {
+    try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
+  });
   const travelers = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
+  const [travelerIndex, setTravelerIndex] = useState(() => {
+    try { const saved = localStorage.getItem('garda-traveler-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
+  });
+  const [travelerScores, setTravelerScores] = useState(() => {
+    try { const saved = localStorage.getItem('garda-traveler-scores'); return saved ? JSON.parse(saved) : { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; } catch (e) { return { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; }
+  });
+  const [isTriviaPaused, setIsTriviaPaused] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('garda-trivia-index', triviaIndex);
+      localStorage.setItem('garda-traveler-index', travelerIndex);
+      localStorage.setItem('garda-traveler-scores', JSON.stringify(travelerScores));
+    } catch (e) {}
+  }, [triviaIndex, travelerIndex, travelerScores]);
 
   const [folders] = useState(TICKET_DEFAULT_FOLDERS);
   const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
@@ -329,9 +344,9 @@ export default function App() {
   };
 
   const handleTriviaAnswer = (optIdx) => {
-    if (selectedAnswer !== null) return;
+    if (isTriviaPaused || selectedAnswer !== null) return;
     setSelectedAnswer(optIdx);
-    const currentQ = SAFE_TRIVIA_QUESTIONS[triviaIndex % SAFE_TRIVIA_QUESTIONS.length];
+    const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
     const currentTraveler = travelers[travelerIndex];
     if (optIdx === currentQ.correct) {
       setTravelerScores(prev => ({ ...prev, [currentTraveler]: (prev[currentTraveler] || 0) + 10 }));
@@ -341,6 +356,19 @@ export default function App() {
       setTriviaIndex(prev => prev + 1);
       setTravelerIndex(prev => (prev + 1) % travelers.length);
     }, 1200);
+  };
+
+  const handleAdminReset = () => {
+    const adminPassword = window.prompt("🔒 אזור מנהל בלבד: הזן סיסמת איפוס");
+    if (adminPassword === "1234" || adminPassword === "admin") { // או כל אימות שתבחר
+      setTriviaIndex(0);
+      setTravelerIndex(0);
+      setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
+      setIsTriviaPaused(false);
+      alert("🔄 המשחק אותחל בהצלחה על ידי המנהל!");
+    } else if (adminPassword !== null) {
+      alert("❌ סיסמה שגויה!");
+    }
   };
 
   return (
@@ -406,11 +434,10 @@ export default function App() {
         </div>
       )}
 
-      {/* Slide-out Menu Drawer (Polished & Highlighted Sections) */}
+      {/* Slide-out Menu Drawer */}
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 2500, backdropFilter: 'blur(6px)', transition: 'opacity 0.3s ease' }} />}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(15, 23, 42, 0.97)' : 'rgba(255, 255, 255, 0.97)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-10px 0 30px rgba(0,0,0,0.6)' : '-10px 0 30px rgba(0,0,0,0.1)' }}>
         
-        {/* Sidebar Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>
@@ -424,13 +451,11 @@ export default function App() {
           <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', border: 'none', color: textColor, width: '32px', height: '32px', borderRadius: '10px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
 
-        {/* Theme Toggle Button */}
         <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, padding: '12px 16px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }}>
           <span>{isDark ? 'מצב תצוגה: כהה' : 'מצב תצוגה: בהיר'}</span>
           <span style={{ fontSize: '16px' }}>{isDark ? '🌙' : '☀️'}</span>
         </button>
 
-        {/* Navigation Group with Highlight */}
         <div style={categoryGroupStyle(isDark, borderColor)}>
           <div style={categoryTitleStyle('#3b82f6')}>
             <span>📍</span> ניווט ראשי
@@ -443,7 +468,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* Around Me Group (New Category) */}
         <div style={categoryGroupStyle(isDark, borderColor)}>
           <div style={categoryTitleStyle('#f59e0b')}>
             <span>📍</span> סביבי (בקרבת מקום)
@@ -462,7 +486,6 @@ export default function App() {
           </a>
         </div>
 
-        {/* Tools & Utilities Group with Highlight */}
         <div style={categoryGroupStyle(isDark, borderColor)}>
           <div style={categoryTitleStyle('#10b981')}>
             <span>⚡</span> כלים ושימושי
@@ -481,7 +504,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* Emergency & Support Group */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'auto', paddingTop: '10px', borderTop: `1px solid ${borderColor}` }}>
           <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...menuBtnStyle(isDark, textColor), background: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fee2e2', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
             <span style={{ fontSize: '16px' }}>🆘</span> מספרי חירום ושגרירות
@@ -542,16 +564,29 @@ export default function App() {
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' ? '16px' : '24px', borderRadius: modalType === 'radar' ? 0 : '24px', width: modalType === 'radar' ? '100vw' : '100%', height: modalType === 'radar' ? '100vh' : 'auto', maxWidth: modalType === 'radar' ? 'none' : '450px', maxHeight: modalType === 'radar' ? 'none' : '85vh', overflowY: 'auto', border: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', flexShrink: 0 }}>
-              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: modalType === 'trivia' ? '12px' : '16px', borderBottom: `1px solid ${borderColor}`, paddingBottom: '12px', flexShrink: 0 }}>
+              <button onClick={() => setModalType(null)} style={{ background: 'none', border: 'none', color: textColor, fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+              
+              {modalType === 'trivia' ? (
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isTriviaPaused ? '#22c55e' : '#f59e0b', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer' }}>
+                    {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
+                  </button>
+                  <button onClick={handleAdminReset} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer' }}>
+                    🔒 איפוס
+                  </button>
+                </div>
+              ) : null}
+
+              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 שמירת מיקום רכב חכם'}
-                {modalType === 'trivia' && '🧠 טריויה משפחתית'}
+                {modalType === 'trivia' && <><span>טריויה חכמה לדרך</span> <span style={{ fontSize: '20px' }}>🚗🧠</span></>}
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום ושגרירות'}
               </h2>
-              <button onClick={() => setModalType(null)} style={{ background: 'none', border: 'none', color: textColor, fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
             </div>
 
             {modalType === 'radar' && (
@@ -581,15 +616,57 @@ export default function App() {
             )}
 
             {modalType === 'trivia' && (
-              <div>
-                <div style={{ background: isDark ? '#1e293b' : '#eff6ff', padding: '10px', borderRadius: '10px', marginBottom: '12px', textAlign: 'center', fontSize: '13px', fontWeight: '800' }}>
-                  תורו של: {travelers[travelerIndex]} | ניקוד: {travelerScores[travelers[travelerIndex]]}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', opacity: isTriviaPaused ? 0.5 : 1, pointerEvents: isTriviaPaused ? 'none' : 'auto' }}>
+                {isTriviaPaused && (
+                  <div style={{ background: '#f59e0b', color: '#fff', padding: '8px', borderRadius: '10px', textAlign: 'center', fontWeight: '900', fontSize: '13px', marginBottom: '4px' }}>
+                    ⏸️ המשחק מושהה כרגע על ידי המנהל
+                  </div>
+                )}
+
+                {/* Turn Info Box */}
+                <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', padding: '12px', borderRadius: '14px', textAlign: 'center', fontSize: '14px', fontWeight: '900', border: `1px solid ${borderColor}` }}>
+                  🎯 תורו/ה של: <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>!
                 </div>
-                <p style={{ fontSize: '15px', fontWeight: '800', marginBottom: '14px' }}>{SAFE_TRIVIA_QUESTIONS[triviaIndex % SAFE_TRIVIA_QUESTIONS.length].q}</p>
+
+                {/* Travelers Score Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
+                  {travelers.map((t, tIdx) => {
+                    const isCurrent = tIdx === travelerIndex;
+                    return (
+                      <div key={tIdx} style={{ background: isCurrent ? '#1e3a8a' : (isDark ? '#1e293b' : '#fff'), color: isCurrent ? '#fff' : textColor, padding: '8px 4px', borderRadius: '12px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#3b82f6' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none' }}>
+                        <div style={{ fontSize: '12px', fontWeight: '900', marginBottom: '2px' }}>{t}</div>
+                        <div style={{ fontSize: '11px', fontWeight: '800', color: isCurrent ? '#93c5fd' : textSub }}>{travelerScores[t] || 0} נק'</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Question Box */}
+                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', padding: '16px', borderRadius: '16px', textAlign: 'center', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                  <span style={{ fontSize: '14px', fontWeight: '900', color: textColor }}>
+                    (שאלה #{ (triviaIndex % ROAD_TRIVIA_QUESTIONS.length) + 1 }) {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].q}
+                  </span>
+                </div>
+
+                {/* Options */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {SAFE_TRIVIA_QUESTIONS[triviaIndex % SAFE_TRIVIA_QUESTIONS.length].options.map((opt, oIdx) => (
-                    <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ padding: '12px', borderRadius: '10px', background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, fontWeight: '700', textAlign: 'right', cursor: 'pointer' }}>{opt}</button>
-                  ))}
+                  {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].options.map((opt, oIdx) => {
+                    const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
+                    let btnBg = isDark ? '#1e293b' : '#fff';
+                    let btnColor = textColor;
+                    if (selectedAnswer !== null) {
+                      if (oIdx === currentQ.correct) {
+                        btnBg = '#22c55e'; btnColor = '#fff';
+                      } else if (oIdx === selectedAnswer) {
+                        btnBg = '#ef4444'; btnColor = '#fff';
+                      }
+                    }
+                    return (
+                      <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ padding: '14px 16px', borderRadius: '14px', background: btnBg, color: btnColor, border: `1.5px solid ${borderColor}`, fontWeight: '800', fontSize: '15px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s ease' }}>
+                        {opt}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
