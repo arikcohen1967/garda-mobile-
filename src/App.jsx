@@ -174,7 +174,6 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [currentWeather, setCurrentWeather] = useState({ temp: '24°C', condition: '☀️ שמש' });
 
-  // Web Audio Alarm Ref
   const audioCtxRef = useRef(null);
   const alarmIntervalRef = useRef(null);
 
@@ -190,7 +189,6 @@ export default function App() {
       }, () => {});
     }
 
-    // Subscribe to Supabase Realtime for Family Radar & SOS Alarms
     const channel = supabase.channel('family_trip_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
@@ -211,7 +209,6 @@ export default function App() {
     };
   }, []);
 
-  // Progressive Rising Alarm Sound Generator
   const triggerSirenSound = () => {
     try {
       if (!audioCtxRef.current) {
@@ -230,7 +227,6 @@ export default function App() {
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
-          // Volume rising progressively
           gain.gain.setValueAtTime(0.1, ctx.currentTime);
           gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 0.4);
 
@@ -241,7 +237,7 @@ export default function App() {
           osc.stop(ctx.currentTime + 0.4);
 
           freq += 80;
-          if (freq > 1200) freq = 300; // Reset loop for rising siren
+          if (freq > 1200) freq = 300;
         } catch (e) {}
       }, 500);
     } catch (e) {}
@@ -360,18 +356,18 @@ export default function App() {
   return (
     <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: 'system-ui, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
-      {/* GLOBAL RED SOS EMERGENCY OVERLAY FOR ALL USERS */}
+      {/* GLOBAL HALF-SCREEN RED SOS EMERGENCY BANNER */}
       {activeSosAlert && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(239, 68, 68, 0.95)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center', color: '#fff', animation: 'pulse 1s infinite' }}>
-          <span style={{ fontSize: '64px', marginBottom: '16px' }}>🚨</span>
-          <h1 style={{ fontSize: '28px', fontWeight: '900', margin: '0 0 10px' }}>התרעת חירום SOS פעילה!</h1>
-          <p style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px' }}>משתמש/ת: {activeSosAlert.name} זקוק/ה לעזרה מיידית!</p>
-          <p style={{ fontSize: '14px', opacity: 0.9, marginBottom: '30px' }}>זמן עדכון: {activeSosAlert.updated_at}</p>
-          <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '350px' }}>
-            <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '14px', background: '#fff', color: '#ef4444', borderRadius: '14px', fontWeight: '900', textDecoration: 'none' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '50vh', background: 'rgba(239, 68, 68, 0.95)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', color: '#fff', borderBottomLeftRadius: '24px', borderBottomRightRadius: '24px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', boxSizing: 'border-box' }}>
+          <span style={{ fontSize: '40px', marginBottom: '8px' }}>🚨</span>
+          <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 6px' }}>התרעת חירום SOS פעילה!</h2>
+          <p style={{ fontSize: '15px', fontWeight: '800', marginBottom: '10px' }}>משתמש/ת: {activeSosAlert.name} זקוק/ה לעזרה מיידית!</p>
+          <p style={{ fontSize: '12px', opacity: 0.9, marginBottom: '16px' }}>זמן עדכון: {activeSosAlert.updated_at}</p>
+          <div style={{ display: 'flex', gap: '8px', width: '100%', maxWidth: '320px' }}>
+            <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: '#fff', color: '#ef4444', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center' }}>
               נווט למיקום 🗺️
             </a>
-            <button onClick={dismissSos} style={{ flex: 1, padding: '14px', background: '#1e293b', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer' }}>
+            <button onClick={dismissSos} style={{ flex: 1, padding: '10px', background: '#1e293b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '13px' }}>
               בטל אזעקה ✓
             </button>
           </div>
