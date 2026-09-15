@@ -1,122 +1,178 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeDay, setActiveDay] = useState(1);
+
+  const hotelName = "Bio Agriturismo Vojon";
+  // Waze generic search or location query for hotel/attractions
+  const getWazeUrl = (destination) => `https://waze.com/ul?q=${encodeURIComponent(destination)}&navigate=yes`;
+  const getGoogleMapsUrl = (destination) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
+
+  const tripDays = [
+    {
+      day: 1,
+      title: "יום 1: נחיתה בורונה והגעעה למלון",
+      highlights: ["נחיתה בורונה", "איסוף רכב", "נסיעה למלון Bio Agriturismo Vojon"],
+      food: { pizza: "Pizzeria Da Giugiu", pasta: "Trattoria Verona", ice_cream: "Gelateria Luna" }
+    },
+    {
+      day: 2,
+      title: "יום 2: פארק שעשועים Gardaland",
+      highlights: ["יום שלם ב-Gardaland", "מתקנים ואטרקציות"],
+      food: { pizza: "Ristorante Gardaland", pasta: "Osteria del Garda", ice_cream: "Gelateria Ronald" }
+    },
+    {
+      day: 3,
+      title: "יום 3: סירמיונה וחצי האי",
+      highlights: ["סיור בסירמיונה", "מצודת סקאליג'רו", "שייט באגם"],
+      food: { pizza: "Pizzeria Aperto", pasta: "La Nuova Spiaggia", ice_cream: "Waikiki Gelateria" }
+    },
+    {
+      day: 4,
+      title: "יום 4: יום טיול לוונציה",
+      highlights: ["נסיעה לוונציה", "כיכר סן מרקו", "גונדולות ותעלות"],
+      food: { pizza: "Antico Forno", pasta: "Bacarretto San Marco", ice_cream: "Suso Gelateria" }
+    },
+    {
+      day: 5,
+      title: "יום 5: מונטה באלדו ובורג'טו",
+      highlights: ["רכבל מונטה באלדו (Malcesine)", "ביקור בכפר הציורי בורג'טו (Borghetto)"],
+      food: { pizza: "Al Cavalier", pasta: "Locanda Borghetto", ice_cream: "Articioc" }
+    },
+    {
+      day: 6,
+      title: "יום 6: Movieland ואקשן",
+      highlights: ["Movieland The Hollywood Park", "חווית X-Rafting"],
+      food: { pizza: "Hollywood Burger & Pizza", pasta: "Stunt Grill", ice_cream: "CineGelato" }
+    },
+    {
+      day: 7,
+      title: "יום 7: קניות וטיסה חזרה",
+      highlights: ["השלמות קניות", "נסיעה לשדה התעופה בורונה וטיסה לישראל"],
+      food: { pizza: "Airport Pizza", pasta: "Bistrot Verona", ice_cream: "Ultima Gelateria" }
+    }
+  ];
+
+  const currentData = tripDays.find(d => d.day === activeDay);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+    <div className="app-container" style={{ direction: 'rtl', fontFamily: 'Arial, sans-serif', backgroundColor: '#f9f9f9', minHeight: '100vh', paddingBottom: '80px' }}>
+      
+      {/* Top Header */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#2c3e50', color: 'white', padding: '15px 20px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+        <button 
+          onClick={() => setSidebarOpen(true)}
+          style={{ background: 'none', border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer' }}
         >
-          Count is {count}
+          ☰
         </button>
-      </section>
+        <h1 style={{ fontSize: '18px', margin: 0 }}>🇮🇹 טיול משפחתי לאגם גארדה 2026</h1>
+        <div style={{ width: '24px' }}></div>
+      </header>
 
-      <div className="ticks"></div>
+      {/* Quick Return to Hotel Banner / Button */}
+      <div style={{ backgroundColor: '#e74c3c', color: 'white', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>
+        <a 
+          href={getWazeUrl(hotelName)} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{ color: 'white', textDecoration: 'none', display: 'block' }}
+        >
+          🚗 ניווט מהיר חזרה למלון ({hotelName}) ב-Waze
+        </a>
+      </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
+      {/* Main Content Area */}
+      <main style={{ padding: '20px' }}>
+        {currentData && (
+          <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+            <h2 style={{ color: '#2c3e50', marginTop: 0 }}>{currentData.title}</h2>
+            
+            <h3 style={{ fontSize: '16px', color: '#16a085', borderBottom: '2px solid #eee', paddingBottom: '5px' }}>📍 נקודות מרכזיות:</h3>
+            <ul>
+              {currentData.highlights.map((h, index) => (
+                <li key={index} style={{ marginBottom: '8px' }}>{h}</li>
+              ))}
+            </ul>
+
+            <h3 style={{ fontSize: '16px', color: '#d35400', borderBottom: '2px solid #eee', paddingBottom: '5px', marginTop: '20px' }}>🍽️ המלצות אוכל וגלידה:</h3>
+            <p><strong>🍕 פיצה:</strong> {currentData.food.pizza}</p>
+            <p><strong>🍝 פסטה:</strong> {currentData.food.pasta}</p>
+            <p><strong>🍦 גלידה:</strong> {currentData.food.ice_cream}</p>
+
+            {/* Navigation Buttons for Day */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <a 
+                href={getWazeUrl(currentData.title)} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ flex: 1, backgroundColor: '#3498db', color: 'white', textAlign: 'center', padding: '10px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
+              >
+                נווט ב-Waze
               </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
+              <a 
+                href={getGoogleMapsUrl(currentData.title)} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ flex: 1, backgroundColor: '#27ae60', color: 'white', textAlign: 'center', padding: '10px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
+              >
+                Google Maps
               </a>
-            </li>
-          </ul>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Right Sidebar (Drawer) */}
+      {sidebarOpen && (
+        <div style={{ position: 'fixed', top: 0, right: 0, width: '280px', height: '100%', backgroundColor: 'white', boxShadow: '-5px 0 15px rgba(0,0,0,0.2)', zIndex: 1000, padding: '20px', boxSizing: 'border-box', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '18px', margin: 0, color: '#2c3e50' }}>תפריט ימים</h2>
+            <button 
+              onClick={() => setSidebarOpen(false)}
+              style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {tripDays.map((d) => (
+              <button
+                key={d.day}
+                onClick={() => {
+                  setActiveDay(d.day);
+                  setSidebarOpen(false);
+                }}
+                style={{
+                  textAlign: 'right',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: activeDay === d.day ? '#3498db' : '#f1f2f6',
+                  color: activeDay === d.day ? 'white' : '#333',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '14px'
+                }}
+              >
+                {d.title}
+              </button>
+            ))}
+          </div>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Backdrop for Sidebar */}
+      {sidebarOpen && (
+        <div 
+          onClick={() => setSidebarOpen(false)}
+          style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 999 }}
+        ></div>
+      )}
+
+    </div>
+  );
 }
-
-export default App
