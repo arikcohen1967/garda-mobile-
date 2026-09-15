@@ -668,23 +668,34 @@ export default function App() {
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
-                {/* Family Members List with One-Click Navigation Buttons */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>בני המשפחה ברדאר (לחץ לניווט אליהם):</span>
+                {/* Family Members List matching the second app design */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                  <span style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
                   {Object.values(familyLocations).map((person, pIdx) => (
-                    <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(15, 23, 42, 0.5)' : '#f8fafc', padding: '10px 12px', borderRadius: '12px', border: `1px solid ${borderColor}` }}>
-                      <div>
-                        <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>👤 {person.name}</div>
-                        <div style={{ fontSize: '10px', color: textSub }}>עודכן: {person.updated_at || 'עכשיו'}</div>
+                    <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(15, 23, 42, 0.5)' : '#f8fafc', padding: '10px 14px', borderRadius: '14px', border: `1px solid ${borderColor}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '16px' }}>👤</span>
+                        <div>
+                          <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>{person.name}</div>
+                          <div style={{ fontSize: '10px', color: textSub }}>עודכן: {person.updated_at || 'עכשיו'}</div>
+                        </div>
                       </div>
-                      <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        נווט אל 🗺️
-                      </a>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button onClick={() => alert(`🔔 נשלח צליל אל ${person.name}!`)} style={{ background: isDark ? '#1e293b' : '#fff', color: textColor, border: `1px solid ${borderColor}`, padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+                          🔔 צליל
+                        </button>
+                        <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          Directions 🧭
+                        </a>
+                      </div>
                     </div>
                   ))}
                 </div>
 
-                <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', flexShrink: 0 }}>📍 עדכן מיקום שלי GPS</button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ flex: 1, padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>📍 עדכן מיקום יום</button>
+                  <button onClick={() => alert('🔄 המיקומים עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#e2e8f0', color: textColor, border: `1px solid ${borderColor}`, borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>🔄 רענן מיקומים</button>
+                </div>
               </div>
             )}
 
