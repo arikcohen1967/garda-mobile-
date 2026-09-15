@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -118,7 +118,6 @@ const generate1000TriviaQuestions = () => {
 };
 
 const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
-  const locsArray = Object.values(familyLocs || {});
   let centerLat = 45.4384, centerLng = 10.6816;
   if (sosState?.lat) { centerLat = sosState.lat; centerLng = sosState.lng; }
   else if (myLoc?.lat) { centerLat = myLoc.lat; centerLng = myLoc.lng; }
@@ -172,12 +171,12 @@ export default function App() {
 
   const [savedParking, setSavedParking] = useState(null);
   const [parkingNote, setParkingNote] = useState('');
-
-  // Online / Offline Status State
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [currentWeather, setCurrentWeather] = useState({ temp: '24°C', condition: '☀️ שמש' });
 
-  // Weather GPS State
-  const [currentWeather, setCurrentWeather] = useState({ temp: '24°C', condition: '☀️ שמש נעימה' });
+  // Web Audio Alarm Ref
+  const audioCtxRef = useRef(null);
+  const alarmIntervalRef = useRef(null);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -185,18 +184,105 @@ export default function App() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Fetch GPS Weather simulation based on geolocation
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(() => {
-        setCurrentWeather({ temp: '25°C', condition: '🌤️ מעונן חלקית / שמש' });
+        setCurrentWeather({ temp: '25°C', condition: '🌤️ שמש נעימה' });
       }, () => {});
     }
+
+    // Subscribe to Supabase Realtime for Family Radar & SOS Alarms
+    const channel = supabase.channel('family_trip_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
+        if (payload.new) {
+          setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
+          if (payload.new.is_sos) {
+            setActiveSosAlert(payload.new);
+            triggerSirenSound();
+          }
+        }
+      })
+      .subscribe();
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      supabase.removeChannel(channel);
+      stopSirenSound();
     };
   }, []);
+
+  // Progressive Rising Alarm Sound Generator
+  const triggerSirenSound = () => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      let freq = 300;
+      if (alarmIntervalRef.current) clearInterval(alarmIntervalRef.current);
+
+      alarmIntervalRef.current = setInterval(() => {
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+          // Volume rising progressively
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 0.4);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start();
+          osc.stop(ctx.currentTime + 0.4);
+
+          freq += 80;
+          if (freq > 1200) freq = 300; // Reset loop for rising siren
+        } catch (e) {}
+      }, 500);
+    } catch (e) {}
+  };
+
+  const stopSirenSound = () => {
+    if (alarmIntervalRef.current) {
+      clearInterval(alarmIntervalRef.current);
+      alarmIntervalRef.current = null;
+    }
+  };
+
+  const triggerSos = async () => {
+    if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
+    if (!window.confirm('🚨 להפעיל אזעקת חירום SOS לכל בני המשפחה?')) return;
+
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const sosData = {
+        name: 'אריק',
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        is_sos: true
+      };
+      setActiveSosAlert(sosData);
+      triggerSirenSound();
+      try {
+        await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  };
+
+  const dismissSos = async () => {
+    stopSirenSound();
+    setActiveSosAlert(null);
+    try {
+      await supabase.from('family_radar').upsert([{ name: 'אריק', is_sos: false }], { onConflict: 'name' });
+    } catch (e) {}
+  };
 
   const [triviaQuestions] = useState(() => generate1000TriviaQuestions());
   const [triviaIndex, setTriviaIndex] = useState(0);
@@ -249,18 +335,8 @@ export default function App() {
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  const triggerSos = () => {
-    if (!navigator.geolocation) return alert('GPS אינו נתמך');
-    if (!window.confirm('להפעיל התראת מצוקה SOS?')) return;
-    navigator.geolocation.getCurrentPosition(pos => {
-      const sosData = { name: 'אריק', lat: pos.coords.latitude, lng: pos.coords.longitude, time: new Date().toLocaleTimeString() };
-      setActiveSosAlert(sosData);
-      setModalType('radar');
-    });
-  };
-
   const broadcastMyLocation = async (coords) => {
-    const locObj = { name: 'אריק', lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) };
+    const locObj = { name: 'אריק', lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false };
     setMyLocation({ lat: coords.latitude, lng: coords.longitude });
     setFamilyLocations(prev => ({ ...prev, 'אריק': locObj }));
     try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
@@ -284,7 +360,25 @@ export default function App() {
   return (
     <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: 'system-ui, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
-      {/* Top Header Bar with Version & Uniform Buttons */}
+      {/* GLOBAL RED SOS EMERGENCY OVERLAY FOR ALL USERS */}
+      {activeSosAlert && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(239, 68, 68, 0.95)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center', color: '#fff', animation: 'pulse 1s infinite' }}>
+          <span style={{ fontSize: '64px', marginBottom: '16px' }}>🚨</span>
+          <h1 style={{ fontSize: '28px', fontWeight: '900', margin: '0 0 10px' }}>התרעת חירום SOS פעילה!</h1>
+          <p style={{ fontSize: '18px', fontWeight: '800', marginBottom: '20px' }}>משתמש/ת: {activeSosAlert.name} זקוק/ה לעזרה מיידית!</p>
+          <p style={{ fontSize: '14px', opacity: 0.9, marginBottom: '30px' }}>זמן עדכון: {activeSosAlert.updated_at}</p>
+          <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '350px' }}>
+            <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '14px', background: '#fff', color: '#ef4444', borderRadius: '14px', fontWeight: '900', textDecoration: 'none' }}>
+              נווט למיקום 🗺️
+            </a>
+            <button onClick={dismissSos} style={{ flex: 1, padding: '14px', background: '#1e293b', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer' }}>
+              בטל אזעקה ✓
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Top Header Bar */}
       <header style={{ background: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '12px 16px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -292,7 +386,6 @@ export default function App() {
             ☰
           </button>
           
-          {/* Version badge */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '10px', fontWeight: '800', color: textSub }}>גרסה 2.6</span>
             <span style={{ fontSize: '12px', fontWeight: '900', color: isOnline ? '#22c55e' : '#f59e0b', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -305,18 +398,15 @@ export default function App() {
         {/* Uniform Sized Header Buttons */}
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
           
-          {/* Weather GPS Button */}
           <div style={uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor)}>
             <span>🌤️</span>
             <span>{currentWeather.temp}</span>
           </div>
 
-          {/* Hotel Waze Button */}
           <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor), textDecoration: 'none', background: '#33ccff', color: '#000', borderColor: '#33ccff' }}>
             {WAZE_SVG} למלון
           </a>
           
-          {/* SOS Button */}
           <button onClick={triggerSos} style={{ ...uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor), background: '#ef4444', color: '#fff', borderColor: '#ef4444', border: 'none', cursor: 'pointer' }}>
             🚨 SOS
           </button>
@@ -399,7 +489,7 @@ export default function App() {
 
       </main>
 
-      {/* Modals with Uniform Headings */}
+      {/* Modals */}
       {modalType && (
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: modalType === 'radar' ? 0 : '16px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: modalType === 'radar' ? '16px' : '24px', borderRadius: modalType === 'radar' ? 0 : '24px', width: modalType === 'radar' ? '100vw' : '100%', height: modalType === 'radar' ? '100vh' : 'auto', maxWidth: modalType === 'radar' ? 'none' : '450px', maxHeight: modalType === 'radar' ? 'none' : '85vh', overflowY: 'auto', border: modalType === 'radar' ? 'none' : `1px solid ${borderColor}`, boxShadow: cardShadow, boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
@@ -416,7 +506,6 @@ export default function App() {
               <button onClick={() => setModalType(null)} style={{ background: 'none', border: 'none', color: textColor, fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
             </div>
 
-            {/* RADAR MODAL */}
             {modalType === 'radar' && (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ flex: 1, width: '100%', minHeight: '300px', borderRadius: '16px', overflow: 'hidden' }}>
@@ -426,7 +515,6 @@ export default function App() {
               </div>
             )}
 
-            {/* TIMER MODAL */}
             {modalType === 'timer' && (
               <div>
                 <p style={{ fontSize: '13px', color: textSub, marginBottom: '14px' }}>בחר מצב זמן מהיר או הזן זמן משלך:</p>
@@ -444,7 +532,6 @@ export default function App() {
               </div>
             )}
 
-            {/* TRIVIA MODAL */}
             {modalType === 'trivia' && (
               <div>
                 <div style={{ background: isDark ? '#1e293b' : '#eff6ff', padding: '10px', borderRadius: '10px', marginBottom: '12px', textAlign: 'center', fontSize: '13px', fontWeight: '800' }}>
