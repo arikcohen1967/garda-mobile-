@@ -105,7 +105,7 @@ const ROAD_TRIVIA_QUESTIONS = [
   { q: "כמה שיניים יש לאדם מבוגר בדרך כלל (כולל שיני בינה)?", options: ["28", "32", "36", "24"], correct: 1 },
   { q: "באיזו מדינה באירופה נמצא אגם גארדה?", options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
   { q: "איזה בעל חיים ימי נחשב למהיר ביותר באוקיינוס?", options: ["כריש לבן", "דג מפרש", "דולפין", "לווייתן כחול"], correct: 1 },
-  { q: "מהי בירת איטליה?", options: ["מילانو", "ונציה", "רומא", "פירנצה"], correct: 2 },
+  { q: "מהי בירת איטליה?", options: ["מילאנו", "ונציה", "רומא", "פירנצה"], correct: 2 },
   { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 }
 ];
 
@@ -194,7 +194,6 @@ export default function App() {
     if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
 
     if (questionTimeLeft <= 0) {
-      // Time is up! Move to next question and next traveler automatically
       setQuestionTimeLeft(45);
       setTriviaIndex(prev => prev + 1);
       setTravelerIndex(prev => (prev + 1) % travelers.length);
@@ -381,7 +380,7 @@ export default function App() {
 
   const handleAdminReset = () => {
     const adminPassword = window.prompt("🔒 אזור מנהל בלבד: הזן סיסמת איפוס");
-    if (adminPassword === "1967") {
+    if (adminPassword && adminPassword.trim() === "1967") {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
@@ -592,10 +591,12 @@ export default function App() {
               
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isTriviaPaused ? '#22c55e' : '#f59e0b', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer' }}>
+                  {/* Pause Button in Pleasant Silver */}
+                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#475569' : '#cbd5e1', color: isDark ? '#f8fafc' : '#334155', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
                     {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
                   </button>
-                  <button onClick={handleAdminReset} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer' }}>
+                  {/* Reset Button in Green */}
+                  <button onClick={handleAdminReset} style={{ background: '#10b981', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 5px rgba(16, 185, 129, 0.3)' }}>
                     🔒 איפוס
                   </button>
                 </div>
