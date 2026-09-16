@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v4.8 ---
-const APP_VERSION = 'v4.8';
+// --- GARDA-MOBILE v4.9 ---
+const APP_VERSION = 'v4.9';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -380,14 +380,30 @@ export default function App() {
     }
   }, [myLocation, savedCarParking]);
 
-  useEffect(() => {
-    const handleOrientation = (e) => {
-      if (e.alpha !== null) setCarHeading(e.alpha);
-      else if (e.webkitCompassHeading !== undefined) setCarHeading(e.webkitCompassHeading);
-    };
-    window.addEventListener('deviceorientation', handleOrientation, true);
-    return () => window.removeEventListener('deviceorientation', handleOrientation, true);
-  }, []);
+  // מנגנון מצפן חכם התומך באישור מכשיר במובייל (iOS / Android)
+  const requestCompassPermission = () => {
+    if (typeof window !== 'undefined' && window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
+      window.DeviceOrientationEvent.requestPermission().then(response => {
+        if (response === 'granted') {
+          window.addEventListener('deviceorientation', handleOrientationEvent, true);
+          alert("🧭 גישה למצפן אושרה בהצלחה!");
+        } else {
+          alert("❌ גישה למצפן נדחתה.");
+        }
+      }).catch(() => alert("שגיאה בבקשת גישה למצפן"));
+    } else {
+      window.addEventListener('deviceorientation', handleOrientationEvent, true);
+      alert("🧭 מצפן הופעל!");
+    }
+  };
+
+  const handleOrientationEvent = (e) => {
+    if (e.alpha !== null) {
+      setCarHeading(e.alpha);
+    } else if (e.webkitCompassHeading !== undefined) {
+      setCarHeading(e.webkitCompassHeading);
+    }
+  };
 
   const saveCarLocationNow = () => {
     if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
@@ -415,7 +431,6 @@ export default function App() {
   };
 
   const [aroundMeQuery, setAroundMeQuery] = useState('');
-  const [carCompassHeading, setCarCompassHeading] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
@@ -864,7 +879,7 @@ export default function App() {
         </div>
       )}
 
-      {/* הדר עליון מורווח ומעוצב עם מלבנים תואמים וגובה מוגדל כלפי מטה */}
+      {/* הדר עליון מורווח ומעוצב עם מלבנים תואמים */}
       <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: '8px' }}>
@@ -1492,7 +1507,7 @@ export default function App() {
                     </button>
                   </div>
                 ) : (
-                  <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `2px solid #ef4444`, borderRadius: '20px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
+                  <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `2.5px solid #ef4444`, borderRadius: '20px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
                     <span style={{ background: '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
                     <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
@@ -1502,6 +1517,10 @@ export default function App() {
                         <span style={{ fontSize: '28px' }}>🚗⬆️</span>
                       </div>
                     </div>
+
+                    <button onClick={requestCompassPermission} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(59, 130, 246, 0.3)' }}>
+                      הפעל מצפן 🧭
+                    </button>
 
                     <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>
                       מרחק הליכה: {carDistanceToWalk}
