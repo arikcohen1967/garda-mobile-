@@ -99,7 +99,6 @@ const INITIAL_TRIP_DAYS = [
 
 const TICKET_DEFAULT_FOLDERS = ['✈️ טיסות ורכב', '🏡 מלון', '🎢 Gardaland', '🎬 Movieland', '🚤 ונציה'];
 const DEFAULT_DOCUMENTS = [
-  // Flights (5 Passengers) with Direct PDF/Link Support
   { id: 'flight-arik', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)', isLink: true, url: '#', passenger: 'COHEN/ARIK MR', ticketNo: '8180011314102' },
   { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: true, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: true, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
@@ -107,13 +106,11 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: true, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
   { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true },
-  // Gardaland Tickets (5 Passengers)[cite: 11, 12, 13, 14, 15]
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
   { id: 'gardaland-2', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 2 (Serial 601)', ticketCode: 'VKN1P01Y901ME4T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
   { id: 'gardaland-3', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 3 (Serial 606)', ticketCode: 'TKN1P01Y901MUTT', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
   { id: 'gardaland-4', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 4 (Serial 607)', ticketCode: 'VKN1P01Y901MY6T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
   { id: 'gardaland-5', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 5 (Serial 608)', ticketCode: 'CKN1P01Y901N2IT', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
-  // Movieland Tickets (5 Passengers)[cite: 1, 17, 18, 19, 20]
   { id: 'movieland-1', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 1', ticketCode: 'EA35DB7A2EA540D5', trans: '017JUNAR0070', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
   { id: 'movieland-2', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 2', ticketCode: '256612CCD43B8E08', trans: '017JUNAR0069', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
   { id: 'movieland-3', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 3', ticketCode: '934FEA2F66750267', trans: '017JUNAR0071', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
@@ -204,7 +201,6 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // פונקציית גיבוי קוד מאובטחת בסיסמת מנהל (1967)
   const handleProtectedBackup = () => {
     const adminPassword = window.prompt("🔒 אזור מנהל: הזן סיסמת הורדת גיבוי קוד");
     if (adminPassword && adminPassword.trim() === "1967") {
@@ -612,20 +608,17 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header Bar - Redesigned Two-Tier Header (v2.1) */}
+      {/* Top Header Bar */}
       <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '12px 16px 14px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
         
-        {/* Tier 1: Menu on Right, App Name in Center, Status on Left */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
           
-          {/* Right: Menu Button */}
           <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
             <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#f8fafc', color: textColor, border: `1.5px solid ${borderColor}`, width: '38px', height: '38px', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
               ☰
             </button>
           </div>
 
-          {/* Center: App Name & Protected Backup Button */}
           <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
             <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, letterSpacing: '-0.01em' }}>garda-mobile</span>
             <button 
@@ -637,7 +630,6 @@ export default function App() {
             </button>
           </div>
 
-          {/* Left: Online/Offline Status */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '5px' }}>
             <span style={{ fontSize: '11px', fontWeight: '800', color: isOnline ? '#22c55e' : '#f59e0b' }}>
               {isOnline ? 'Online' : 'Offline'}
@@ -647,7 +639,6 @@ export default function App() {
 
         </div>
 
-        {/* Tier 2: Quick Action Bar */}
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.3fr 1.2fr', gap: '8px', alignItems: 'center' }}>
           <button onClick={triggerSos} style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: '#ef4444', color: '#fff', border: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)' }}>
             <span>🚨</span> SOS חירום
@@ -665,7 +656,6 @@ export default function App() {
 
       </header>
 
-      {/* Active Timer Banner */}
       {activeTimer && (
         <div style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)' }}>
           <span onClick={() => setModalType('timer')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -685,7 +675,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Slide-out Menu Drawer */}
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
@@ -757,7 +746,6 @@ export default function App() {
       {/* Main Container */}
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
-        {/* Days Horizontal Picker - Metallic Black Active Day */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '22px', scrollbarWidth: 'none' }}>
           {INITIAL_TRIP_DAYS.map((d, i) => {
             const isActive = activeDay === i;
@@ -788,7 +776,6 @@ export default function App() {
           })}
         </div>
 
-        {/* Active Day Content */}
         <div style={{ marginBottom: '20px' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', padding: '0 4px' }}>
@@ -799,14 +786,12 @@ export default function App() {
             </div>
           </div>
 
-          {/* Enhanced Challenge Box */}
           <div style={{ background: cardBg, border: `2px solid ${borderColor}`, borderRadius: '20px', padding: '18px', marginBottom: '18px', boxShadow: enhancedCardShadow }}>
             <span style={{ fontSize: '11px', fontWeight: '900', color: '#2563eb', display: 'block', marginBottom: '4px' }}>🎯 אתגר היום:</span>
             <p style={{ margin: '0 0 4px', fontWeight: '900', fontSize: '14px', color: textColor }}>{day.challenge}</p>
             <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{day.challengeDesc}</p>
           </div>
 
-          {/* Enhanced Stops List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={{ background: cardBg, borderRadius: '20px', padding: '18px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow }}>
@@ -827,7 +812,6 @@ export default function App() {
 
       </main>
 
-      {/* Ticket Viewer Modal */}
       {viewerItem && (
         <div onClick={() => setViewerItem(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 4000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '24px', borderRadius: '24px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.3)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'center' }}>
@@ -858,22 +842,11 @@ export default function App() {
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, padding: 0, borderRadius: 0, width: '100vw', height: '100vh', maxWidth: 'none', maxHeight: 'none', overflowY: 'auto', border: 'none', boxShadow: 'none', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative' }}>
             
-            {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', flexShrink: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(15px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
-              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
+            {/* Modal Header - Fixed close button positioning and padding to prevent clipping */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', flexShrink: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, background: isDark ? 'rgba(11, 15, 25, 0.95)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(15px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
+              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '38px', height: '38px', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)', flexShrink: 0 }}>✕</button>
               
-              {modalType === 'trivia' ? (
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
-                    {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
-                  </button>
-                  <button onClick={handleAdminReset} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
-                    🔒 איפוס
-                  </button>
-                </div>
-              ) : null}
-
-              <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, paddingRight: '10px' }}>
+              <h2 style={{ margin: 0, fontSize: '15px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי ומופת האגם'}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
@@ -882,10 +855,21 @@ export default function App() {
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום ושגרירות'}
               </h2>
+
+              {modalType === 'trivia' ? (
+                <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '6px 10px', borderRadius: '10px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
+                  </button>
+                  <button onClick={handleAdminReset} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '6px 10px', borderRadius: '10px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    🔒 איפוס
+                  </button>
+                </div>
+              ) : <div style={{ width: '38px', flexShrink: 0 }} />}
             </div>
 
             {modalType === 'around-me' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '75px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '85px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(aroundMeQuery || 'supermarket')}`} target="_blank" rel="noreferrer" style={{ padding: '14px 24px', background: accentGradient, color: '#fff', borderRadius: '16px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', textAlign: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)' }}>
                     חפש
@@ -928,8 +912,8 @@ export default function App() {
             )}
 
             {modalType === 'radar' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', position: 'relative', boxSizing: 'border-box' }}>
-                <div style={{ width: '100%', flex: 1, minHeight: '65vh', overflow: 'hidden', boxSizing: 'border-box' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', position: 'relative', boxSizing: 'border-box', paddingTop: '75px' }}>
+                <div style={{ width: '100%', flex: 1, minHeight: '60vh', overflow: 'hidden', boxSizing: 'border-box' }}>
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
@@ -1057,10 +1041,32 @@ export default function App() {
 
             {modalType === 'tickets' && (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '85px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '12px', background: bgMain }}>
+                {/* Updated folder buttons: active folder uses #0f172a (metallic black) instead of blue gradient */}
                 <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px' }}>
-                  {folders.map((f, idx) => (
-                    <button key={idx} onClick={() => setActiveFolder(f)} style={{ padding: '10px 14px', borderRadius: '12px', background: activeFolder === f ? accentGradient : (isDark ? '#1e293b' : '#f1f5f9'), color: activeFolder === f ? '#fff' : textColor, border: `1.5px solid ${borderColor}`, fontWeight: '700', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>{f}</button>
-                  ))}
+                  {folders.map((f, idx) => {
+                    const isActiveFolder = activeFolder === f;
+                    return (
+                      <button 
+                        key={idx} 
+                        onClick={() => setActiveFolder(f)} 
+                        style={{ 
+                          padding: '10px 14px', 
+                          borderRadius: '12px', 
+                          background: isActiveFolder ? '#0f172a' : (isDark ? '#1e293b' : '#f1f5f9'), 
+                          color: isActiveFolder ? '#ffffff' : textColor, 
+                          border: `1.5px solid ${isActiveFolder ? '#0f172a' : borderColor}`, 
+                          fontWeight: '800', 
+                          fontSize: '12px', 
+                          cursor: 'pointer', 
+                          whiteSpace: 'nowrap',
+                          boxShadow: isActiveFolder ? '0 4px 12px rgba(15, 23, 42, 0.25)' : 'none',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {f}
+                      </button>
+                    );
+                  })}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {ticketFiles.filter(d => d.folder === activeFolder).map((doc, dIdx) => (
@@ -1089,7 +1095,7 @@ export default function App() {
             )}
 
             {modalType === 'parking' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '75px 12px 16px', boxSizing: 'border-box', overflow: 'hidden', gap: '10px', background: bgMain }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '85px 16px 16px', boxSizing: 'border-box', overflow: 'hidden', gap: '10px', background: bgMain }}>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                     🏡 למלון Vojon
