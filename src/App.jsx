@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v1.2 ---
-const APP_VERSION = 'v1.2';
+// --- GARDA-MOBILE v1.3 ---
+const APP_VERSION = 'v1.3';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
@@ -92,7 +92,7 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "סיכום חוויות בוורונה וטיסה חזרה הביתה.",
     stops: [
       { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", note: "הארנה והמרפסת של יוליה." },
-      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", note: "טיסה חזרה לישראל." }
+      { time: "18:30", name: "שדה התעופה ורונה", dest: "Verona Villafranca Airport", note: "טיסה חזרה לישראל." }
     ]
   }
 ];
@@ -436,12 +436,12 @@ export default function App() {
 
   const isDark = themeMode === 'dark';
   const bgMain = isDark ? '#060913' : '#f1f5f9';
-  const cardBg = isDark ? 'rgba(17, 24, 39, 0.85)' : 'rgba(255, 255, 255, 0.95)';
+  const cardBg = isDark ? 'rgba(17, 24, 39, 0.9)' : 'rgba(255, 255, 255, 0.95)';
   const textColor = isDark ? '#f3f4f6' : '#0f172a';
   const textSub = isDark ? '#9ca3af' : '#64748b';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
   const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
-  const cardShadow = isDark ? '0 12px 35px rgba(0, 0, 0, 0.6)' : '0 10px 30px rgba(15, 23, 42, 0.05)';
+  const cardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 8px 24px rgba(15, 23, 42, 0.04)';
 
   const day = INITIAL_TRIP_DAYS[activeDay];
 
@@ -571,7 +571,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header Bar - Redesigned Two-Tier Header (v1.2) */}
+      {/* Top Header Bar - Redesigned Two-Tier Header (v1.3) */}
       <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '12px 16px 14px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '10px' }}>
         
         {/* Tier 1: Status on Left, App Name in Center, Menu on Right */}
@@ -707,7 +707,7 @@ export default function App() {
 
       </aside>
 
-      {/* Main Container */}
+      {/* Main Container - Without Outer White Box Wrapper */}
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
         {/* Days Horizontal Picker */}
@@ -719,17 +719,18 @@ export default function App() {
           ))}
         </div>
 
-        {/* Active Day Card */}
-        <div style={{ background: cardBg, backdropFilter: 'blur(20px)', border: `1px solid ${borderColor}`, borderRadius: '24px', padding: '24px', boxShadow: cardShadow, marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
+        {/* Active Day Content (Clean Flat Layout without wrapper card) */}
+        <div style={{ marginBottom: '20px' }}>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', padding: '0 4px' }}>
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
               <small style={{ color: '#3b82f6', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
-              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '900', letterSpacing: '-0.01em' }}>{day.title}</h2>
+              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.01em', color: textColor }}>{day.title}</h2>
             </div>
           </div>
 
-          <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.12)' : '#eff6ff', border: '1px solid rgba(59, 130, 246, 0.25)', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+          <div style={{ background: cardBg, backdropFilter: 'blur(20px)', border: `1px solid ${borderColor}`, borderRadius: '20px', padding: '16px', marginBottom: '20px', boxShadow: cardShadow }}>
             <span style={{ fontSize: '11px', fontWeight: '900', color: '#3b82f6', display: 'block', marginBottom: '4px' }}>🎯 אתגר היום:</span>
             <p style={{ margin: '0 0 4px', fontWeight: '900', fontSize: '14px', color: textColor }}>{day.challenge}</p>
             <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{day.challengeDesc}</p>
@@ -737,12 +738,12 @@ export default function App() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {day.stops.map((stop, sIdx) => (
-              <div key={sIdx} style={{ background: isDark ? 'rgba(11, 15, 25, 0.45)' : '#f8fafc', borderRadius: '18px', padding: '16px', border: `1px solid ${borderColor}` }}>
+              <div key={sIdx} style={{ background: cardBg, backdropFilter: 'blur(20px)', borderRadius: '20px', padding: '18px', border: `1px solid ${borderColor}`, boxShadow: cardShadow }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900' }}>{stop.name}</h4>
-                  <span style={{ fontSize: '11px', fontWeight: '800', color: textSub, background: isDark ? '#1e293b' : '#e2e8f0', padding: '4px 10px', borderRadius: '8px' }}>{stop.time}</span>
+                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
+                  <span style={{ fontSize: '11px', fontWeight: '800', color: textSub, background: isDark ? '#1e293b' : '#f1f5f9', padding: '4px 10px', borderRadius: '8px' }}>{stop.time}</span>
                 </div>
-                <p style={{ margin: '0 0 12px', fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{stop.note}</p>
+                <p style={{ margin: '0 0 14px', fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{stop.note}</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#1e293b' : '#fff', color: textColor, padding: '10px', borderRadius: '12px', textDecoration: 'none', fontWeight: '800', fontSize: '12px', textAlign: 'center', border: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>{MAPS_SVG} Maps</a>
                   <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '10px', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 5px rgba(56, 189, 248, 0.25)' }}>{WAZE_SVG} Waze</a>
@@ -750,6 +751,7 @@ export default function App() {
               </div>
             ))}
           </div>
+
         </div>
 
       </main>
