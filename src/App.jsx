@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v2.8 ---
-const APP_VERSION = 'v2.8';
+// --- GARDA-MOBILE v2.9 ---
+const APP_VERSION = 'v2.9';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -224,7 +224,7 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // פונקציית גיבוי עם הודעת מנהל נקייה בדיוק כפי שביקשת
+  // פונקציית גיבוי עם הודעת מנהל ופקודת alert נקיות לחלוטין לפי בקשתך
   const handleProtectedBackup = () => {
     const promptMessage = `גרסה עדכנית: v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן`;
     const adminPassword = window.prompt(promptMessage);
@@ -241,7 +241,7 @@ export default function App() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        alert(`💾 גיבוי מלא של גרסה ${APP_VERSION} הורד בהצלחה למכשירך!`);
+        alert(`v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן`);
       } catch (err) {
         alert("❌ שגיאה בהורדת קובץ הגיבוי.");
       }
