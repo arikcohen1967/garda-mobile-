@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v2.5 ---
-const APP_VERSION = 'v2.5';
+// --- GARDA-MOBILE v2.6 ---
+const APP_VERSION = 'v2.6';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -201,7 +201,7 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // פונקציית הגיבוי המעודכנת עם הטקסט המדויק שביקשת
+  // פונקציית גיבוי עם הודעה נקייה לפי דרישתך
   const handleProtectedBackup = () => {
     const promptMessage = `גרסה עדכנית: v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן\n\nהזן סיסמת מנהל:`;
     const adminPassword = window.prompt(promptMessage);
@@ -790,13 +790,25 @@ export default function App() {
           })}
         </div>
 
+        {/* Active Day Content */}
         <div style={{ marginBottom: '20px' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', padding: '0 4px' }}>
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
               <small style={{ color: '#2563eb', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
-              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.01em', color: textColor }}>{day.title}</h2>
+              {/* כותרת היום הפכה לכפתור לחיץ שפותח מפה עם סיכה אדומה של המיקום הנוכחי */}
+              <a 
+                href={myLocation ? `https://maps.google.com/?q=${myLocation.lat},${myLocation.lng}` : `https://maps.google.com/?q=${encodeURIComponent(HOTEL_ADDRESS)}`} 
+                target="_blank" 
+                rel="noreferrer"
+                style={{ textDecoration: 'none', display: 'block', cursor: 'pointer' }}
+                title="לחץ לפתיחת מפה עם המיקום הנוכחי שלך וסיכה אדומה"
+              >
+                <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.01em', color: textColor, transition: 'color 0.2s' }}>
+                  {day.title} 📍
+                </h2>
+              </a>
             </div>
           </div>
 
