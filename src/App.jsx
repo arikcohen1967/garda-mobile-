@@ -337,7 +337,6 @@ export default function App() {
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
 
-  // מנגנון חנה וסע בטוח עם טיפול מלא במצבי null ומונע מסך לבן
   const [savedCarParking, setSavedCarParking] = useState(() => {
     try {
       const saved = localStorage.getItem('garda-car-parking');
@@ -421,7 +420,6 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // חלון גיבוי מנהל מעוצב
   const [backupModalOpen, setBackupModalOpen] = useState(false);
   const [adminPassInput, setAdminPassInput] = useState('');
 
@@ -445,6 +443,7 @@ export default function App() {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         setBackupModalOpen(false);
+        
         alert(`💾 גיבוי מלא של גרסה ${APP_VERSION} הורד בהצלחה למכשירך!`);
       } catch (err) {
         alert("❌ שגיאה בהורדת קובץ הגיבוי.");
@@ -681,26 +680,6 @@ export default function App() {
     } catch (e) {}
   };
 
-  const requestCompassPermission = () => {
-    if (typeof window !== 'undefined' && window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
-      window.DeviceOrientationEvent.requestPermission().then(response => {
-        if (response === 'granted') {
-          window.addEventListener('deviceorientation', (e) => {
-            if (e.alpha !== null) setCarCompassHeading(e.alpha);
-          });
-          alert("🧭 גישה למצפן אושרה בהצלחה!");
-        } else {
-          alert("❌ גישה למצפן נדחתה.");
-        }
-      }).catch(() => alert("שגיאה בבקשת גישה למצפן"));
-    } else {
-      window.addEventListener('deviceorientation', (e) => {
-        if (e.alpha !== null) setCarCompassHeading(e.alpha);
-      });
-      alert("🧭 מצפן הופעל!");
-    }
-  };
-
   const isDark = themeMode === 'dark';
   const bgMain = isDark ? '#060913' : '#ffffff';
   const cardBg = isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff';
@@ -805,7 +784,6 @@ export default function App() {
   return (
     <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
-      {/* GLOBAL HALF-SCREEN RED SOS EMERGENCY BANNER */}
       {activeSosAlert && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '50vh', background: 'rgba(239, 68, 68, 0.95)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', color: '#fff', borderBottomLeftRadius: '28px', borderBottomRightRadius: '28px', boxShadow: '0 15px 40px rgba(0,0,0,0.6)', boxSizing: 'border-box' }}>
           <span style={{ fontSize: '44px', marginBottom: '8px' }}>🚨</span>
@@ -823,7 +801,6 @@ export default function App() {
         </div>
       )}
 
-      {/* חלון מודל גיבוי מנהל מעוצב */}
       {backupModalOpen && (
         <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '26px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.4)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
@@ -857,7 +834,6 @@ export default function App() {
         </div>
       )}
 
-      {/* INCOMING SOUND & MESSAGE ALERT BANNER */}
       {activeSoundAlert && (
         <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '400px', background: '#2563eb', zIndex: 9998, borderRadius: '22px', padding: '18px', textAlign: 'center', color: '#fff', boxShadow: '0 15px 40px rgba(37, 99, 235, 0.4)', boxSizing: 'border-box', border: '2px solid rgba(255,255,255,0.3)' }}>
           <span style={{ fontSize: '32px' }}>🔔</span>
@@ -872,7 +848,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header Bar */}
       <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '12px 16px 14px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
@@ -1029,7 +1004,6 @@ export default function App() {
 
       </aside>
 
-      {/* Main Container */}
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '22px', scrollbarWidth: 'none' }}>
@@ -1062,7 +1036,6 @@ export default function App() {
           })}
         </div>
 
-        {/* Active Day Content */}
         <div style={{ marginBottom: '20px' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', padding: '0 4px' }}>
@@ -1153,12 +1126,10 @@ export default function App() {
         </div>
       )}
 
-      {/* Modals */}
       {modalType && (
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, padding: 0, borderRadius: 0, width: '100vw', height: '100vh', maxWidth: 'none', maxHeight: 'none', overflowY: 'auto', border: 'none', boxShadow: 'none', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative' }}>
             
-            {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', flexShrink: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10050, background: isDark ? 'rgba(11, 15, 25, 0.96)' : 'rgba(255, 255, 255, 0.96)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box', minHeight: '76px' }}>
               <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '42px', height: '42px', borderRadius: '14px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexShrink: 0 }}>✕</button>
               
