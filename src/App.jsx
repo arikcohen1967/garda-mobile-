@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v4.4 ---
-const APP_VERSION = 'v4.4';
+// --- GARDA-MOBILE v4.5 ---
+const APP_VERSION = 'v4.5';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו ביום הראשון של הטיול! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
       { time: "18:00", name: "נסיעה למלון והתארגנות", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין במלון ומנוחה קצרה לפני ארוחת הערב." }
     ],
     culinary: { name: "Pizzeria Trattoria al Ponte (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "פיצות נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית, ולקינוח גלידה איטלקית אמיתית (Gelateria Popolare)." },
@@ -337,7 +337,7 @@ export default function App() {
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
 
-  // מנגנון Car Finder Pro למפגש עם הרכב
+  // מנגנון חנה וסע בטוח עם טיפול מלא במצבי null ומונע מסך לבן
   const [savedCarParking, setSavedCarParking] = useState(() => {
     try {
       const saved = localStorage.getItem('garda-car-parking');
@@ -346,7 +346,7 @@ export default function App() {
   });
   const [carNoteInput, setCarNoteInput] = useState('');
   const [carHeading, setCarHeading] = useState(0);
-  const [carDistanceToWalk, setCarDistanceToWalk] = useState(0);
+  const [carDistanceToWalk, setCarDistanceToWalk] = useState('0 ק"מ');
   const [carBearingToWalk, setCarBearingToWalk] = useState(0);
 
   useEffect(() => {
@@ -360,21 +360,25 @@ export default function App() {
   }, [savedCarParking]);
 
   useEffect(() => {
-    if (!savedCarParking || !myLocation) return;
-    const lat1 = myLocation.lat * (Math.PI / 180);
-    const lon1 = myLocation.lng * (Math.PI / 180);
-    const lat2 = savedCarParking.lat * (Math.PI / 180);
-    const lon2 = savedCarParking.lng * (Math.PI / 180);
+    if (!savedCarParking || !myLocation || typeof myLocation.lat !== 'number' || typeof myLocation.lng !== 'number') return;
+    try {
+      const lat1 = myLocation.lat * (Math.PI / 180);
+      const lon1 = myLocation.lng * (Math.PI / 180);
+      const lat2 = savedCarParking.lat * (Math.PI / 180);
+      const lon2 = savedCarParking.lng * (Math.PI / 180);
 
-    const dLon = lon2 - lon1;
-    const y = Math.sin(dLon) * Math.cos(lat2);
-    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-    let brng = Math.atan2(y, x) * (180 / Math.PI);
-    brng = (brng + 360) % 360;
-    setCarBearingToWalk(brng);
+      const dLon = lon2 - lon1;
+      const y = Math.sin(dLon) * Math.cos(lat2);
+      const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+      let brng = Math.atan2(y, x) * (180 / Math.PI);
+      brng = (brng + 360) % 360;
+      setCarBearingToWalk(brng);
 
-    const { dist } = calculateDistanceAndDuration(myLocation.lat, myLocation.lng, savedCarParking.lat, savedCarParking.lng);
-    setCarDistanceToWalk(dist);
+      const { dist } = calculateDistanceAndDuration(myLocation.lat, myLocation.lng, savedCarParking.lat, savedCarParking.lng);
+      setCarDistanceToWalk(dist);
+    } catch (err) {
+      setCarDistanceToWalk('---');
+    }
   }, [myLocation, savedCarParking]);
 
   useEffect(() => {
@@ -786,7 +790,7 @@ export default function App() {
         </div>
       )}
 
-      {/* חלון מודל גיבוי מנהל מעוצב המכיל את הטקסט המדויק שלך */}
+      {/* חלון מודל גיבוי מנהל מעוצב */}
       {backupModalOpen && (
         <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '26px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.4)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
