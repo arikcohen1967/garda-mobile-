@@ -187,7 +187,7 @@ const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
     <html>
     <head>
       <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
       <style>
@@ -278,7 +278,7 @@ const generateMapHTML = (familyLocs, myLoc, sosState, activeDayIndex, isDark) =>
     <html>
     <head>
       <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
       <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; } #map { width: 100%; height: 100%; }</style>
@@ -445,7 +445,6 @@ export default function App() {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
-        // מציג הודעת הצלחה בתוך המודל בלי להשתמש ב-alert של הדפדפן
         setBackupSuccessMsg(true);
       } catch (err) {
         alert("❌ שגיאה בהורדת קובץ הגיבוי.");
@@ -804,7 +803,7 @@ export default function App() {
       )}
 
       {backupModalOpen && (
-        <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
+        <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)', touchAction: 'none' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
             <span style={{ fontSize: '32px' }}>🔒</span>
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>גרסה נוכחית: {APP_VERSION}</h3>
@@ -829,7 +828,7 @@ export default function App() {
                   placeholder="הזן סיסמה (1967)" 
                   value={adminPassInput} 
                   onChange={e => setAdminPassInput(e.target.value)} 
-                  style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                  style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
                 />
                 <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
                   <button 
@@ -1472,7 +1471,7 @@ export default function App() {
                       placeholder="הוסף הערה (למשל: קומה 2, ליד עמוד B4)" 
                       value={carNoteInput} 
                       onChange={e => setCarNoteInput(e.target.value)} 
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '13px', boxSizing: 'border-box' }} 
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} 
                     />
 
                     <button 
