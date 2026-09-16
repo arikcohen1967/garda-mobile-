@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v2.9 ---
-const APP_VERSION = 'v2.9';
+// --- GARDA-MOBILE v3.0 ---
+const APP_VERSION = 'v3.0';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -126,6 +126,54 @@ const ROAD_TRIVIA_QUESTIONS = [
   { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 }
 ];
 
+// פונקציית ייצור מפה הכוללת קו ניווט מהמיקום הנוכחי עד ליעד של אותו יום
+const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
+  let centerLat = 45.4384, centerLng = 10.6816;
+  if (myLoc?.lat) { centerLat = myLoc.lat; centerLng = myLoc.lng; }
+
+  const targetDayObj = INITIAL_TRIP_DAYS[targetDayIndex] || INITIAL_TRIP_DAYS[0];
+  const firstStop = targetDayObj.stops[0];
+  const destLat = firstStop?.lat || 45.4192;
+  const destLng = firstStop?.lng || 10.6908;
+  const destName = firstStop?.name || targetDayObj.title;
+
+  const currentLat = myLoc?.lat || 45.4384;
+  const currentLng = myLoc?.lng || 10.6816;
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; } #map { width: 100%; height: 100%; }</style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+        // סיכה במיקום הנוכחי שלך
+        L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך').openPopup();
+
+        // סיכה ביעד של אותו יום
+        L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ${destName}');
+
+        // קו ניווט ברור בין המיקום הנוכחי ליעד
+        const latlngs = [
+          [${currentLat}, ${currentLng}],
+          [${destLat}, ${destLng}]
+        ];
+        L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
+      </script>
+    </body>
+    </html>
+  `;
+};
+
 const generateMapHTML = (familyLocs, myLoc, sosState, activeDayIndex, isDark) => {
   let centerLat = 45.4384, centerLng = 10.6816;
   if (sosState?.lat) { centerLat = sosState.lat; centerLng = sosState.lng; }
@@ -224,7 +272,7 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // פונקציית גיבוי עם הודעת מנהל ופקודת alert נקיות לחלוטין לפי בקשתך
+  // פונקציית גיבוי עם הודעת מנהל ופקודת alert נקיות לחלוטין
   const handleProtectedBackup = () => {
     const promptMessage = `גרסה עדכנית: v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן`;
     const adminPassword = window.prompt(promptMessage);
@@ -821,18 +869,16 @@ export default function App() {
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
               <small style={{ color: '#2563eb', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
-              {/* כותרת היום הלחיצה שפותחת את אפליקציית המפות עם סיכה אדומה של המיקום הנוכחי */}
-              <a 
-                href={myLocation ? `https://maps.google.com/?q=${myLocation.lat},${myLocation.lng}` : `https://maps.google.com/?q=${encodeURIComponent(HOTEL_ADDRESS)}`} 
-                target="_blank" 
-                rel="noreferrer"
-                style={{ textDecoration: 'none', display: 'block', cursor: 'pointer' }}
-                title="לחץ לפתיחת מפה עם המיקום הנוכחי שלך וסיכה אדומה"
+              {/* כותרת היום הפכה לכפתור שפותח חלון מפה עם קו ניווט ברור מהמיקום הנוכחי ליעד של אותו יום */}
+              <button 
+                onClick={() => setModalType('route-map')}
+                style={{ background: 'transparent', border: 'none', padding: 0, textAlign: 'right', cursor: 'pointer' }}
+                title="לחץ לפתיחת מפת ניווט מהמיקום שלך ליעד"
               >
                 <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.01em', color: textColor, transition: 'color 0.2s' }}>
                   {day.title} 📍
                 </h2>
-              </a>
+              </button>
             </div>
           </div>
 
@@ -898,6 +944,7 @@ export default function App() {
               
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי ומופת האגם'}
+                {modalType === 'route-map' && `🗺️ ניווט ליעד: ${day.title}`}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 שמירת מיקום רכב חכם'}
@@ -917,6 +964,14 @@ export default function App() {
                 </div>
               ) : <div style={{ width: '42px', flexShrink: 0 }} />}
             </div>
+
+            {modalType === 'route-map' && (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', position: 'relative', boxSizing: 'border-box', paddingTop: '75px' }}>
+                <div style={{ width: '100%', flex: 1, minHeight: '80vh', overflow: 'hidden', boxSizing: 'border-box' }}>
+                  <iframe title="Route Map" srcDoc={generateRouteMapHTML(myLocation, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
+                </div>
+              </div>
+            )}
 
             {modalType === 'around-me' && (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
