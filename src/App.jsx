@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v3.5 ---
-const APP_VERSION = 'v3.5';
+// --- GARDA-MOBILE v3.6 ---
+const APP_VERSION = 'v3.6';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -38,8 +38,10 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "הרגע נחתנו ביום הראשון של הטיול! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
       { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות ורכב שכור." },
-      { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
-    ]
+      { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 Pizzeria Trattoria al Ponte (פסקיירה דל גארדה)", dest: "Peschiera del Garda, Italy" } }
+    ],
+    culinaryTip: "🍕 ארוחת ערב ראשונה: פיצה נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית סמוך למלון, לקינוח גלידה איטלקית אמיתית (Gelateria Popolare).",
+    creativeTip: "🎨 עצירה ליצירה: במהלך הנסיעה מהשדה למלון, עצרו ליד גדת נהר המיצ׳ו בפסקיירה לפתיחת מחברות ציור וצביעת הנוף המים הראשון שלכם באיטליה."
   },
   {
     date: "2026-10-01", label: "חמישי · 01/10", title: "Gardaland – יום פארק מלא", icon: "🎢",
@@ -47,8 +49,10 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "צלמו תמונה צועקים על אחד המתקנים וספרו מי צעק הכי חזק.",
     stops: [
       { time: "08:30", name: "יציאה מהמלון ל-Gardaland", dest: "Gardaland Resort, Castelnuovo del Garda", lat: 45.4526, lng: 10.7153, note: "הגעה מוקדמת לפני פתיחת השערים." },
-      { time: "13:00", name: "ארוחת צהריים בפארק", dest: "Gardaland Resort", lat: 45.4526, lng: 10.7153, note: "אוכל מהיר והמבורגרים.", food: { name: "🍔 Aladino Pizza & Burger", dest: "Gardaland Resort" } }
-    ]
+      { time: "13:00", name: "ארוחת צהריים בפארק", dest: "Gardaland Resort", lat: 45.4526, lng: 10.7153, note: "אוכל מהיר והמבורגרים.", food: { name: "🍔 Aladino Pizza & Burger / Fast Food inside Park", dest: "Gardaland Resort" } }
+    ],
+    culinaryTip: "🍔 צהריים מהירים של המבורגרים וצ'יפס בפארק, ובערב אחרי שיוצאים מگارדלנד – עצירה ב-Roadhouse Restaurant בפסקיירה להמבורגרים עסיסיים וסטייקים על האש.",
+    creativeTip: "🎨 עצירה ליצירה: לפני הכניסה לפארק, עצרו לרגע להכין סיכת 'אמיצים בגארדלנד' מקרטון קשיח וטושים שתיקחו איתכם לתיק."
   },
   {
     date: "2026-10-02", label: "שישי · 02/10", title: "מונטה באלדו + סירמיונה", icon: "🚠",
@@ -56,8 +60,10 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "תצפית מרהיבה מגובה 1,800 מטר באלדו ולאחר מכן שיטוט בסמטאות סירמיונה.",
     stops: [
       { time: "08:30", name: "רכבל מונטה באלדו (מלצ׳סינה)", dest: "Funivia Malcesine-Monte Baldo", lat: 45.7797, lng: 10.8105, note: "רכבל מסתובב אל פסגת ההר." },
-      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", lat: 45.4925, lng: 10.6053, note: "עיירת ימי ביניים קסומה באגם.", food: { name: "🍦 גלידה מפורסמת בסירמיונה", dest: "Sirmione, Italy" } }
-    ]
+      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", lat: 45.4925, lng: 10.6053, note: "עיירת ימי ביניים קסומה באגם.", food: { name: "🍦 Gelateria跟你 / La Cremeria di Sirmione", dest: "Sirmione, Italy" } }
+    ],
+    culinaryTip: "🍝 צהריים בסירמיונה: פסטה טרטליני או רביולי מדהימה במסעדה צופה לאגם (Trattoria La Marsa), וחובה לעצור בגלידריה המפורסמת (Gelateria Iguana) עם עשרות טעמים מטורפים.",
+    creativeTip: "🎨 עצירה ליצירה: בפסגת מונטה באלדו, על רקע העננים, הוציאו דפי סקיצות וציירו את האגם מלמעלה כמפה של הרפתקנים."
   },
   {
     date: "2026-10-03", label: "שבת · 03/10", title: "Movieland + Medieval Times", icon: "🎬",
@@ -65,8 +71,10 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "פוזה דרמטית ליד תפאורת סרט ב-Movieland.",
     stops: [
       { time: "09:00", name: "Movieland The Hollywood Park", dest: "Movieland The Hollywood Park, Lazise", lat: 45.4745, lng: 10.7291, note: "יום אקשן וחוויות קולנועיות." },
-      { time: "20:00", name: "Medieval Times – מופע האבירים", dest: "Medieval Times, Lazise", lat: 45.4745, lng: 10.7291, note: "ארוחה ללא סכו״ם ואבירים.", food: { name: "🍗 Medieval Times", dest: "Medieval Times, Lazise" } }
-    ]
+      { time: "20:00", name: "Medieval Times – מופע האבירים", dest: "Medieval Times, Lazise", lat: 45.4745, lng: 10.7291, note: "ארוחה ללא סכו״ם ואבירים.", food: { name: "🍗 Medieval Times Banquet", dest: "Medieval Times, Lazise" } }
+    ],
+    culinaryTip: "🍗 ארוחת ערב חווייתית ללא סכו״ם במופע האבירים (Medieval Times) הכוללת עוף צלוי, תפוחי אדמה ומאפים בסגנון ימי הביניים.",
+    creativeTip: "🎨 עצירה ליצירה: הכנת כתרים קטנים מנייר כסף או דפים צבעוניים לפני הכניסה למופע האבירים."
   },
   {
     date: "2026-10-04", label: "ראשון · 04/10", title: "ונציה – עיר המים", icon: "🛶",
@@ -75,7 +83,9 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { time: "07:30", name: "יציאה לוונציה", dest: "Venezia Tronchetto Parking", lat: 45.4384, lng: 12.3167, note: "חנייה ומעבר בסירה למרכז." },
       { time: "09:30", name: "כיכר סן מרקו", dest: "St. Mark's Square, Venice", lat: 45.4343, lng: 12.3388, note: "הלב הפועם של ונציה." }
-    ]
+    ],
+    culinaryTip: "🍕 פיצה אל טאליו (פיצה בחתיכות בעמידה) מהירה בסמטאות ונציה לארוחת צהריים קלילה, וגלידה איטלקית איכותית ב-Suso Gelatoteca.",
+    creativeTip: "🎨 עצירה ליצירה: עצירה קצרה על אחד הגשרים הפחות עמוסים לציור מהיר של גונדולה חולפת עם צבעי מים קטנים."
   },
   {
     date: "2026-10-05", label: "שני · 05/10", title: "X Rafting + Borghetto", icon: "🚣",
@@ -83,8 +93,10 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "אקשן מים מסעיר בבוקר וטיול רומנטי בבורגטו בצהריים.",
     stops: [
       { time: "09:00", name: "X Rafting", dest: "X Rafting, Italy", lat: 45.5512, lng: 10.8523, note: "שיט ראפטינג משפחתי מרגש בנהר." },
-      { time: "12:30", name: "Borghetto sul Mincio", dest: "Borghetto sul Mincio", lat: 45.3524, lng: 10.6972, note: "כפר טחנות מרהיב.", food: { name: "🍝 טורטליני בבורגטו", dest: "Valeggio sul Mincio" } }
-    ]
+      { time: "12:30", name: "Borghetto sul Mincio", dest: "Borghetto sul Mincio", lat: 45.3524, lng: 10.6972, note: "כפר טחנות מרהיב.", food: { name: "🍝 Ristorante Alla Borsa (Valeggio)", dest: "Valeggio sul Mincio" } }
+    ],
+    culinaryTip: "🍝 חובה טעימת טורטליני מפורסם ('הקשר האהבה') בבורגטו או ולג'ו סול מינצ'ו באחת ממסעדות הפסטה העתיקות על גדות הנהר.",
+    creativeTip: "🎨 עצירה ליצירה: ישיבה על גדת הנהר בבורגטו מול טחנות המים לבניית סירות קטנות מעלים וענפים ושילוחן בזרם."
   },
   {
     date: "2026-10-06", label: "שלישי · 06/10", title: "ורונה + חזרה לישראל", icon: "❤️",
@@ -93,7 +105,9 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", lat: 45.4384, lng: 10.9916, note: "ארנה והמרפסת של יוליה." },
       { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "טיסה חזרה לישראל." }
-    ]
+    ],
+    culinaryTip: "🍔 ארוחת צהריים אחרונה בוורונה לפני השדה: המבורגר מעולה ב-Farcito Verona או פיצה דקה ומיוחדת ב-Pizzeria Sapore.",
+    creativeTip: "🎨 עצירה ליצירה: כתיבת גלוית פרידה קטנה וציור סמלי של הטיול בבית המלון לפני העזיבה לשדה התעופה."
   }
 ];
 
@@ -955,6 +969,19 @@ export default function App() {
             <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{day.challengeDesc}</p>
           </div>
 
+          {/* המלצות קולינריות ויצירה */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '18px' }}>
+            <div style={{ background: isDark ? 'rgba(217, 119, 6, 0.12)' : '#fffbeb', border: '1.5px solid rgba(217, 119, 6, 0.3)', borderRadius: '16px', padding: '14px 16px', boxShadow: enhancedCardShadow }}>
+              <span style={{ fontSize: '12px', fontWeight: '900', color: '#d97706', display: 'block', marginBottom: '4px' }}>🍝 המלצות קולינריות לדרך:</span>
+              <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: textColor, lineHeight: '1.4' }}>{day.culinaryTip}</p>
+            </div>
+
+            <div style={{ background: isDark ? 'rgba(16, 185, 129, 0.12)' : '#ecfdf5', border: '1.5px solid rgba(16, 185, 129, 0.3)', borderRadius: '16px', padding: '14px 16px', boxShadow: enhancedCardShadow }}>
+              <span style={{ fontSize: '12px', fontWeight: '900', color: '#10b981', display: 'block', marginBottom: '4px' }}>🎨 תחנת יצירה וחוויות:</span>
+              <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: textColor, lineHeight: '1.4' }}>{day.creativeTip}</p>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={{ background: cardBg, borderRadius: '20px', padding: '18px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow }}>
@@ -1370,7 +1397,6 @@ const timerPresetBtn = {
 };
 
 const emergencyBtnStyle = {
-  pop: 'none',
   padding: '14px',
   borderRadius: '14px',
   background: '#fee2e2',
