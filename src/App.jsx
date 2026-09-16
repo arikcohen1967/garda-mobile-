@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v3.2 ---
-const APP_VERSION = 'v3.2';
+// --- GARDA-MOBILE v3.3 ---
+const APP_VERSION = 'v3.3';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -128,7 +128,37 @@ const ROAD_TRIVIA_QUESTIONS = [
 
 const TRAVELERS_LIST = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
 
-// מפה דינמית המשתמשת במיקום המכשיר בפועל ומציגה את המסלול ליעד
+// חישוב מרחק מדויק (Haversine formula) וזמן נסיעה מוערך
+const calculateDistanceAndDuration = (lat1, lon1, lat2, lon2) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return { dist: '---', duration: '---' };
+  const R = 6371; // רדיוס כדור הארץ בק"מ
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distKm = R * c;
+  
+  // הערכת זמן נסיעה לפי מהירות ממוצעת משוערת של 70 קמ"ש בדרכים באיטליה
+  const hours = distKm / 70;
+  const mins = Math.round(hours * 60);
+  
+  let durationStr = `${mins} דק'`;
+  if (mins >= 60) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    durationStr = `${h} שע' ${m > 0 ? `${m} דק'` : ''}`;
+  }
+
+  return {
+    dist: `${distKm.toFixed(1)} ק"מ`,
+    duration: durationStr
+  };
+};
+
+// מפה דינמית הכוללת את תושבת הנתונים (ק"מ וזמן נסיעה) מעוצבת למעלה
 const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
   const currentLat = myLoc?.lat || 45.4384;
   const currentLng = myLoc?.lng || 10.6816;
@@ -139,6 +169,8 @@ const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
   const destLng = firstStop?.lng || 10.6908;
   const destName = firstStop?.name || targetDayObj.title;
 
+  const { dist, duration } = calculateDistanceAndDuration(currentLat, currentLng, destLat, destLng);
+
   return `
     <!DOCTYPE html>
     <html>
@@ -147,21 +179,44 @@ const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-      <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; } #map { width: 100%; height: 100%; }</style>
+      <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; }
+        #map { width: 100%; height: 100%; }
+        .route-badge {
+          position: absolute;
+          top: 15px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 9999;
+          background: ${isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.95)'};
+          color: ${isDark ? '#f8fafc' : '#0f172a'};
+          padding: 10px 18px;
+          border-radius: 16px;
+          font-weight: 900;
+          font-size: 13px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+          backdrop-filter: blur(10px);
+          border: 1.5px solid ${isDark ? 'rgba(255,255,255,0.2)' : '#cbd5e1'};
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          direction: rtl;
+        }
+        .route-badge span { color: #2563eb; }
+      </style>
     </head>
     <body>
+      <div class="route-badge">
+        <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️ זמן:</span> ${duration}
+      </div>
       <div id="map"></div>
       <script>
         const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-        // סיכה במיקום הנוכחי המדויק של המכשיר שלך
         L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך (GPS)').openPopup();
+        L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ' + "${destName}");
 
-        // סיכה ביעד של אותו יום
-        L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ${destName}');
-
-        // קו ניווט אדום מקווקוו מהמיקום שלך ליעד
         const latlngs = [
           [${currentLat}, ${currentLng}],
           [${destLat}, ${destLng}]
@@ -889,7 +944,7 @@ export default function App() {
               <button 
                 onClick={() => setModalType('route-map')}
                 style={{ background: 'transparent', border: 'none', padding: 0, textAlign: 'right', cursor: 'pointer' }}
-                title="לחץ לפתיחת מפת ניווט מהמיקום שלך ליעד"
+                title="לחץ לפתיחת מפת ניווט מהמיקום שלך ליעד עם הערכת זמן ומרחק"
               >
                 <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.01em', color: textColor, transition: 'color 0.2s' }}>
                   {day.title} 📍
@@ -955,7 +1010,7 @@ export default function App() {
           <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, padding: 0, borderRadius: 0, width: '100vw', height: '100vh', maxWidth: 'none', maxHeight: 'none', overflowY: 'auto', border: 'none', boxShadow: 'none', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative' }}>
             
             {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', flexShrink: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, background: isDark ? 'rgba(11, 15, 25, 0.96)' : 'rgba(255, 255, 255, 0.96)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box', minHeight: '76px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', flexShrink: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10050, background: isDark ? 'rgba(11, 15, 25, 0.96)' : 'rgba(255, 255, 255, 0.96)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box', minHeight: '76px' }}>
               <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '42px', height: '42px', borderRadius: '14px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexShrink: 0 }}>✕</button>
               
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
