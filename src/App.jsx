@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v3.1 ---
-const APP_VERSION = 'v3.1';
+// --- GARDA-MOBILE v3.2 ---
+const APP_VERSION = 'v3.2';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -128,19 +128,16 @@ const ROAD_TRIVIA_QUESTIONS = [
 
 const TRAVELERS_LIST = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
 
-// פונקציית ייצור מפה הכוללת קו ניווט מהמיקום הנוכחי עד ליעד של אותו יום
+// מפה דינמית המשתמשת במיקום המכשיר בפועל ומציגה את המסלול ליעד
 const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
-  let centerLat = 45.4384, centerLng = 10.6816;
-  if (myLoc?.lat) { centerLat = myLoc.lat; centerLng = myLoc.lng; }
+  const currentLat = myLoc?.lat || 45.4384;
+  const currentLng = myLoc?.lng || 10.6816;
 
   const targetDayObj = INITIAL_TRIP_DAYS[targetDayIndex] || INITIAL_TRIP_DAYS[0];
   const firstStop = targetDayObj.stops[0];
   const destLat = firstStop?.lat || 45.4192;
   const destLng = firstStop?.lng || 10.6908;
   const destName = firstStop?.name || targetDayObj.title;
-
-  const currentLat = myLoc?.lat || 45.4384;
-  const currentLng = myLoc?.lng || 10.6816;
 
   return `
     <!DOCTYPE html>
@@ -158,9 +155,13 @@ const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
         const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-        L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך').openPopup();
+        // סיכה במיקום הנוכחי המדויק של המכשיר שלך
+        L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך (GPS)').openPopup();
+
+        // סיכה ביעד של אותו יום
         L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ${destName}');
 
+        // קו ניווט אדום מקווקוו מהמיקום שלך ליעד
         const latlngs = [
           [${currentLat}, ${currentLng}],
           [${destLat}, ${destLng}]
@@ -238,7 +239,6 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
   
-  // זיהוי המשתמש הנוכחי במכשיר (קריטי כדי שכולם יוכלו לראות ולנווט אחד לשני)
   const [currentUser, setCurrentUser] = useState(() => {
     try { return localStorage.getItem('garda-current-user') || 'אריק'; } catch (e) { return 'אריק'; }
   });
@@ -781,7 +781,6 @@ export default function App() {
           <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
         </div>
 
-        {/* בחירת משתמש עבור הרדאר */}
         <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: '1.5px solid rgba(59, 130, 246, 0.3)', padding: '12px', borderRadius: '16px' }}>
           <label style={{ fontSize: '12px', fontWeight: '900', color: '#3b82f6', display: 'block', marginBottom: '6px' }}>👤 מי משתמש בטלפון הזה?</label>
           <select 
@@ -886,6 +885,7 @@ export default function App() {
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
               <small style={{ color: '#2563eb', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
+              {/* כותרת היום הלחיצה שפותחת מפה דינמית מבוססת GPS עד ליעד של אותו יום */}
               <button 
                 onClick={() => setModalType('route-map')}
                 style={{ background: 'transparent', border: 'none', padding: 0, textAlign: 'right', cursor: 'pointer' }}
