@@ -34,7 +34,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
@@ -571,24 +571,29 @@ export default function App() {
       {/* Top Header Bar - Redesigned Two-Tier Header */}
       <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '12px 16px 14px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '10px' }}>
         
-        {/* Tier 1: Brand & Menu */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.35)' }}>
-              🇮🇹
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, letterSpacing: '-0.01em' }}>garda-mobile</span>
-              <span style={{ fontSize: '10px', fontWeight: '800', color: isOnline ? '#22c55e' : '#f59e0b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: isOnline ? '#22c55e' : '#f59e0b', display: 'inline-block' }}></span>
-                {isOnline ? 'Online (מחובר)' : 'Offline (לא מחובר)'}
-              </span>
-            </div>
+        {/* Tier 1: Status on Left, App Name in Center, Menu on Right */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
+          
+          {/* Left: Online/Offline Status */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isOnline ? '#22c55e' : '#f59e0b', display: 'inline-block' }}></span>
+            <span style={{ fontSize: '11px', fontWeight: '800', color: isOnline ? '#22c55e' : '#f59e0b' }}>
+              {isOnline ? 'Online' : 'Offline'}
+            </span>
           </div>
 
-          <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1px solid ${borderColor}`, width: '40px', height: '40px', borderRadius: '14px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
-            ☰
-          </button>
+          {/* Center: App Name */}
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, letterSpacing: '-0.01em' }}>garda-mobile</span>
+          </div>
+
+          {/* Right: Menu Button */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1px solid ${borderColor}`, width: '38px', height: '38px', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+              ☰
+            </button>
+          </div>
+
         </div>
 
         {/* Tier 2: Quick Action Bar */}
@@ -1013,9 +1018,9 @@ export default function App() {
                 </div>
 
                 <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: '16px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: cardShadow }}>
-                  <input type="text" placeholder="תיאור מקום החניה / קומה / עמוד..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '12px', border: `1px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }} />
+                  <input type="text" placeholder="תיאור מקום החניה / קומה / עמוד..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }} />
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={() => alert('📷 מצלמה נפתחת לצילום עמוד החניה!')} style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1px solid ${borderColor}`, borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}>
+                    <button onClick={() => alert('📷 מצלמה נפתחת לצילום עמוד החניה!')} style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}>
                       📸 צלם עמוד
                     </button>
                     <button onClick={() => { navigator.geolocation.getCurrentPosition(pos => { setSavedParking({ lat: pos.coords.latitude, lng: pos.coords.longitude, note: parkingNote }); alert('מיקום החניה נשמר בהצלחה!'); }); }} style={{ flex: 1.5, padding: '10px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}>
