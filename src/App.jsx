@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v5.2 ---
-const APP_VERSION = 'v5.2';
+// --- GARDA-MOBILE v5.3 ---
+const APP_VERSION = 'v5.3';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -239,7 +239,7 @@ const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
   `;
 };
 
-// מפת חניה מעוצבת עם סיכה אדומה למשתמש, סיכת רכב ליעד, וקו אדום ביניהם
+// תהליך ניווט חי עם סיכה אדומה למשתמש, סיכת רכב ליעד, וקו אדום מקווקו ביניהם
 const generateParkingMapHTML = (myLoc, carLoc, isDark) => {
   const currentLat = myLoc?.lat || carLoc?.lat || 45.4384;
   const currentLng = myLoc?.lng || carLoc?.lng || 10.6816;
@@ -257,55 +257,58 @@ const generateParkingMapHTML = (myLoc, carLoc, isDark) => {
       <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; }
         #map { width: 100%; height: 100%; }
-        .parking-badge {
+        .nav-instruction-banner {
           position: absolute;
-          top: 15px;
+          bottom: 25px;
           left: 50%;
           transform: translateX(-50%);
           z-index: 9999;
           background: ${isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)'};
           color: ${isDark ? '#f8fafc' : '#0f172a'};
-          padding: 8px 16px;
-          border-radius: 14px;
+          padding: 14px 24px;
+          border-radius: 20px;
           font-weight: 900;
-          font-size: 13px;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-          backdrop-filter: blur(10px);
-          border: 1.5px solid #ef4444;
+          font-size: 14px;
+          box-shadow: 0 15px 35px rgba(0,0,0,0.35);
+          backdrop-filter: blur(12px);
+          border: 2px solid #ef4444;
           direction: rtl;
           text-align: center;
+          width: 85%;
+          max-width: 350px;
         }
       </style>
     </head>
     <body>
-      <div class="parking-badge">🔴 המיקום שלך ➔ 🚗 הרכב בחניה</div>
+      <div class="nav-instruction-banner">
+        <span>🔴 מעקב חי: המשך בעקבות הקו האדום אל הרכב שלך 🚗</span>
+      </div>
       <div id="map"></div>
       <script>
-        const map = L.map('map').setView([${carLat}, ${carLng}], 16);
+        const map = L.map('map').setView([${carLat}, ${carLng}], 17);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-        // יצירת אייקון סיכה אדומה מותאם אישית למשתמש
-        const redIcon = L.divIcon({
-          className: 'custom-red-pin',
-          html: '<div style="background-color: #ef4444; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"></div>',
-          iconSize: [22, 22],
-          iconAnchor: [11, 11]
+        // סיכה אדומה בולטת למיקום הנוכחי שלך
+        const redPinIcon = L.divIcon({
+          className: 'user-red-pin',
+          html: '<div style="background-color: #ef4444; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6); animation: pulse 1.5s infinite;"></div>',
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
         });
 
-        // סיכת הרכב (יעד)
-        L.marker([${carLat}, ${carLng}]).addTo(map).bindPopup('🚗 המכונית שלי בחניה').openPopup();
+        // סיכת הרכב כיעד
+        L.marker([${carLat}, ${carLng}]).addTo(map).bindPopup('🚗 הרכב החונה שלך (יעד)').openPopup();
         
         const myLoc = ${JSON.stringify(myLoc)};
         if (myLoc && myLoc.lat) {
-          // סיכה אדומה המציינת את המיקום האמיתי שלי
-          L.marker([myLoc.lat, myLoc.lng], {icon: redIcon}).addTo(map).bindPopup('📍 המיקום האמיתי שלי');
+          L.marker([myLoc.lat, myLoc.lng], {icon: redPinIcon}).addTo(map).bindPopup('📍 המיקום הנוכחי שלך');
           
-          // קו אדום בולט המוביל מהמיקום שלי אל הרכב
+          // קו אדום מקווקו המתוח בין המיקום שלך לרכב
           const latlngs = [
             [myLoc.lat, myLoc.lng],
             [${carLat}, ${carLng}]
           ];
-          L.polyline(latlngs, {color: '#ef4444', weight: 6, opacity: 0.9, dashArray: '10, 10'}).addTo(map);
+          L.polyline(latlngs, {color: '#ef4444', weight: 6, opacity: 0.9, dashArray: '12, 12'}).addTo(map);
         }
       </script>
     </body>
@@ -887,7 +890,7 @@ export default function App() {
         <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
             <span style={{ fontSize: '32px' }}>🔒</span>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>גרסה נוחית: {APP_VERSION}</h3>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>גרסה נוכחית: {APP_VERSION}</h3>
             
             {backupSuccessMsg ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -945,11 +948,11 @@ export default function App() {
         </div>
       )}
 
-      {/* מודל תצוגת מפת חניה ייעודית עם סיכה אדומה וקו אדום לרכב */}
+      {/* מודל ניווט חי עם סיכה אדומה וקו אדום לרכב */}
       {showParkingMapModal && savedCarParking && (
         <div onClick={() => setShowParkingMapModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', flexDirection: 'column', backdropFilter: 'blur(10px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#0b0f19' : '#fff', borderBottom: `1px solid ${borderColor}` }}>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>🚗 מפה ניווט לרכב (סיכה אדומה ➔ הרכב)</h3>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>🧭 ניווט חי לרכב (סיכה אדומה ➔ הרכב)</h3>
             <button onClick={() => setShowParkingMapModal(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
           </div>
           <div style={{ flex: 1, width: '100%', height: '100%' }}>
@@ -1587,8 +1590,8 @@ export default function App() {
                     <span style={{ background: '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
                     <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
-                    <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                      <span>🗺️</span> הצג מפה (סיכה אדומה ➔ הרכב)
+                    <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(37, 99, 235, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <span>🗺️</span> הצג מפת ניווט חי (סיכה אדומה ➔ הרכב)
                     </button>
 
                     <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>
