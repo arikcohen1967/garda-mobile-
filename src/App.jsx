@@ -422,9 +422,11 @@ export default function App() {
 
   const [backupModalOpen, setBackupModalOpen] = useState(false);
   const [adminPassInput, setAdminPassInput] = useState('');
+  const [backupSuccessMsg, setBackupSuccessMsg] = useState(false);
 
   const handleProtectedBackup = () => {
     setAdminPassInput('');
+    setBackupSuccessMsg(false);
     setBackupModalOpen(true);
   };
 
@@ -442,9 +444,13 @@ export default function App() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        setBackupModalOpen(false);
         
-        alert(`💾 גיבוי מלא של גרסה ${APP_VERSION} הורד בהצלחה למכשירך!`);
+        // הצגת הודעת הצלחה בתוך המסך במקום alert דפדפן מנותק
+        setBackupSuccessMsg(true);
+        setTimeout(() => {
+          setBackupModalOpen(false);
+          setBackupSuccessMsg(false);
+        }, 2000);
       } catch (err) {
         alert("❌ שגיאה בהורדת קובץ הגיבוי.");
       }
@@ -682,7 +688,7 @@ export default function App() {
 
   const isDark = themeMode === 'dark';
   const bgMain = isDark ? '#060913' : '#ffffff';
-  const cardBg = isDark ? 'rgba(17, 24, 39, 0.95)' : '#ffffff';
+  const cardBg = isDark ? 'rgba(17, 24, 39, 0.98)' : '#ffffff';
   const textColor = isDark ? '#f3f4f6' : '#0f172a';
   const textSub = isDark ? '#9ca3af' : '#64748b';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.15)' : '#cbd5e1';
@@ -802,34 +808,41 @@ export default function App() {
       )}
 
       {backupModalOpen && (
-        <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '26px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.5)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
+        <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
             <span style={{ fontSize: '32px' }}>🔒</span>
-            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900' }}>גרסה נוכחית: v{APP_VERSION}</h3>
-            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: textSub }}>הזן סיסמת מנהל להורדת גיבוי מלא</p>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>גרסה נוכחית: {APP_VERSION}</h3>
             
-            <input 
-              type="password" 
-              placeholder="הזן סיסמה (1967)" 
-              value={adminPassInput} 
-              onChange={e => setAdminPassInput(e.target.value)} 
-              style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
-            />
-
-            <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
-              <button 
-                onClick={executeBackupDownload} 
-                style={{ flex: 1, padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
-              >
-                הורד גיבוי 💾
-              </button>
-              <button 
-                onClick={() => setBackupModalOpen(false)} 
-                style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
-              >
-                ביטול ✕
-              </button>
-            </div>
+            {backupSuccessMsg ? (
+              <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1.5px solid #10b981', padding: '16px', borderRadius: '16px', fontWeight: '900', fontSize: '14px' }}>
+                💾 גיבוי מלא של גרסה {APP_VERSION} הורד בהצלחה למכשירך!
+              </div>
+            ) : (
+              <>
+                <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: textSub }}>הזן סיסמת מנהל להורדת גיבוי מלא</p>
+                <input 
+                  type="password" 
+                  placeholder="הזן סיסמה (1967)" 
+                  value={adminPassInput} 
+                  onChange={e => setAdminPassInput(e.target.value)} 
+                  style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                />
+                <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+                  <button 
+                    onClick={executeBackupDownload} 
+                    style={{ flex: 1, padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
+                  >
+                    הורד גיבוי 💾
+                  </button>
+                  <button 
+                    onClick={() => setBackupModalOpen(false)} 
+                    style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
+                  >
+                    ביטול ✕
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
