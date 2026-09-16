@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v1.8 ---
-const APP_VERSION = 'v1.8';
+// --- GARDA-MOBILE v1.9.1 ---
+const APP_VERSION = 'v1.9.1';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -92,7 +92,7 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "סיכום חוויות בוורונה וטיסה חזרה הביתה.",
     stops: [
       { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", note: "הארנה והמרפסת של יוליה." },
-      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", note: "טיסה חזרה לישראל." }
+      { time: "18:30", name: "שדה התעופה ורונה", dest: "Verona Villafranca Airport", note: "טיסה חזרה לישראל." }
     ]
   }
 ];
@@ -186,6 +186,30 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
+
+  // פונקציית גיבוי קוד מאובטחת בסיסמת מנהל (1967)
+  const handleProtectedBackup = () => {
+    const adminPassword = window.prompt("🔒 אזור מנהל: הזן סיסמת הורדת גיבוי קוד");
+    if (adminPassword && adminPassword.trim() === "1967") {
+      try {
+        const fullSourceCode = `// Garda-Mobile ${APP_VERSION} Full Backup Source Code\n// הופק בהצלחה ממערכת הניהול\n\n` + document.documentElement.outerHTML;
+        const blob = new Blob([fullSourceCode], { type: 'text/javascript;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `garda-mobile-${APP_VERSION}-full-backup.js`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        alert(`💾 גיבוי מלא של גרסה ${APP_VERSION} הורד בהצלחה!`);
+      } catch (err) {
+        alert("❌ שגיאה בהורדת הקובץ.");
+      }
+    } else if (adminPassword !== null) {
+      alert("❌ סיסמה שגויה!");
+    }
+  };
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -571,7 +595,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header Bar - Redesigned Two-Tier Header (v1.8) */}
+      {/* Top Header Bar - Redesigned Two-Tier Header (v1.9.1) */}
       <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '12px 16px 14px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
         
         {/* Tier 1: Menu on Right, App Name in Center, Status on Left */}
@@ -584,10 +608,16 @@ export default function App() {
             </button>
           </div>
 
-          {/* Center: App Name & Version */}
-          <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+          {/* Center: App Name & Protected Backup Button */}
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
             <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, letterSpacing: '-0.01em' }}>garda-mobile</span>
-            <span style={{ fontSize: '10px', fontWeight: '700', background: isDark ? '#1e293b' : '#f1f5f9', color: textSub, padding: '1px 6px', borderRadius: '6px', border: `1px solid ${borderColor}` }}>{APP_VERSION}</span>
+            <button 
+              onClick={handleProtectedBackup} 
+              style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: '#2563eb', cursor: 'pointer', padding: '1px 6px', borderRadius: '6px', fontSize: '10px', fontWeight: '700', transition: 'all 0.2s' }}
+              title="גיבוי קוד מוגן בסיסמה (1967)"
+            >
+              {APP_VERSION} 💾 גיבוי מנהל
+            </button>
           </div>
 
           {/* Left: Online/Offline Status */}
@@ -652,7 +682,7 @@ export default function App() {
               <span style={{ fontSize: '11px', color: textSub, fontWeight: '700' }}>גארדה ואזור הטיול ({APP_VERSION})</span>
             </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
         </div>
 
         <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: isDark ? '#1e293b' : '#f8fafc', border: `1.5px solid ${borderColor}`, color: textColor, padding: '12px 16px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
