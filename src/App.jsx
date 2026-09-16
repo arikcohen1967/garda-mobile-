@@ -445,12 +445,8 @@ export default function App() {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
-        // הצגת הודעת הצלחה בתוך המסך במקום alert דפדפן מנותק
+        // מציג הודעת הצלחה בתוך המודל בלי להשתמש ב-alert של הדפדפן
         setBackupSuccessMsg(true);
-        setTimeout(() => {
-          setBackupModalOpen(false);
-          setBackupSuccessMsg(false);
-        }, 2000);
       } catch (err) {
         alert("❌ שגיאה בהורדת קובץ הגיבוי.");
       }
@@ -814,8 +810,16 @@ export default function App() {
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>גרסה נוכחית: {APP_VERSION}</h3>
             
             {backupSuccessMsg ? (
-              <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1.5px solid #10b981', padding: '16px', borderRadius: '16px', fontWeight: '900', fontSize: '14px' }}>
-                💾 גיבוי מלא של גרסה {APP_VERSION} הורד בהצלחה למכשירך!
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1.5px solid #10b981', padding: '16px', borderRadius: '16px', fontWeight: '900', fontSize: '14px', lineHeight: '1.4' }}>
+                  💾 גיבוי מלא של גרסה {APP_VERSION} הורד בהצלחה למכשירך!
+                </div>
+                <button 
+                  onClick={() => setBackupModalOpen(false)} 
+                  style={{ width: '100%', padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
+                >
+                  סגור ✓
+                </button>
               </div>
             ) : (
               <>
