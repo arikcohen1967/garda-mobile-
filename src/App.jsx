@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v2.3 ---
-const APP_VERSION = 'v2.3';
+// --- GARDA-MOBILE v2.4 ---
+const APP_VERSION = 'v2.4';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -201,9 +201,9 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // פונקציית גיבוי מאובטחת המייצרת קובץ מבוסס על קוד המקור הנוכחי ומספר הגרסה המעודכן
+  // פונקציית הגיבוי המקושרת ישירות לכפתור השם garda-mobile
   const handleProtectedBackup = () => {
-    const adminPassword = window.prompt("🔒 אזור מנהל: הזן סיסמת הורדת גיבוי קוד");
+    const adminPassword = window.prompt(`🔒 אזור מנהל (גרסה ${APP_VERSION}): הזן סיסמת הורדת גיבוי קוד`);
     if (adminPassword && adminPassword.trim() === "1967") {
       try {
         const componentSource = document.documentElement.outerHTML;
@@ -621,14 +621,25 @@ export default function App() {
             </button>
           </div>
 
-          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-            <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, letterSpacing: '-0.01em' }}>garda-mobile</span>
+          {/* Center: Interactive gardaland-mobile button triggering admin backup */}
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button 
-              onClick={handleProtectedBackup} 
-              style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: '#2563eb', cursor: 'pointer', padding: '1px 6px', borderRadius: '6px', fontSize: '10px', fontWeight: '700', transition: 'all 0.2s' }}
-              title="גיבוי קוד מוגן בסיסמה (1967)"
+              onClick={handleProtectedBackup}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: textColor,
+                fontSize: '15px',
+                fontWeight: '900',
+                letterSpacing: '-0.01em',
+                cursor: 'pointer',
+                padding: '4px 10px',
+                borderRadius: '8px',
+                transition: 'background 0.2s'
+              }}
+              title={`לחץ להורדת גיבוי קוד מלא (גרסה ${APP_VERSION})`}
             >
-              {APP_VERSION} 💾 גיבוי מנהל
+              garda-mobile
             </button>
           </div>
 
