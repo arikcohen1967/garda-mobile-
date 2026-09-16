@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v3.9 ---
-const APP_VERSION = 'v3.9';
+// --- GARDA-MOBILE v4.0 ---
+const APP_VERSION = 'v4.0';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,22 +37,22 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו ביום הראשון של הטיול! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות ורכב שכור." },
-      { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה." }
+      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
+      { time: "18:00", name: "נסיעה למלון והתארגנות", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין במלון ומנוחה קצרה לפני ארוחת הערב." }
     ],
-    culinary: { name: "Pizzeria Trattoria al Ponte (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "פיצה נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית, לקינוח גלידה אמיתית (Gelateria Popolare)." },
-    creative: { name: "נהר המינצ'ו בפסקיירה", dest: "Peschiera del Garda, Italy", desc: "עצירה ליד גדת הנהר לפתיחת מחברות ציור וצביעת הנוף הראשון באיטליה." }
+    culinary: { name: "Pizzeria Trattoria al Ponte (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "פיצות נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית, ולקינוח גלידה איטלקית אמיתית (Gelateria Popolare)." },
+    creative: { name: "נהר המינצ'ו בפסקיירה", dest: "Peschiera del Garda, Italy", desc: "עצירה קצרה ליד גדת הנהר לפתיחת מחברות ציור ותיעוד הנוף הראשון שלכם באיטליה." }
   },
   {
     date: "2026-10-01", label: "חמישי · 01/10", title: "Gardaland – יום פארק מלא", icon: "🎢",
     challenge: "לבחור יחד את שלושת המתקנים הכי אקסטרימיים!",
     challengeDesc: "צלמו תמונה צועקים על אחד המתקנים וספרו מי צעק הכי חזק.",
     stops: [
-      { time: "08:30", name: "יציאה מהמלון ל-Gardaland", dest: "Gardaland Resort, Castelnuovo del Garda", lat: 45.4526, lng: 10.7153, note: "הגעה מוקדמת לפני פתיחת השערים." },
-      { time: "13:00", name: "ארוחת צהריים בפארק", dest: "Gardaland Resort", lat: 45.4526, lng: 10.7153, note: "אוכל מהיר והמבורגרים." }
+      { time: "08:30", name: "יציאה מהמלון לגארדלנד", dest: "Gardaland Resort, Castelnuovo del Garda", lat: 45.4526, lng: 10.7153, note: "הגעה מוקדמת לפני פתיחת השערים." },
+      { time: "13:00", name: "ארוחת צהריים בפארק", dest: "Gardaland Resort", lat: 45.4526, lng: 10.7153, note: "אוכל מהיר והמבורגרים במסעדות הפארק." }
     ],
-    culinary: { name: "Roadhouse Restaurant (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "הבורגרים עסיסיים וסטייקים מעולים על האש אחרי יום הפארק." },
-    creative: { name: "הכנת סיכות אמיצים", dest: "Gardaland Resort", desc: "הכנת סיכת 'אמיצים בגארדלנד' מקרטון וטושים בתיק לפני הכניסה." }
+    culinary: { name: "Roadhouse Restaurant (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "הבורגרים עסיסיים וסטייקים מעולים על האש לאחר יום הבילוי בפארק." },
+    creative: { name: "הכנת סיכות אמיצים", dest: "Gardaland Resort", desc: "הכנת סיכת 'אמיצים בגארדלנד' מקרטון קשיח וטושים בתיק המשפחתי." }
   },
   {
     date: "2026-10-02", label: "שישי · 02/10", title: "מונטה באלדו + סירמיונה", icon: "🚠",
@@ -60,10 +60,10 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "תצפית מרהיבה מגובה 1,800 מטר באלדו ולאחר מכן שיטוט בסמטאות סירמיונה.",
     stops: [
       { time: "08:30", name: "רכבל מונטה באלדו (מלצ׳סינה)", dest: "Funivia Malcesine-Monte Baldo", lat: 45.7797, lng: 10.8105, note: "רכבל מסתובב אל פסגת ההר." },
-      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", lat: 45.4925, lng: 10.6053, note: "עיירת ימי ביניים קסומה באגם." }
+      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", lat: 45.4925, lng: 10.6053, note: "עיירת ימי ביניים קסומה על שפת האגם." }
     ],
-    culinary: { name: "Trattoria La Marsa & Gelateria Iguana", dest: "Sirmione, Italy", desc: "פסטה טרטליני מדהימה צופה לאגם, וגלידריית בוטיק עם עשרות טעמים." },
-    creative: { name: "פסגת מונטה באלדו", dest: "Funivia Malcesine-Monte Baldo", desc: "ציור האגם מלמעלה כמפה של הרפתקנים על רקע העננים." }
+    culinary: { name: "Trattoria La Marsa & Gelateria Iguana", dest: "Sirmione, Italy", desc: "פסטה טרטליני מדהימה צופה לאגם, וגלידריית בוטיק עם עשרות טעמים ייחודיים." },
+    creative: { name: "פסגת מונטה באלדו", dest: "Funivia Malcesine-Monte Baldo", desc: "ציור הנוף מלמעלה כמפה של הרפתקנים על רקע העננים." }
   },
   {
     date: "2026-10-03", label: "שבת · 03/10", title: "Movieland + Medieval Times", icon: "🎬",
@@ -71,21 +71,21 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "פוזה דרמטית ליד תפאורת סרט ב-Movieland.",
     stops: [
       { time: "09:00", name: "Movieland The Hollywood Park", dest: "Movieland The Hollywood Park, Lazise", lat: 45.4745, lng: 10.7291, note: "יום אקשן וחוויות קולנועיות." },
-      { time: "20:00", name: "Medieval Times – מופע האבירים", dest: "Medieval Times, Lazise", lat: 45.4745, lng: 10.7291, note: "ארוחה ללא סכו״ם ואבירים." }
+      { time: "20:00", name: "Medieval Times – מופע האבירים", dest: "Medieval Times, Lazise", lat: 45.4745, lng: 10.7291, note: "ארוחת ערב חווייתית ללא סכו״ם." }
     ],
-    culinary: { name: "Medieval Times Banquet", dest: "Medieval Times, Lazise", desc: "ארוחת אבירים חווייתית ללא סכו״ם הכוללת עוף צלוי ומאפים." },
-    creative: { name: "סדנת כתרים אביריים", dest: "Medieval Times, Lazise", desc: "הכנת כתרים מקושטים מנייר כסף ודפים צבעוניים לפני המופע." }
+    culinary: { name: "Medieval Times Banquet", dest: "Medieval Times, Lazise", desc: "ארוחת אבירים מסורתית הכוללת עוף צלוי, תפוחי אדמה ומאפים." },
+    creative: { name: "סדנת כתרים אביריים", dest: "Medieval Times, Lazise", desc: "הכנת כתרים מקושטים מנייר כסף ודפים צבעוניים לפני תחילת המופע." }
   },
   {
     date: "2026-10-04", label: "ראשון · 04/10", title: "ונציה – עיר המים", icon: "🛶",
     challenge: "למצוא גשר קטן ומיוחד מחוץ למסלול הראשי!",
     challengeDesc: "צלמו את הגשר הכי מיוחד שמצאתם בסמטאות ונציה.",
     stops: [
-      { time: "07:30", name: "יציאה לוונציה", dest: "Venezia Tronchetto Parking", lat: 45.4384, lng: 12.3167, note: "חנייה ומעבר בסירה למרכז." },
-      { time: "09:30", name: "כיכר סן מרקו", dest: "St. Mark's Square, Venice", lat: 45.4343, lng: 12.3388, note: "הלב הפועם של ונציה." }
+      { time: "07:30", name: "יציאה לוונציה", dest: "Venezia Tronchetto Parking", lat: 45.4384, lng: 12.3167, note: "חנייה מסודרת ומעבר בסירה למרכז העיר." },
+      { time: "09:30", name: "כיכר סן מרקו", dest: "St. Mark's Square, Venice", lat: 45.4343, lng: 12.3388, note: "הלב הפועם והמרכזי של ונציה." }
     ],
-    culinary: { name: "Suso Gelatoteca & Pizza al Taglio", dest: "St. Mark's Square, Venice", desc: "פיצה מהירה בסמטאות וגלידת בוטיק מעולה המפורסמת בעיר." },
-    creative: { name: "גשר הציורים בוונציה", dest: "Venice, Italy", desc: "עצירה על גשר שקט לציור מהיר של סירת גונדולה בצבעי מים." }
+    culinary: { name: "Suso Gelatoteca & Pizza al Taglio", dest: "St. Mark's Square, Venice", desc: "פיצה מהירה בסמטאות וגלידת בוטיק מעולה המפורסמת ביותר בעיר." },
+    creative: { name: "גשר הציורים בוונציה", dest: "Venice, Italy", desc: "עצירה קצרה על גשר שקט לציור מהיר של סירת גונדולה חולפת." }
   },
   {
     date: "2026-10-05", label: "שני · 05/10", title: "X Rafting + Borghetto", icon: "🚣",
@@ -93,21 +93,21 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "אקשן מים מסעיר בבוקר וטיול רומנטי בבורגטו בצהריים.",
     stops: [
       { time: "09:00", name: "X Rafting", dest: "X Rafting, Italy", lat: 45.5512, lng: 10.8523, note: "שיט ראפטינג משפחתי מרגש בנהר." },
-      { time: "12:30", name: "Borghetto sul Mincio", dest: "Borghetto sul Mincio", lat: 45.3524, lng: 10.6972, note: "כפר טחנות מרהיב." }
+      { time: "12:30", name: "Borghetto sul Mincio", dest: "Borghetto sul Mincio", lat: 45.3524, lng: 10.6972, note: "ביקור בכפר הטחנות הקסום." }
     ],
-    culinary: { name: "Ristorante Alla Borsa (Valeggio)", dest: "Valeggio sul Mincio, Italy", desc: "טעימת טורטליני האהבה המפורסם באחת המסעדות העתיקות בנהר." },
-    creative: { name: "טחנות המים בבורגטו", dest: "Borghetto sul Mincio", desc: "בניית סירות קטנות מעלים וענפים ושילוחן בזרם המינצ'ו." }
+    culinary: { name: "Ristorante Alla Borsa (Valeggio)", dest: "Valeggio sul Mincio, Italy", desc: "טעימת טורטליני האהבה המפורסם באחת המסעדות הוותיקות על גדות הנהר." },
+    creative: { name: "טחנות המים בבורגטו", dest: "Borghetto sul Mincio", desc: "בניית סירות עץ ועלים קטנות ושילוחן בזרם המינצ'ו." }
   },
   {
     date: "2026-10-06", label: "שלישי · 06/10", title: "ורונה + חזרה לישראל", icon: "❤️",
     challenge: "לבחור יחד את רגע השיא של הטיול כולו!",
     challengeDesc: "סיכום חוויות בוורונה וטיסה חזרה הביתה.",
     stops: [
-      { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", lat: 45.4384, lng: 10.9916, note: "ארנה והמרפסת של יוליה." },
-      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "טיסה חזרה לישראל." }
+      { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", lat: 45.4384, lng: 10.9916, note: "סיור בארנה והמרפסת של יוליה." },
+      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "החזרת הרכב וטיסה חזרה לישראל." }
     ],
-    culinary: { name: "Farcito Verona", dest: "Verona, Italy", desc: "המבורגר משובח ופיצה דקה ומיוחדת במרכז ורונה לפני הטיסה." },
-    creative: { name: "גלוית פרידה איטלקית", dest: "Verona, Italy", desc: "כתיבת גלוית סיכום וציור סמלי של הטיול בבית המלון לפני היציאה לשדה." }
+    culinary: { name: "Farcito Verona", dest: "Verona, Italy", desc: "המבורגר משובח ופיצה דקה ומיוחדת במרכז וורונה ממש לפני הנסיעה לשדה." },
+    creative: { name: "גלוית פרידה איטלקית", dest: "Verona, Italy", desc: "כתיבת גלוית סיכום וציור מזכרת אישית מהטיול במלון לפני העזיבה." }
   }
 ];
 
@@ -963,7 +963,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* כפתור יחיד מאוחד למשימות והמלצות היום */}
           <button 
             onClick={() => setModalType('daily-tasks')}
             style={{ 
@@ -1077,11 +1076,9 @@ export default function App() {
               </div>
             )}
 
-            {/* חלון מודל למשימות והמלצות היום */}
             {modalType === 'daily-tasks' && (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 20px 30px', boxSizing: 'border-box', overflowY: 'auto', gap: '20px', background: bgMain }}>
                 
-                {/* אתגר היום */}
                 <div style={{ background: cardBg, border: `2px solid ${borderColor}`, borderRadius: '20px', padding: '20px', boxShadow: enhancedCardShadow }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <span style={{ fontSize: '20px' }}>🎯</span>
@@ -1091,7 +1088,6 @@ export default function App() {
                   <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{day.challengeDesc}</p>
                 </div>
 
-                {/* המלצות קולינריות */}
                 <div style={{ background: cardBg, border: `2px solid ${borderColor}`, borderRadius: '20px', padding: '20px', boxShadow: enhancedCardShadow }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <span style={{ fontSize: '20px' }}>🍝</span>
@@ -1105,7 +1101,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* תחנת יצירה */}
                 <div style={{ background: cardBg, border: `2px solid ${borderColor}`, borderRadius: '20px', padding: '20px', boxShadow: enhancedCardShadow }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <span style={{ fontSize: '20px' }}>🎨</span>
