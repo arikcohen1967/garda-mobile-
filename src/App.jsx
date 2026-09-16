@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v1.5 ---
-const APP_VERSION = 'v1.5';
+// --- GARDA-MOBILE v1.6 ---
+const APP_VERSION = 'v1.6';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -92,7 +92,7 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "סיכום חוויות בוורונה וטיסה חזרה הביתה.",
     stops: [
       { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", note: "הארנה והמרפסת של יוליה." },
-      { time: "18:30", name: "שדה התעופה ורונה", dest: "Verona Villafranca Airport", note: "טיסה חזרה לישראל." }
+      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", note: "טיסה חזרה לישראל." }
     ]
   }
 ];
@@ -439,7 +439,6 @@ export default function App() {
   const cardBg = isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff';
   const textColor = isDark ? '#f3f4f6' : '#0f172a';
   const textSub = isDark ? '#9ca3af' : '#64748b';
-  // Enhanced borders & pronounced shadows for v1.5
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.15)' : '#cbd5e1';
   const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
   const enhancedCardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.08)';
@@ -572,7 +571,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header Bar - Redesigned Two-Tier Header (v1.5) */}
+      {/* Top Header Bar - Redesigned Two-Tier Header (v1.6) */}
       <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '12px 16px 14px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
         
         {/* Tier 1: Status on Left, App Name in Center, Menu on Right */}
@@ -708,16 +707,35 @@ export default function App() {
 
       </aside>
 
-      {/* Main Container - Enhanced Distinct Cards with Pronounced Borders & Shadows */}
+      {/* Main Container */}
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
-        {/* Days Horizontal Picker */}
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '20px', scrollbarWidth: 'none' }}>
-          {INITIAL_TRIP_DAYS.map((d, i) => (
-            <button key={i} onClick={() => setActiveDay(i)} style={{ flex: '1 0 auto', padding: '12px 16px', borderRadius: '16px', background: activeDay === i ? accentGradient : (isDark ? '#111827' : '#ffffff'), color: activeDay === i ? '#fff' : textColor, border: `1.5px solid ${activeDay === i ? 'transparent' : borderColor}`, fontSize: '13px', fontWeight: '800', cursor: 'pointer', boxShadow: activeDay === i ? '0 6px 16px rgba(37, 99, 235, 0.35)' : '0 2px 8px rgba(0,0,0,0.04)', transition: 'all 0.2s ease' }}>
-              {d.label}
-            </button>
-          ))}
+        {/* Days Horizontal Picker - Option 2 Style (Clean & Modern Capsules) */}
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '22px', scrollbarWidth: 'none' }}>
+          {INITIAL_TRIP_DAYS.map((d, i) => {
+            const isActive = activeDay === i;
+            return (
+              <button 
+                key={i} 
+                onClick={() => setActiveDay(i)} 
+                style={{ 
+                  flex: '1 0 auto', 
+                  padding: '12px 18px', 
+                  borderRadius: '20px', 
+                  background: isActive ? '#0f172a' : (isDark ? '#111827' : '#ffffff'), 
+                  color: isActive ? '#ffffff' : textColor, 
+                  border: `1.5px solid ${isActive ? '#0f172a' : borderColor}`, 
+                  fontSize: '13px', 
+                  fontWeight: '800', 
+                  cursor: 'pointer', 
+                  boxShadow: isActive ? '0 6px 16px rgba(15, 23, 42, 0.25)' : '0 2px 8px rgba(0,0,0,0.03)', 
+                  transition: 'all 0.25s ease' 
+                }}
+              >
+                {d.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Active Day Content */}
@@ -726,14 +744,14 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', padding: '0 4px' }}>
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
-              <small style={{ color: '#3b82f6', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
+              <small style={{ color: '#2563eb', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
               <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.01em', color: textColor }}>{day.title}</h2>
             </div>
           </div>
 
           {/* Enhanced Challenge Box */}
           <div style={{ background: cardBg, border: `2px solid ${borderColor}`, borderRadius: '20px', padding: '18px', marginBottom: '18px', boxShadow: enhancedCardShadow }}>
-            <span style={{ fontSize: '11px', fontWeight: '900', color: '#3b82f6', display: 'block', marginBottom: '4px' }}>🎯 אתגר היום:</span>
+            <span style={{ fontSize: '11px', fontWeight: '900', color: '#2563eb', display: 'block', marginBottom: '4px' }}>🎯 אתגר היום:</span>
             <p style={{ margin: '0 0 4px', fontWeight: '900', fontSize: '14px', color: textColor }}>{day.challenge}</p>
             <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{day.challengeDesc}</p>
           </div>
@@ -744,7 +762,7 @@ export default function App() {
               <div key={sIdx} style={{ background: cardBg, borderRadius: '20px', padding: '18px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
-                  <span style={{ fontSize: '11px', fontWeight: '800', color: textSub, background: isDark ? '#1e293b' : '#f1f5f9', padding: '4px 10px', borderRadius: '8px', border: `1px solid ${borderColor}` }}>{stop.time}</span>
+                  <span style={{ fontSize: '11px', fontWeight: '800', color: textSub, background: isDark ? '#1e293b' : '#f8fafc', padding: '4px 10px', borderRadius: '8px', border: `1.5px solid ${borderColor}` }}>{stop.time}</span>
                 </div>
                 <p style={{ margin: '0 0 14px', fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{stop.note}</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -987,7 +1005,7 @@ export default function App() {
                   <a href="tel:113" style={emergencyBtnStyle}>👮 משטרה: 113</a>
                   <a href="tel:115" style={emergencyBtnStyle}>🚒 כיבוי אש: 115</a>
                 </div>
-                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: '1.5px solid rgba(59, 130, 246, 0.3)', padding: '16px', borderRadius: '16px', marginTop: '6px', boxShadow: enhancedCardShadow }}>
+                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: `1.5px solid rgba(59, 130, 246, 0.3)`, padding: '16px', borderRadius: '16px', marginTop: '6px', boxShadow: enhancedCardShadow }}>
                   <strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px', color: '#3b82f6' }}>🇮🇱 שגרירות ישראל באיטליה (רומא)</strong>
                   <p style={{ margin: '0 0 10px', fontSize: '13px', color: textSub }}>כתובת: Via Michele Mercati 12, 00197 Roma</p>
                   <a href="tel:+3906361981" style={{ display: 'block', padding: '12px', background: '#3b82f6', color: '#fff', textAlign: 'center', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>📞 חיוג לשגרירות: +39 06 361981</a>
@@ -1029,7 +1047,7 @@ export default function App() {
                 <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '16px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: enhancedCardShadow }}>
                   <input type="text" placeholder="תיאור מקום החניה / קומה / עמוד..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }} />
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={() => alert('📷 מצלמה נפתחת לצילום עמוד החניה!')} style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}>
+                    <button onClick={() => alert('📷 מצלמה נפתחת לצילום עמוד החניה!')} style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}>
                       📸 צלם עמוד
                     </button>
                     <button onClick={() => { navigator.geolocation.getCurrentPosition(pos => { setSavedParking({ lat: pos.coords.latitude, lng: pos.coords.longitude, note: parkingNote }); alert('מיקום החניה נשמר בהצלחה!'); }); }} style={{ flex: 1.5, padding: '10px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '12px', textAlign: 'center', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
