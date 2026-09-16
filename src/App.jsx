@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v4.6 ---
-const APP_VERSION = 'v4.6';
+// --- GARDA-MOBILE v4.7 ---
+const APP_VERSION = 'v4.7';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -819,6 +819,40 @@ export default function App() {
             <button onClick={dismissSos} style={{ flex: 1, padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
               בטל אזעקה ✓
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* חלון מודל גיבוי מנהל מעוצב */}
+      {backupModalOpen && (
+        <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '26px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.4)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
+            <span style={{ fontSize: '32px' }}>🔒</span>
+            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900' }}>גרסה עדכנית: v{APP_VERSION}</h3>
+            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: textSub }}>להורדת גיבוי מקומי לחץ כאן</p>
+            
+            <input 
+              type="password" 
+              placeholder="הזן סיסמת מנהל (1967)" 
+              value={adminPassInput} 
+              onChange={e => setAdminPassInput(e.target.value)} 
+              style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+            />
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+              <button 
+                onClick={executeBackupDownload} 
+                style={{ flex: 1, padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
+              >
+                לחץ
+              </button>
+              <button 
+                onClick={() => setBackupModalOpen(false)} 
+                style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
+              >
+                ביטול
+              </button>
+            </div>
           </div>
         </div>
       )}
