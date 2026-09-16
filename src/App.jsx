@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v5.0 ---
-const APP_VERSION = 'v5.0';
+// --- GARDA-MOBILE v5.1 ---
+const APP_VERSION = 'v5.1';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -239,6 +239,68 @@ const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
   `;
 };
 
+// יצירת מפת חניה המציגה את מיקום המשתמש ואת סיכת הרכב עליה
+const generateParkingMapHTML = (myLoc, carLoc, isDark) => {
+  const currentLat = myLoc?.lat || carLoc?.lat || 45.4384;
+  const currentLng = myLoc?.lng || carLoc?.lng || 10.6816;
+  const carLat = carLoc?.lat || currentLat;
+  const carLng = carLoc?.lng || currentLng;
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; }
+        #map { width: 100%; height: 100%; }
+        .parking-badge {
+          position: absolute;
+          top: 15px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 9999;
+          background: ${isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.95)'};
+          color: ${isDark ? '#f8fafc' : '#0f172a'};
+          padding: 8px 16px;
+          border-radius: 14px;
+          font-weight: 900;
+          font-size: 13px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+          backdrop-filter: blur(10px);
+          border: 1.5px solid #ef4444;
+          direction: rtl;
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="parking-badge">🚗 ניווט חזרה לרכב השמור</div>
+      <div id="map"></div>
+      <script>
+        const map = L.map('map').setView([${carLat}, ${carLng}], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+        L.marker([${carLat}, ${carLng}]).addTo(map).bindPopup('🚗 הרכב החונה שלך').openPopup();
+        
+        const myLoc = ${JSON.stringify(myLoc)};
+        if (myLoc && myLoc.lat) {
+          L.marker([myLoc.lat, myLoc.lng]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך');
+          const latlngs = [
+            [myLoc.lat, myLoc.lng],
+            [${carLat}, ${carLng}]
+          ];
+          L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
+        }
+      </script>
+    </body>
+    </html>
+  `;
+};
+
 const generateMapHTML = (familyLocs, myLoc, sosState, activeDayIndex, isDark) => {
   let centerLat = 45.4384, centerLng = 10.6816;
   if (sosState?.lat) { centerLat = sosState.lat; centerLng = sosState.lng; }
@@ -337,7 +399,6 @@ export default function App() {
   const [sharedTimer, setSharedTimer] = useState(null);
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
-  const [timerInputMins, setTimerInputMins] = useState(10);
 
   const [savedCarParking, setSavedCarParking] = useState(() => {
     try {
@@ -346,9 +407,10 @@ export default function App() {
     } catch (e) { return null; }
   });
   const [carNoteInput, setCarNoteInput] = useState('');
-  const [carHeading, setCarHeading] = useState(0);
   const [carDistanceToWalk, setCarDistanceToWalk] = useState('0 ק"מ');
-  const [carBearingToWalk, setCarBearingToWalk] = useState(0);
+  
+  // מצב תצוגת מפת חניה ייעודית
+  const [showParkingMapModal, setShowParkingMapModal] = useState(false);
 
   useEffect(() => {
     try {
@@ -363,48 +425,12 @@ export default function App() {
   useEffect(() => {
     if (!savedCarParking || !myLocation || typeof myLocation.lat !== 'number' || typeof myLocation.lng !== 'number') return;
     try {
-      const lat1 = myLocation.lat * (Math.PI / 180);
-      const lon1 = myLocation.lng * (Math.PI / 180);
-      const lat2 = savedCarParking.lat * (Math.PI / 180);
-      const lon2 = savedCarParking.lng * (Math.PI / 180);
-
-      const dLon = lon2 - lon1;
-      const y = Math.sin(dLon) * Math.cos(lat2);
-      const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-      let brng = Math.atan2(y, x) * (180 / Math.PI);
-      brng = (brng + 360) % 360;
-      setCarBearingToWalk(brng);
-
       const { dist } = calculateDistanceAndDuration(myLocation.lat, myLocation.lng, savedCarParking.lat, savedCarParking.lng);
       setCarDistanceToWalk(dist);
     } catch (err) {
       setCarDistanceToWalk('---');
     }
   }, [myLocation, savedCarParking]);
-
-  const requestCompassPermission = () => {
-    if (typeof window !== 'undefined' && window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
-      window.DeviceOrientationEvent.requestPermission().then(response => {
-        if (response === 'granted') {
-          window.addEventListener('deviceorientation', handleOrientationEvent, true);
-          alert("🧭 גישה למצפן אושרה בהצלחה!");
-        } else {
-          alert("❌ גישה למצפן נדחתה.");
-        }
-      }).catch(() => alert("שגיאה בבקשת גישה למצפן"));
-    } else {
-      window.addEventListener('deviceorientation', handleOrientationEvent, true);
-      alert("🧭 מצפן הופעל!");
-    }
-  };
-
-  const handleOrientationEvent = (e) => {
-    if (e.alpha !== null) {
-      setCarHeading(e.alpha);
-    } else if (e.webkitCompassHeading !== undefined) {
-      setCarHeading(e.webkitCompassHeading);
-    }
-  };
 
   const saveCarLocationNow = () => {
     if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
@@ -598,14 +624,12 @@ export default function App() {
     } catch (e) {}
   };
 
-  // סנכרון שרת מרכזי לכל הפעילות (רדאר, התראות וגם טיימר משפחתי)
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // טעינת מצב הטיימר הקיים מהשרת בעלייה
     const fetchInitialTimer = async () => {
       try {
         const { data } = await supabase.from('family_timers').select('*').eq('id', 1).single();
@@ -647,7 +671,6 @@ export default function App() {
     };
   }, [currentUser]);
 
-  // לוגיקת שעון עצר לטיימר המשותף מול השרת
   useEffect(() => {
     if (!sharedTimer || !sharedTimer.end_time || isTimerPaused) return;
     const interval = setInterval(() => {
@@ -912,6 +935,19 @@ export default function App() {
         </div>
       )}
 
+      {/* מודל תצוגת מפת חניה ייעודית (מצפן מפה) */}
+      {showParkingMapModal && savedCarParking && (
+        <div onClick={() => setShowParkingMapModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', flexDirection: 'column', backdropFilter: 'blur(10px)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#0b0f19' : '#fff', borderBottom: `1px solid ${borderColor}` }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>🚗 מפת חזרה לרכב</h3>
+            <button onClick={() => setShowParkingMapModal(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+          </div>
+          <div style={{ flex: 1, width: '100%', height: '100%' }}>
+            <iframe title="Parking Map" srcDoc={generateParkingMapHTML(myLocation, savedCarParking, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
+          </div>
+        </div>
+      )}
+
       {/* הדר עליון מורווח ומעוצב עם מלבנים תואמים */}
       <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
         
@@ -979,7 +1015,6 @@ export default function App() {
 
       </header>
 
-      {/* בר טיימר משותף ומרכזי המופיע אצל כולם */}
       {sharedTimer && (
         <div style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)' }}>
           <span onClick={() => setModalType('timer')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1542,15 +1577,8 @@ export default function App() {
                     <span style={{ background: '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
                     <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
-                    <div style={{ width: '100px', height: '100px', borderRadius: '50%', border: `2.5px solid #ef4444`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', background: isDark ? '#0b0f19' : '#f8fafc', margin: '4px 0' }}>
-                      <div style={{ position: 'absolute', top: '4px', fontSize: '9px', fontWeight: '900', color: '#ef4444' }}>צפון</div>
-                      <div style={{ width: '40px', height: '40px', transform: `rotate(${carBearingToWalk - carHeading}deg)`, transition: 'transform 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '28px' }}>🚗⬆️</span>
-                      </div>
-                    </div>
-
-                    <button onClick={requestCompassPermission} style={{ padding: '8px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(59, 130, 246, 0.3)' }}>
-                      הפעל מצפן 🧭
+                    <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      <span>🗺️</span> פתח מפה ניווט לרכב
                     </button>
 
                     <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>
