@@ -682,7 +682,7 @@ export default function App() {
 
   const isDark = themeMode === 'dark';
   const bgMain = isDark ? '#060913' : '#ffffff';
-  const cardBg = isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff';
+  const cardBg = isDark ? 'rgba(17, 24, 39, 0.95)' : '#ffffff';
   const textColor = isDark ? '#f3f4f6' : '#0f172a';
   const textSub = isDark ? '#9ca3af' : '#64748b';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.15)' : '#cbd5e1';
@@ -802,15 +802,15 @@ export default function App() {
       )}
 
       {backupModalOpen && (
-        <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '26px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.4)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
+        <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '26px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.5)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
             <span style={{ fontSize: '32px' }}>🔒</span>
-            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900' }}>גרסה עדכנית: v{APP_VERSION}</h3>
-            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: textSub }}>להורדת גיבוי מקומי לחץ כאן</p>
+            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900' }}>גרסה נוכחית: v{APP_VERSION}</h3>
+            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: textSub }}>הזן סיסמת מנהל להורדת גיבוי מלא</p>
             
             <input 
               type="password" 
-              placeholder="הזן סיסמת מנהל (1967)" 
+              placeholder="הזן סיסמה (1967)" 
               value={adminPassInput} 
               onChange={e => setAdminPassInput(e.target.value)} 
               style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
@@ -821,13 +821,13 @@ export default function App() {
                 onClick={executeBackupDownload} 
                 style={{ flex: 1, padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
               >
-                לחץ
+                הורד גיבוי 💾
               </button>
               <button 
                 onClick={() => setBackupModalOpen(false)} 
                 style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
               >
-                ביטול
+                ביטול ✕
               </button>
             </div>
           </div>
