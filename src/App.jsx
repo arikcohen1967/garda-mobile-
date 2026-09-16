@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v4.3 ---
-const APP_VERSION = 'v4.3';
+// --- GARDA-MOBILE v4.4 ---
+const APP_VERSION = 'v4.4';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -416,40 +416,6 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
-
-  // חלון גיבוי מעוצב עם כפתור "לחץ" (במקום alert המקורי של הדפדפן שמוציא Close)
-  const [backupModalOpen, setBackupModalOpen] = useState(false);
-  const [adminPassInput, setAdminPassInput] = useState('');
-
-  const handleProtectedBackup = () => {
-    setAdminPassInput('');
-    setBackupModalOpen(true);
-  };
-
-  const executeBackupDownload = () => {
-    if (adminPassInput.trim() === "1967") {
-      try {
-        const componentSource = document.documentElement.outerHTML;
-        const fullSourceCode = `// Garda-Mobile ${APP_VERSION} Full Backup Source Code\n// תאריך הפקה: ${new Date().toLocaleString('he-IL')}\n\n` + componentSource;
-        const blob = new Blob([fullSourceCode], { type: 'text/javascript;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        // שם קובץ מותאם אישית שמתחיל ב-garda-mobile ולא ב-gemini
-        link.download = `garda-mobile-${APP_VERSION}-full-backup.js`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        setBackupModalOpen(false);
-        alert(`💾 גיבוי מלא של גרסה ${APP_VERSION} הורד בהצלחה למכשירך!`);
-      } catch (err) {
-        alert("❌ שגיאה בהורדת קובץ הגיבוי.");
-      }
-    } else {
-      alert("❌ סיסמה שגויה!");
-    }
-  };
 
   useEffect(() => {
     if (navigator.geolocation) {
