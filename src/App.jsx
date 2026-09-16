@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v4.2 ---
-const APP_VERSION = 'v4.2';
+// --- GARDA-MOBILE v4.3 ---
+const APP_VERSION = 'v4.3';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו ביום הראשון של הטיול! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
       { time: "18:00", name: "נסיעה למלון והתארגנות", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין במלון ומנוחה קצרה לפני ארוחת הערב." }
     ],
     culinary: { name: "Pizzeria Trattoria al Ponte (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "פיצות נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית, ולקינוח גלידה איטלקית אמיתית (Gelateria Popolare)." },
@@ -337,7 +337,7 @@ export default function App() {
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
 
-  // מנגנון Car Finder Pro חדש ומקצועי לשמירת מיקום הרכב וחזרה אליו
+  // מנגנון Car Finder Pro למפגש עם הרכב
   const [savedCarParking, setSavedCarParking] = useState(() => {
     try {
       const saved = localStorage.getItem('garda-car-parking');
@@ -398,6 +398,7 @@ export default function App() {
       };
       setSavedCarParking(newCarLoc);
       setCarNoteInput('');
+      setModalType(null);
       alert('🔴 כפתור אדום ננעץ! מיקום הרכב נשמר בהצלחה.');
     }, () => {
       alert('❌ לא ניתן לקבוע את מיקום ה-GPS. בדוק את הרשאות המיקום.');
@@ -416,10 +417,17 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
+  // חלון גיבוי מעוצב עם כפתור "לחץ" (במקום alert המקורי של הדפדפן שמוציא Close)
+  const [backupModalOpen, setBackupModalOpen] = useState(false);
+  const [adminPassInput, setAdminPassInput] = useState('');
+
   const handleProtectedBackup = () => {
-    const promptMessage = `גרסה עדכנית: v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן`;
-    const adminPassword = window.prompt(promptMessage);
-    if (adminPassword && adminPassword.trim() === "1967") {
+    setAdminPassInput('');
+    setBackupModalOpen(true);
+  };
+
+  const executeBackupDownload = () => {
+    if (adminPassInput.trim() === "1967") {
       try {
         const componentSource = document.documentElement.outerHTML;
         const fullSourceCode = `// Garda-Mobile ${APP_VERSION} Full Backup Source Code\n// תאריך הפקה: ${new Date().toLocaleString('he-IL')}\n\n` + componentSource;
@@ -427,17 +435,18 @@ export default function App() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        // שם קובץ מותאם אישית ומדויק לאפליקציה שלך
+        // שם קובץ מותאם אישית שמתחיל ב-garda-mobile ולא ב-gemini
         link.download = `garda-mobile-${APP_VERSION}-full-backup.js`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        alert(`v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן`);
+        setBackupModalOpen(false);
+        alert(`💾 גיבוי מלא של גרסה ${APP_VERSION} הורד בהצלחה למכשירך!`);
       } catch (err) {
         alert("❌ שגיאה בהורדת קובץ הגיבוי.");
       }
-    } else if (adminPassword !== null) {
+    } else {
       alert("❌ סיסמה שגויה!");
     }
   };
@@ -807,6 +816,40 @@ export default function App() {
             <button onClick={dismissSos} style={{ flex: 1, padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
               בטל אזעקה ✓
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* חלון מודל גיבוי מנהל מעוצב המכיל את הטקסט המדויק שלך */}
+      {backupModalOpen && (
+        <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '26px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.4)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
+            <span style={{ fontSize: '32px' }}>🔒</span>
+            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900' }}>גרסה עדכנית: v{APP_VERSION}</h3>
+            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: textSub }}>להורדת גיבוי מקומי לחץ כאן</p>
+            
+            <input 
+              type="password" 
+              placeholder="הזן סיסמת מנהל (1967)" 
+              value={adminPassInput} 
+              onChange={e => setAdminPassInput(e.target.value)} 
+              style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+            />
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+              <button 
+                onClick={executeBackupDownload} 
+                style={{ flex: 1, padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
+              >
+                לחץ
+              </button>
+              <button 
+                onClick={() => setBackupModalOpen(false)} 
+                style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
+              >
+                ביטול
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1420,42 +1463,61 @@ export default function App() {
                   <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                     🏡 למלון Vojon
                   </a>
-                  <a href={`https://maps.google.com/?q=${savedParking ? `${savedParking.lat},${savedParking.lng}` : HOTEL_ADDRESS}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: '#1e3a8a', color: '#fff', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(30, 58, 138, 0.3)' }}>
+                  <a href={`https://maps.google.com/?q=${savedCarParking ? `${savedCarParking.lat},${savedCarParking.lng}` : HOTEL_ADDRESS}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: '#1e3a8a', color: '#fff', borderRadius: '12px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(30, 58, 138, 0.3)' }}>
                     🚗 לרכב החונה
                   </a>
                 </div>
 
-                <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '16px', padding: '10px 14px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', boxShadow: enhancedCardShadow }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '800', color: textSub }}>יעד: Vojon</span>
-                    <span style={{ fontSize: '18px', fontWeight: '900', color: '#10b981' }}>2554.9 ק"מ</span>
-                    <button onClick={requestCompassPermission} style={{ background: '#1e3a8a', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: '900', cursor: 'pointer' }}>
-                      🧭 מצפן (iOS)
+                {!savedCarParking ? (
+                  <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '20px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
+                    <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', fontSize: '26px' }}>
+                      🚗
+                    </div>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>חנית את הרכב?</h3>
+                    <p style={{ margin: 0, fontSize: '12px', color: textSub }}>לחץ על הכפתור האדום לשמירת מיקום ה-GPS המדויק.</p>
+                    
+                    <input 
+                      type="text" 
+                      placeholder="הוסף הערה (למשל: קומה 2, ליד עמוד B4)" 
+                      value={carNoteInput} 
+                      onChange={e => setCarNoteInput(e.target.value)} 
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '13px', boxSizing: 'border-box' }} 
+                    />
+
+                    <button 
+                      onClick={saveCarLocationNow}
+                      style={{ width: '100%', padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                    >
+                      <span>🔴</span> נָעץ מיקום חניה עכשיו
                     </button>
                   </div>
+                ) : (
+                  <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `2px solid #ef4444`, borderRadius: '20px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
+                    <span style={{ background: '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
+                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
-                  <div style={{ width: '90px', height: '90px', borderRadius: '50%', border: `2.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', background: isDark ? '#0b0f19' : '#f8fafc' }}>
-                    <div style={{ position: 'absolute', top: '4px', fontSize: '10px', fontWeight: '900', color: '#ef4444' }}>N</div>
-                    <div style={{ position: 'absolute', bottom: '4px', fontSize: '10px', fontWeight: '900', color: textSub }}>S</div>
-                    <div style={{ position: 'absolute', left: '6px', fontSize: '10px', fontWeight: '900', color: textSub }}>W</div>
-                    <div style={{ position: 'absolute', right: '6px', fontSize: '10px', fontWeight: '900', color: textSub }}>E</div>
-                    <div style={{ width: '40px', height: '40px', transform: `rotate(${carCompassHeading}deg)`, transition: 'transform 0.3s ease', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: '24px' }}>🧭</span>
+                    <div style={{ width: '100px', height: '100px', borderRadius: '50%', border: `2.5px solid #ef4444`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', background: isDark ? '#0b0f19' : '#f8fafc', margin: '4px 0' }}>
+                      <div style={{ position: 'absolute', top: '4px', fontSize: '9px', fontWeight: '900', color: '#ef4444' }}>צפון</div>
+                      <div style={{ width: '40px', height: '40px', transform: `rotate(${carBearingToWalk - carHeading}deg)`, transition: 'transform 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: '28px' }}>🚗⬆️</span>
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>
+                      מרחק הליכה: {carDistanceToWalk}
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%' }}>
+                      <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '10px', background: accentGradient, color: '#fff', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>
+                        נווט ב-Google 🗺️
+                      </a>
+                      <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: '#ef4444', border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+                        אפס חניה 🗑️
+                      </button>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '16px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: enhancedCardShadow }}>
-                  <input type="text" placeholder="תיאור מקום החניה / קומה / עמוד..." value={parkingNote} onChange={e => setParkingNote(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', boxSizing: 'border-box' }} />
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button onClick={() => alert('📷 מצלמה נפתחת לצילום עמוד החניה!')} style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '12px', fontWeight: '800', cursor: 'pointer', fontSize: '12px', textAlign: 'center' }}>
-                      📸 צלם עמוד
-                    </button>
-                    <button onClick={() => { navigator.geolocation.getCurrentPosition(pos => { setSavedParking({ lat: pos.coords.latitude, lng: pos.coords.longitude, note: parkingNote }); alert('מיקום החניה נשמר בהצלחה!'); }); }} style={{ flex: 1.5, padding: '10px', background: '#22c55e', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '12px', textAlign: 'center', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)' }}>
-                      📍 שמור מיקום GPS
-                    </button>
-                  </div>
-                </div>
               </div>
             )}
 
