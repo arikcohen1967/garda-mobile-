@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v4.9 ---
-const APP_VERSION = 'v4.9';
+// --- GARDA-MOBILE v5.0 ---
+const APP_VERSION = 'v5.0';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -333,9 +333,11 @@ export default function App() {
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   const [activeSoundAlert, setActiveSoundAlert] = useState(null);
   
-  const [activeTimer, setActiveTimer] = useState(null);
+  // טיימר משפחתי מסונכרן מרכזית ב-Supabase
+  const [sharedTimer, setSharedTimer] = useState(null);
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
+  const [timerInputMins, setTimerInputMins] = useState(10);
 
   const [savedCarParking, setSavedCarParking] = useState(() => {
     try {
@@ -380,7 +382,6 @@ export default function App() {
     }
   }, [myLocation, savedCarParking]);
 
-  // מנגנון מצפן חכם התומך באישור מכשיר במובייל (iOS / Android)
   const requestCompassPermission = () => {
     if (typeof window !== 'undefined' && window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
       window.DeviceOrientationEvent.requestPermission().then(response => {
@@ -597,11 +598,24 @@ export default function App() {
     } catch (e) {}
   };
 
+  // סנכרון שרת מרכזי לכל הפעילות (רדאר, התראות וגם טיימר משפחתי)
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    // טעינת מצב הטיימר הקיים מהשרת בעלייה
+    const fetchInitialTimer = async () => {
+      try {
+        const { data } = await supabase.from('family_timers').select('*').eq('id', 1).single();
+        if (data) {
+          setSharedTimer(data);
+          setIsTimerPaused(data.is_paused);
+        }
+      } catch (e) {}
+    };
+    fetchInitialTimer();
 
     const channel = supabase.channel('family_trip_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
@@ -617,6 +631,12 @@ export default function App() {
           }
         }
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
+        if (payload.new) {
+          setSharedTimer(payload.new);
+          setIsTimerPaused(payload.new.is_paused);
+        }
+      })
       .subscribe();
 
     return () => {
@@ -626,6 +646,56 @@ export default function App() {
       stopSirenSound();
     };
   }, [currentUser]);
+
+  // לוגיקת שעון עצר לטיימר המשותף מול השרת
+  useEffect(() => {
+    if (!sharedTimer || !sharedTimer.end_time || isTimerPaused) return;
+    const interval = setInterval(() => {
+      const diff = Math.max(0, Math.floor((sharedTimer.end_time - Date.now()) / 1000));
+      setTimerRemainingSec(diff);
+      if (diff === 0) {
+        alert(`⏱️ הזמן נגמר עבור: ${sharedTimer.title}!`);
+        setSharedTimer(null);
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sharedTimer, isTimerPaused]);
+
+  const startSharedTimer = async (mins) => {
+    const duration = Number(mins) || 10;
+    const endTime = Date.now() + duration * 60 * 1000;
+    const timerPayload = { id: 1, title: 'טיימר משפחתי מרכזי', end_time: endTime, duration: duration, is_paused: false };
+    
+    setSharedTimer(timerPayload);
+    setTimerRemainingSec(duration * 60);
+    setIsTimerPaused(false);
+    setModalType(null);
+
+    try {
+      await supabase.from('family_timers').upsert([timerPayload], { onConflict: 'id' });
+    } catch (e) {}
+  };
+
+  const toggleSharedTimerPause = async () => {
+    const nextPaused = !isTimerPaused;
+    setIsTimerPaused(nextPaused);
+    if (sharedTimer) {
+      const updated = { ...sharedTimer, is_paused: nextPaused };
+      setSharedTimer(updated);
+      try {
+        await supabase.from('family_timers').upsert([updated], { onConflict: 'id' });
+      } catch (e) {}
+    }
+  };
+
+  const clearSharedTimer = async () => {
+    setSharedTimer(null);
+    setIsTimerPaused(false);
+    try {
+      await supabase.from('family_timers').delete().eq('id', 1);
+    } catch (e) {}
+  };
 
   const triggerSirenSound = () => {
     try {
@@ -706,43 +776,6 @@ export default function App() {
   const enhancedCardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.08)';
 
   const day = INITIAL_TRIP_DAYS[activeDay];
-
-  useEffect(() => {
-    if (!activeTimer || !activeTimer.endTime || isTimerPaused) return;
-    const interval = setInterval(() => {
-      const diff = Math.max(0, Math.floor((activeTimer.endTime - Date.now()) / 1000));
-      setTimerRemainingSec(diff);
-      if (diff === 0) {
-        alert(`⏱️ הזמן נגמר עבור: ${activeTimer.title}!`);
-        setActiveTimer(null);
-        setIsTimerPaused(false);
-        clearInterval(interval);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [activeTimer, isTimerPaused]);
-
-  const startTimer = (mins) => {
-    const duration = Number(mins) || 10;
-    const endTime = Date.now() + duration * 60 * 1000;
-    setActiveTimer({ title: 'טיימר משפחתי', endTime, duration });
-    setTimerRemainingSec(duration * 60);
-    setIsTimerPaused(false);
-    setModalType(null);
-  };
-
-  const stopTimer = () => {
-    setIsTimerPaused(prev => !prev);
-  };
-
-  const resetTimer = () => {
-    if (activeTimer) {
-      const endTime = Date.now() + activeTimer.duration * 60 * 1000;
-      setActiveTimer(prev => ({ ...prev, endTime }));
-      setTimerRemainingSec(activeTimer.duration * 60);
-      setIsTimerPaused(false);
-    }
-  };
 
   const formatClock = (sec) => {
     const m = Math.floor(sec / 60);
@@ -946,20 +979,18 @@ export default function App() {
 
       </header>
 
-      {activeTimer && (
+      {/* בר טיימר משותף ומרכזי המופיע אצל כולם */}
+      {sharedTimer && (
         <div style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)' }}>
           <span onClick={() => setModalType('timer')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            ⏱️ טיימר {isTimerPaused ? '(מושהה)' : 'פועל'}: <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{formatClock(timerRemainingSec)}</span>
+            ⏱️ טיימר משפחתי {isTimerPaused ? '(מושהה)' : 'פועל'}: <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{formatClock(timerRemainingSec)}</span>
           </span>
           <div style={{ display: 'flex', gap: '6px' }}>
-            <button onClick={stopTimer} style={{ background: 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+            <button onClick={toggleSharedTimerPause} style={{ background: 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
               {isTimerPaused ? '▶️ המשך' : '⏸️ עצור'}
             </button>
-            <button onClick={resetTimer} style={{ background: 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
-              🔄 איפוס
-            </button>
-            <button onClick={() => { setActiveTimer(null); setIsTimerPaused(false); }} style={{ background: 'rgba(0,0,0,0.3)', border: 'none', color: '#fff', padding: '4px 8px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
-              ✕
+            <button onClick={clearSharedTimer} style={{ background: 'rgba(0,0,0,0.3)', border: 'none', color: '#fff', padding: '4px 8px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+              ✕ סגור
             </button>
           </div>
         </div>
@@ -1330,22 +1361,22 @@ export default function App() {
 
             {modalType === 'timer' && (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
-                <p style={{ fontSize: '14px', fontWeight: '800', color: textSub, margin: 0 }}>בחר משך זמן מהיר לטיימר:</p>
+                <p style={{ fontSize: '14px', fontWeight: '800', color: textSub, margin: 0 }}>בחר משך זמן מהיר להפעלת טיימר משפחתי לכולם:</p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '12px' }}>
-                  <button onClick={() => startTimer(5)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⚡ 5 דקות</button>
-                  <button onClick={() => startTimer(15)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 15 דקות</button>
-                  <button onClick={() => startTimer(30)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 30 דקות</button>
-                  <button onClick={() => startTimer(45)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 45 דקות</button>
-                  <button onClick={() => startTimer(60)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏰ 60 דקות (שעה)</button>
+                  <button onClick={() => startSharedTimer(5)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⚡ 5 דקות</button>
+                  <button onClick={() => startSharedTimer(15)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 15 דקות</button>
+                  <button onClick={() => startSharedTimer(30)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 30 דקות</button>
+                  <button onClick={() => startSharedTimer(45)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 45 דקות</button>
+                  <button onClick={() => startSharedTimer(60)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏰ 60 דקות (שעה)</button>
                 </div>
 
-                {activeTimer && (
+                {sharedTimer && (
                   <div style={{ display: 'flex', gap: '10px', width: '100%', boxSizing: 'border-box', marginTop: '10px' }}>
-                    <button onClick={stopTimer} style={{ flex: 1, padding: '14px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
-                      {isTimerPaused ? '▶️ המשך' : '⏸️ עצור'}
+                    <button onClick={toggleSharedTimerPause} style={{ flex: 1, padding: '14px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+                      {isTimerPaused ? '▶️ המשך טיימר' : '⏸️ עצור טיימר'}
                     </button>
-                    <button onClick={resetTimer} style={{ flex: 1, padding: '14px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
-                      🔄 איפוס
+                    <button onClick={clearSharedTimer} style={{ flex: 1, padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+                      ✕ אפס טיימר
                     </button>
                   </div>
                 )}
