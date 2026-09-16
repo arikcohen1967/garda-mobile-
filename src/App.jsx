@@ -34,7 +34,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
@@ -568,38 +568,45 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header Bar */}
-      <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.85)' : 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '12px 16px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Top Header Bar - Redesigned Two-Tier Header */}
+      <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${borderColor}`, padding: '12px 16px 14px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '10px' }}>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Tier 1: Brand & Menu */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.35)' }}>
+              🇮🇹
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, letterSpacing: '-0.01em' }}>garda-mobile</span>
+              <span style={{ fontSize: '10px', fontWeight: '800', color: isOnline ? '#22c55e' : '#f59e0b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: isOnline ? '#22c55e' : '#f59e0b', display: 'inline-block' }}></span>
+                {isOnline ? 'Online (מחובר)' : 'Offline (לא מחובר)'}
+              </span>
+            </div>
+          </div>
+
           <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1px solid ${borderColor}`, width: '40px', height: '40px', borderRadius: '14px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
             ☰
           </button>
-          
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '11px', fontWeight: '900', color: '#3b82f6', letterSpacing: '0.03em' }}>garda-mobile</span>
-            <span style={{ fontSize: '11px', fontWeight: '800', color: isOnline ? '#22c55e' : '#f59e0b', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#22c55e' : '#f59e0b', display: 'inline-block' }}></span>
-              {isOnline ? 'Online' : 'Offline'}
-            </span>
-          </div>
         </div>
 
-        {/* Uniform Sized Header Buttons */}
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-          <div style={uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor)} title="מזג אוויר מותאם לפי מיקום המכשיר">
+        {/* Tier 2: Quick Action Bar */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.3fr 1.2fr', gap: '8px', alignItems: 'center' }}>
+          <button onClick={triggerSos} style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: '#ef4444', color: '#fff', border: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)' }}>
+            <span>🚨</span> SOS חירום
+          </button>
+
+          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: '#38bdf8', color: '#0f172a', textDecoration: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.25)' }}>
+            {WAZE_SVG} למלון Vojon
+          </a>
+
+          <div style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: cardBg, color: textColor, border: `1px solid ${borderColor}`, fontWeight: '800', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }} title="מזג אוויר מותאם לפי מיקום המכשיר">
             <span>{currentWeather.condition.split(' ')[0]}</span>
             <span>{currentWeather.temp}</span>
           </div>
-
-          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ ...uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor), textDecoration: 'none', background: '#38bdf8', color: '#0f172a', borderColor: '#38bdf8' }}>
-            {WAZE_SVG} למלון
-          </a>
-          
-          <button onClick={triggerSos} style={{ ...uniformHeaderBtnStyle(isDark, cardBg, textColor, borderColor), background: '#ef4444', color: '#fff', borderColor: '#ef4444', border: 'none', cursor: 'pointer' }}>
-            🚨 SOS
-          </button>
         </div>
+
       </header>
 
       {/* Active Timer Banner */}
@@ -1026,25 +1033,6 @@ export default function App() {
     </div>
   );
 }
-
-const uniformHeaderBtnStyle = (isDark, cardBg, textColor, borderColor) => ({
-  height: '36px',
-  padding: '0 10px',
-  borderRadius: '12px',
-  background: cardBg,
-  color: textColor,
-  border: `1px solid ${borderColor}`,
-  fontWeight: '800',
-  fontSize: '11px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: '5px',
-  boxSizing: 'border-box',
-  cursor: 'pointer',
-  whiteSpace: 'nowrap',
-  boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
-});
 
 const categoryGroupStyle = (isDark, borderColor) => ({
   background: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.015)',
