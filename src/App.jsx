@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v2.6 ---
-const APP_VERSION = 'v2.6';
+// --- GARDA-MOBILE v2.7 ---
+const APP_VERSION = 'v2.7';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,8 +37,8 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", note: "איסוף מזוודות ורכב שכור." },
-      { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
+      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות ורכב שכור." },
+      { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
   {
@@ -46,8 +46,8 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לבחור יחד את שלושת המתקנים הכי אקסטרימיים!",
     challengeDesc: "צלמו תמונה צועקים על אחד המתקנים וספרו מי צעק הכי חזק.",
     stops: [
-      { time: "08:30", name: "יציאה מהמלון ל-Gardaland", dest: "Gardaland Resort, Castelnuovo del Garda", note: "הגעה מוקדמת לפני פתיחת השערים." },
-      { time: "13:00", name: "ארוחת צהריים בפארק", dest: "Gardaland Resort", note: "אוכל מהיר והמבורגרים.", food: { name: "🍔 Aladino Pizza & Burger", dest: "Gardaland Resort" } }
+      { time: "08:30", name: "יציאה מהמלון ל-Gardaland", dest: "Gardaland Resort, Castelnuovo del Garda", lat: 45.4526, lng: 10.7153, note: "הגעה מוקדמת לפני פתיחת השערים." },
+      { time: "13:00", name: "ארוחת צהריים בפארק", dest: "Gardaland Resort", lat: 45.4526, lng: 10.7153, note: "אוכל מהיר והמבורגרים.", food: { name: "🍔 Aladino Pizza & Burger", dest: "Gardaland Resort" } }
     ]
   },
   {
@@ -55,8 +55,8 @@ const INITIAL_TRIP_DAYS = [
     challenge: "תמונת פנורמה משפחתית מפסגת הרכבל!",
     challengeDesc: "תצפית מרהיבה מגובה 1,800 מטר באלדו ולאחר מכן שיטוט בסמטאות סירמיונה.",
     stops: [
-      { time: "08:30", name: "רכבל מונטה באלדו (מלצ׳סינה)", dest: "Funivia Malcesine-Monte Baldo", note: "רכבל מסתובב אל פסגת ההר." },
-      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", note: "עיירת ימי ביניים קסומה באגם.", food: { name: "🍦 גלידה מפורסמת בסירמיונה", dest: "Sirmione, Italy" } }
+      { time: "08:30", name: "רכבל מונטה באלדו (מלצ׳סינה)", dest: "Funivia Malcesine-Monte Baldo", lat: 45.7797, lng: 10.8105, note: "רכבל מסתובב אל פסגת ההר." },
+      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", lat: 45.4925, lng: 10.6053, note: "עיירת ימי ביניים קסומה באגם.", food: { name: "🍦 גלידה מפורסמת בסירמיונה", dest: "Sirmione, Italy" } }
     ]
   },
   {
@@ -64,8 +64,8 @@ const INITIAL_TRIP_DAYS = [
     challenge: "סלפי משפחתי שנראה כמו פוסטר של סרט הוליוודי!",
     challengeDesc: "פוזה דרמטית ליד תפאורת סרט ב-Movieland.",
     stops: [
-      { time: "09:00", name: "Movieland The Hollywood Park", dest: "Movieland The Hollywood Park, Lazise", note: "יום אקשן וחוויות קולנועיות." },
-      { time: "20:00", name: "Medieval Times – מופע האבירים", dest: "Medieval Times, Lazise", note: "ארוחה ללא סכו״ם ואבירים.", food: { name: "🍗 Medieval Times", dest: "Medieval Times, Lazise" } }
+      { time: "09:00", name: "Movieland The Hollywood Park", dest: "Movieland The Hollywood Park, Lazise", lat: 45.4745, lng: 10.7291, note: "יום אקשן וחוויות קולנועיות." },
+      { time: "20:00", name: "Medieval Times – מופע האבירים", dest: "Medieval Times, Lazise", lat: 45.4745, lng: 10.7291, note: "ארוחה ללא סכו״ם ואבירים.", food: { name: "🍗 Medieval Times", dest: "Medieval Times, Lazise" } }
     ]
   },
   {
@@ -73,8 +73,8 @@ const INITIAL_TRIP_DAYS = [
     challenge: "למצוא גשר קטן ומיוחד מחוץ למסלול הראשי!",
     challengeDesc: "צלמו את הגשר הכי מיוחד שמצאתם בסמטאות ונציה.",
     stops: [
-      { time: "07:30", name: "יציאה לוונציה", dest: "Venezia Tronchetto Parking", note: "חנייה ומעבר בסירה למרכז." },
-      { time: "09:30", name: "כיכר סן מרקו", dest: "St. Mark's Square, Venice", note: "הלב הפועם של ונציה." }
+      { time: "07:30", name: "יציאה לוונציה", dest: "Venezia Tronchetto Parking", lat: 45.4384, lng: 12.3167, note: "חנייה ומעבר בסירה למרכז." },
+      { time: "09:30", name: "כיכר סן מרקו", dest: "St. Mark's Square, Venice", lat: 45.4343, lng: 12.3388, note: "הלב הפועם של ונציה." }
     ]
   },
   {
@@ -82,8 +82,8 @@ const INITIAL_TRIP_DAYS = [
     challenge: "תמונה משפחתית מטורפת מהראפטינג!",
     challengeDesc: "אקשן מים מסעיר בבוקר וטיול רומנטי בבורגטו בצהריים.",
     stops: [
-      { time: "09:00", name: "X Rafting", dest: "X Rafting, Italy", note: "שיט ראפטינג משפחתי מרגש בנהר." },
-      { time: "12:30", name: "Borghetto sul Mincio", dest: "Borghetto sul Mincio", note: "כפר טחנות מרהיב.", food: { name: "🍝 טורטליני בבורגטו", dest: "Valeggio sul Mincio" } }
+      { time: "09:00", name: "X Rafting", dest: "X Rafting, Italy", lat: 45.5512, lng: 10.8523, note: "שיט ראפטינג משפחתי מרגש בנהר." },
+      { time: "12:30", name: "Borghetto sul Mincio", dest: "Borghetto sul Mincio", lat: 45.3524, lng: 10.6972, note: "כפר טחנות מרהיב.", food: { name: "🍝 טורטליני בבורגטו", dest: "Valeggio sul Mincio" } }
     ]
   },
   {
@@ -91,8 +91,8 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לבחור יחד את רגע השיא של הטיול כולו!",
     challengeDesc: "סיכום חוויות בוורונה וטיסה חזרה הביתה.",
     stops: [
-      { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", note: "ארנה והמרפסת של יוליה." },
-      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", note: "טיסה חזרה לישראל." }
+      { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", lat: 45.4384, lng: 10.9916, note: "ארנה והמרפסת של יוליה." },
+      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "טיסה חזרה לישראל." }
     ]
   }
 ];
@@ -126,10 +126,17 @@ const ROAD_TRIVIA_QUESTIONS = [
   { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 }
 ];
 
-const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
+const generateMapHTML = (familyLocs, myLoc, sosState, activeDayIndex, isDark) => {
   let centerLat = 45.4384, centerLng = 10.6816;
   if (sosState?.lat) { centerLat = sosState.lat; centerLng = sosState.lng; }
   else if (myLoc?.lat) { centerLat = myLoc.lat; centerLng = myLoc.lng; }
+
+  // שליפת התחנה הראשונה של היום הנוכחי כיעד הבא
+  const currentDayObj = INITIAL_TRIP_DAYS[activeDayIndex] || INITIAL_TRIP_DAYS[0];
+  const nextStop = currentDayObj.stops[0];
+  const nextLat = nextStop?.lat || 45.4192;
+  const nextLng = nextStop?.lng || 10.6908;
+  const nextName = nextStop?.name || 'היעד הבא';
 
   let markersJS = '';
   Object.values(familyLocs).forEach(loc => {
@@ -137,6 +144,23 @@ const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
       markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>עודכן: ${loc.updated_at || 'עכשיו'}');\n`;
     }
   });
+
+  // יצירת קו ניווט ברור מהמיקום הנוכחי עד ליעד הבא
+  let routePolylineJS = '';
+  if (myLoc && myLoc.lat) {
+    routePolylineJS = `
+      const latlngs = [
+        [${myLoc.lat}, ${myLoc.lng}],
+        [${nextLat}, ${nextLng}]
+      ];
+      const polyline = L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
+      L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
+    `;
+  } else {
+    routePolylineJS = `
+      L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
+    `;
+  }
 
   return `
     <!DOCTYPE html>
@@ -155,9 +179,10 @@ const generateMapHTML = (familyLocs, myLoc, sosState, isDark) => {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
         const myLocData = ${JSON.stringify(myLoc)};
         if (myLocData && myLocData.lat) {
-          L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
+          L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי (הנקודה שבה אתה נמצא)');
         }
         ${markersJS}
+        ${routePolylineJS}
       </script>
     </body>
     </html>
@@ -201,7 +226,7 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // פונקציית גיבוי עם הודעה נקייה לפי דרישתך
+  // פונקציית גיבוי עם הודעה נקייה
   const handleProtectedBackup = () => {
     const promptMessage = `גרסה עדכנית: v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן\n\nהזן סיסמת מנהל:`;
     const adminPassword = window.prompt(promptMessage);
@@ -234,6 +259,7 @@ export default function App() {
           try {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
+            setMyLocation({ lat, lng: lon });
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
             const data = await res.json();
             if (data && data.current_weather) {
@@ -797,7 +823,7 @@ export default function App() {
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
               <small style={{ color: '#2563eb', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
-              {/* כותרת היום הפכה לכפתור לחיץ שפותח מפה עם סיכה אדומה של המיקום הנוכחי */}
+              {/* כותרת היום הלחיצה שפותחת את אפליקציית המפות עם סיכה אדומה של המיקום הנוכחי */}
               <a 
                 href={myLocation ? `https://maps.google.com/?q=${myLocation.lat},${myLocation.lng}` : `https://maps.google.com/?q=${encodeURIComponent(HOTEL_ADDRESS)}`} 
                 target="_blank" 
@@ -940,7 +966,8 @@ export default function App() {
             {modalType === 'radar' && (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', position: 'relative', boxSizing: 'border-box', paddingTop: '85px' }}>
                 <div style={{ width: '100%', flex: 1, minHeight: '60vh', overflow: 'hidden', boxSizing: 'border-box' }}>
-                  <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
+                  {/* מפת הרדאר המעודכנת הכוללת קו ניווט ברור עד ליעד הבא */}
+                  <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
                 <div style={{ background: isDark ? 'rgba(11, 15, 25, 0.95)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(15px)', padding: '12px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box' }}>
