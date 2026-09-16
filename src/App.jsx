@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v3.3 ---
-const APP_VERSION = 'v3.3';
+// --- GARDA-MOBILE v3.4 ---
+const APP_VERSION = 'v3.4';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -35,9 +35,9 @@ const INITIAL_TRIP_DAYS = [
   {
     date: "2026-09-30", label: "רביעי · 30/09", title: "נחיתה והגעה למלון", icon: "✈️",
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
-    challengeDesc: "הרגע נחתנו! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
+    challengeDesc: "הרגע נחתנו ביום הראשון של הטיול! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות ורכב שכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות ורכב שכור." },
       { time: "18:00", name: "נסיעה למלון וארוחת ערב", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין והתארגנות במלון + ארוחת פיצה ראשונה.", food: { name: "🍕 פיצריה מקומית + גלידה בפסקיירה", dest: "Peschiera del Garda, Italy" } }
     ]
   },
@@ -128,10 +128,9 @@ const ROAD_TRIVIA_QUESTIONS = [
 
 const TRAVELERS_LIST = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
 
-// חישוב מרחק מדויק (Haversine formula) וזמן נסיעה מוערך
 const calculateDistanceAndDuration = (lat1, lon1, lat2, lon2) => {
   if (!lat1 || !lon1 || !lat2 || !lon2) return { dist: '---', duration: '---' };
-  const R = 6371; // רדיוס כדור הארץ בק"מ
+  const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
   const a = 
@@ -141,7 +140,6 @@ const calculateDistanceAndDuration = (lat1, lon1, lat2, lon2) => {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distKm = R * c;
   
-  // הערכת זמן נסיעה לפי מהירות ממוצעת משוערת של 70 קמ"ש בדרכים באיטליה
   const hours = distKm / 70;
   const mins = Math.round(hours * 60);
   
@@ -158,7 +156,6 @@ const calculateDistanceAndDuration = (lat1, lon1, lat2, lon2) => {
   };
 };
 
-// מפה דינמית הכוללת את תושבת הנתונים (ק"מ וזמן נסיעה) מעוצבת למעלה
 const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
   const currentLat = myLoc?.lat || 45.4384;
   const currentLng = myLoc?.lng || 10.6816;
@@ -940,11 +937,10 @@ export default function App() {
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
               <small style={{ color: '#2563eb', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
-              {/* כותרת היום הלחיצה שפותחת מפה דינמית מבוססת GPS עד ליעד של אותו יום */}
               <button 
                 onClick={() => setModalType('route-map')}
                 style={{ background: 'transparent', border: 'none', padding: 0, textAlign: 'right', cursor: 'pointer' }}
-                title="לחץ לפתיחת מפת ניווט מהמיקום שלך ליעד עם הערכת זמן ומרחק"
+                title="לחץ לפתיחת מפת ניווט מהמיקום שלך ליעד"
               >
                 <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.01em', color: textColor, transition: 'color 0.2s' }}>
                   {day.title} 📍
