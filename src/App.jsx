@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v4.0 ---
-const APP_VERSION = 'v4.0';
+// --- GARDA-MOBILE v4.2 ---
+const APP_VERSION = 'v4.2';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -337,8 +337,79 @@ export default function App() {
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
 
-  const [parkingNote, setParkingNote] = useState('');
-  const [savedParking, setSavedParking] = useState(null);
+  // מנגנון Car Finder Pro חדש ומקצועי לשמירת מיקום הרכב וחזרה אליו
+  const [savedCarParking, setSavedCarParking] = useState(() => {
+    try {
+      const saved = localStorage.getItem('garda-car-parking');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) { return null; }
+  });
+  const [carNoteInput, setCarNoteInput] = useState('');
+  const [carHeading, setCarHeading] = useState(0);
+  const [carDistanceToWalk, setCarDistanceToWalk] = useState(0);
+  const [carBearingToWalk, setCarBearingToWalk] = useState(0);
+
+  useEffect(() => {
+    try {
+      if (savedCarParking) {
+        localStorage.setItem('garda-car-parking', JSON.stringify(savedCarParking));
+      } else {
+        localStorage.removeItem('garda-car-parking');
+      }
+    } catch (e) {}
+  }, [savedCarParking]);
+
+  useEffect(() => {
+    if (!savedCarParking || !myLocation) return;
+    const lat1 = myLocation.lat * (Math.PI / 180);
+    const lon1 = myLocation.lng * (Math.PI / 180);
+    const lat2 = savedCarParking.lat * (Math.PI / 180);
+    const lon2 = savedCarParking.lng * (Math.PI / 180);
+
+    const dLon = lon2 - lon1;
+    const y = Math.sin(dLon) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+    let brng = Math.atan2(y, x) * (180 / Math.PI);
+    brng = (brng + 360) % 360;
+    setCarBearingToWalk(brng);
+
+    const { dist } = calculateDistanceAndDuration(myLocation.lat, myLocation.lng, savedCarParking.lat, savedCarParking.lng);
+    setCarDistanceToWalk(dist);
+  }, [myLocation, savedCarParking]);
+
+  useEffect(() => {
+    const handleOrientation = (e) => {
+      if (e.alpha !== null) setCarHeading(e.alpha);
+      else if (e.webkitCompassHeading !== undefined) setCarHeading(e.webkitCompassHeading);
+    };
+    window.addEventListener('deviceorientation', handleOrientation, true);
+    return () => window.removeEventListener('deviceorientation', handleOrientation, true);
+  }, []);
+
+  const saveCarLocationNow = () => {
+    if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
+    navigator.geolocation.getCurrentPosition(pos => {
+      const newCarLoc = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        note: carNoteInput || 'חניה ללא הערה',
+        time: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        date: new Date().toLocaleDateString('he-IL')
+      };
+      setSavedCarParking(newCarLoc);
+      setCarNoteInput('');
+      alert('🔴 כפתור אדום ננעץ! מיקום הרכב נשמר בהצלחה.');
+    }, () => {
+      alert('❌ לא ניתן לקבוע את מיקום ה-GPS. בדוק את הרשאות המיקום.');
+    });
+  };
+
+  const clearCarLocation = () => {
+    if (window.confirm('למחוק את מיקום הרכב השמור?')) {
+      setSavedCarParking(null);
+    }
+  };
+
   const [aroundMeQuery, setAroundMeQuery] = useState('');
   const [carCompassHeading, setCarCompassHeading] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -356,6 +427,7 @@ export default function App() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
+        // שם קובץ מותאם אישית ומדויק לאפליקציה שלך
         link.download = `garda-mobile-${APP_VERSION}-full-backup.js`;
         document.body.appendChild(link);
         link.click();
@@ -1050,7 +1122,7 @@ export default function App() {
                 {modalType === 'daily-tasks' && `✨ משימות והמלצות: ${day.title}`}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
-                {modalType === 'parking' && '🚗 שמירת מיקום רכב חכם'}
+                {modalType === 'parking' && '🚗 Car Finder Pro - שמירת מיקום רכב'}
                 {modalType === 'trivia' && '🧠 טריויה משפחתית'}
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום ושגרירות'}
