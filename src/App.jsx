@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v2.4 ---
-const APP_VERSION = 'v2.4';
+// --- GARDA-MOBILE v2.5 ---
+const APP_VERSION = 'v2.5';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -201,9 +201,10 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // פונקציית הגיבוי המקושרת ישירות לכפתור השם garda-mobile
+  // פונקציית הגיבוי המעודכנת עם הטקסט המדויק שביקשת
   const handleProtectedBackup = () => {
-    const adminPassword = window.prompt(`🔒 אזור מנהל (גרסה ${APP_VERSION}): הזן סיסמת הורדת גיבוי קוד`);
+    const promptMessage = `גרסה עדכנית: v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן\n\nהזן סיסמת מנהל:`;
+    const adminPassword = window.prompt(promptMessage);
     if (adminPassword && adminPassword.trim() === "1967") {
       try {
         const componentSource = document.documentElement.outerHTML;
@@ -621,7 +622,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* Center: Interactive gardaland-mobile button triggering admin backup */}
+          {/* Center: Interactive garda-mobile button triggering admin backup */}
           <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button 
               onClick={handleProtectedBackup}
