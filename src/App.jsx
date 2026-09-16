@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v2.7 ---
-const APP_VERSION = 'v2.7';
+// --- GARDA-MOBILE v2.8 ---
+const APP_VERSION = 'v2.8';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -131,7 +131,6 @@ const generateMapHTML = (familyLocs, myLoc, sosState, activeDayIndex, isDark) =>
   if (sosState?.lat) { centerLat = sosState.lat; centerLng = sosState.lng; }
   else if (myLoc?.lat) { centerLat = myLoc.lat; centerLng = myLoc.lng; }
 
-  // שליפת התחנה הראשונה של היום הנוכחי כיעד הבא
   const currentDayObj = INITIAL_TRIP_DAYS[activeDayIndex] || INITIAL_TRIP_DAYS[0];
   const nextStop = currentDayObj.stops[0];
   const nextLat = nextStop?.lat || 45.4192;
@@ -145,7 +144,6 @@ const generateMapHTML = (familyLocs, myLoc, sosState, activeDayIndex, isDark) =>
     }
   });
 
-  // יצירת קו ניווט ברור מהמיקום הנוכחי עד ליעד הבא
   let routePolylineJS = '';
   if (myLoc && myLoc.lat) {
     routePolylineJS = `
@@ -226,9 +224,9 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // פונקציית גיבוי עם הודעה נקייה
+  // פונקציית גיבוי עם הודעת מנהל נקייה בדיוק כפי שביקשת
   const handleProtectedBackup = () => {
-    const promptMessage = `גרסה עדכנית: v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן\n\nהזן סיסמת מנהל:`;
+    const promptMessage = `גרסה עדכנית: v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן`;
     const adminPassword = window.prompt(promptMessage);
     if (adminPassword && adminPassword.trim() === "1967") {
       try {
@@ -966,7 +964,6 @@ export default function App() {
             {modalType === 'radar' && (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', position: 'relative', boxSizing: 'border-box', paddingTop: '85px' }}>
                 <div style={{ width: '100%', flex: 1, minHeight: '60vh', overflow: 'hidden', boxSizing: 'border-box' }}>
-                  {/* מפת הרדאר המעודכנת הכוללת קו ניווט ברור עד ליעד הבא */}
                   <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
                 
