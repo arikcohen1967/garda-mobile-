@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v3.8 ---
-const APP_VERSION = 'v3.8';
+// --- GARDA-MOBILE v3.9 ---
+const APP_VERSION = 'v3.9';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1077,7 +1077,7 @@ export default function App() {
               </div>
             )}
 
-            {/* חלון מודל חדש ומעוצב למשימות והמלצות היום */}
+            {/* חלון מודל למשימות והמלצות היום */}
             {modalType === 'daily-tasks' && (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 20px 30px', boxSizing: 'border-box', overflowY: 'auto', gap: '20px', background: bgMain }}>
                 
