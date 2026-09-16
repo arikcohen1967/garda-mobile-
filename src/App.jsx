@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v4.7 ---
-const APP_VERSION = 'v4.7';
+// --- GARDA-MOBILE v4.8 ---
+const APP_VERSION = 'v4.8';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -60,7 +60,7 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "תצפית מרהיבה מגובה 1,800 מטר באלדו ולאחר מכן שיטוט בסמטאות סירמיונה.",
     stops: [
       { time: "08:30", name: "רכבל מונטה באלדו (מלצ׳סינה)", dest: "Funivia Malcesine-Monte Baldo", lat: 45.7797, lng: 10.8105, note: "רכבל מסתובב אל פסגת ההר." },
-      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", lat: 45.4925, lng: 10.6053, note: "עיירת ימי ביניים קסوמה על שפת האגם." }
+      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", lat: 45.4925, lng: 10.6053, note: "עיירת ימי ביניים קסומה על שפת האגם." }
     ],
     culinary: { name: "Trattoria La Marsa & Gelateria Iguana", dest: "Sirmione, Italy", desc: "פסטה טרטליני מדהימה צופה לאגם, וגלידריית בוטיק עם עשרות טעמים ייחודיים." },
     creative: { name: "פסגת מונטה באלדו", dest: "Funivia Malcesine-Monte Baldo", desc: "ציור הנוף מלמעלה כמפה של הרפתקנים על רקע העננים." }
@@ -864,13 +864,13 @@ export default function App() {
         </div>
       )}
 
-      {/* הדר עליון מורווח ומעוצב */}
-      <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '14px 16px 20px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+      {/* הדר עליון מורווח ומעוצב עם מלבנים תואמים וגובה מוגדל כלפי מטה */}
+      <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: '8px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-            <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#f8fafc', color: textColor, border: `1.5px solid ${borderColor}`, height: '42px', padding: '0 16px', borderRadius: '14px', fontSize: '16px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', transition: 'all 0.2s ease' }}>
+            <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#f8fafc', color: textColor, border: `1.5px solid ${borderColor}`, height: '44px', padding: '0 16px', borderRadius: '14px', fontSize: '16px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', transition: 'all 0.2s ease' }}>
               ☰
             </button>
           </div>
@@ -886,7 +886,7 @@ export default function App() {
                 fontWeight: '900',
                 letterSpacing: '-0.01em',
                 cursor: 'pointer',
-                height: '42px',
+                height: '44px',
                 padding: '0 16px',
                 borderRadius: '14px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
@@ -904,7 +904,7 @@ export default function App() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <div style={{ background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#f8fafc', border: `1.5px solid ${borderColor}`, height: '42px', padding: '0 14px', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+            <div style={{ background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#f8fafc', border: `1.5px solid ${borderColor}`, height: '44px', padding: '0 14px', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
               <span style={{ fontSize: '11px', fontWeight: '900', color: isOnline ? '#22c55e' : '#f59e0b' }}>
                 {isOnline ? 'Online' : 'Offline'}
               </span>
