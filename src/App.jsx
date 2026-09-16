@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v3.0 ---
-const APP_VERSION = 'v3.0';
+// --- GARDA-MOBILE v3.1 ---
+const APP_VERSION = 'v3.1';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -126,6 +126,8 @@ const ROAD_TRIVIA_QUESTIONS = [
   { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 }
 ];
 
+const TRAVELERS_LIST = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
+
 // פונקציית ייצור מפה הכוללת קו ניווט מהמיקום הנוכחי עד ליעד של אותו יום
 const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
   let centerLat = 45.4384, centerLng = 10.6816;
@@ -156,13 +158,9 @@ const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
         const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-        // סיכה במיקום הנוכחי שלך
         L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך').openPopup();
-
-        // סיכה ביעד של אותו יום
         L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ${destName}');
 
-        // קו ניווט ברור בין המיקום הנוכחי ליעד
         const latlngs = [
           [${currentLat}, ${currentLng}],
           [${destLat}, ${destLng}]
@@ -225,7 +223,7 @@ const generateMapHTML = (familyLocs, myLoc, sosState, activeDayIndex, isDark) =>
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
         const myLocData = ${JSON.stringify(myLoc)};
         if (myLocData && myLocData.lat) {
-          L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי (הנקודה שבה אתה נמצא)');
+          L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
         }
         ${markersJS}
         ${routePolylineJS}
@@ -240,9 +238,18 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [modalType, setModalType] = useState(null);
   
+  // זיהוי המשתמש הנוכחי במכשיר (קריטי כדי שכולם יוכלו לראות ולנווט אחד לשני)
+  const [currentUser, setCurrentUser] = useState(() => {
+    try { return localStorage.getItem('garda-current-user') || 'אריק'; } catch (e) { return 'אריק'; }
+  });
+
   const [themeMode, setThemeMode] = useState(() => {
     try { return localStorage.getItem('garda-theme-mode') || 'light'; } catch (e) { return 'light'; }
   });
+
+  useEffect(() => {
+    try { localStorage.setItem('garda-current-user', currentUser); } catch (e) {}
+  }, [currentUser]);
 
   useEffect(() => {
     try { localStorage.setItem('garda-theme-mode', themeMode); } catch (e) {}
@@ -272,7 +279,6 @@ export default function App() {
   
   const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
 
-  // פונקציית גיבוי עם הודעת מנהל ופקודת alert נקיות לחלוטין
   const handleProtectedBackup = () => {
     const promptMessage = `גרסה עדכנית: v${APP_VERSION} להורדת גיבוי מקומי לחץ כאן`;
     const adminPassword = window.prompt(promptMessage);
@@ -333,7 +339,6 @@ export default function App() {
   const [triviaIndex, setTriviaIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
-  const travelers = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
   const [travelerIndex, setTravelerIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-traveler-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
@@ -358,7 +363,7 @@ export default function App() {
     if (questionTimeLeft <= 0) {
       setQuestionTimeLeft(45);
       setTriviaIndex(prev => prev + 1);
-      setTravelerIndex(prev => (prev + 1) % travelers.length);
+      setTravelerIndex(prev => (prev + 1) % TRAVELERS_LIST.length);
       return;
     }
 
@@ -367,7 +372,7 @@ export default function App() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [modalType, isTriviaPaused, questionTimeLeft, selectedAnswer, travelers.length]);
+  }, [modalType, isTriviaPaused, questionTimeLeft, selectedAnswer]);
 
   const [folders] = useState(TICKET_DEFAULT_FOLDERS);
   const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
@@ -441,7 +446,7 @@ export default function App() {
             setActiveSosAlert(payload.new);
             triggerSirenSound();
           }
-          if (payload.new.is_sound_alert) {
+          if (payload.new.is_sound_alert && payload.new.name === currentUser) {
             setActiveSoundAlert(payload.new);
             playLongChime();
           }
@@ -455,7 +460,7 @@ export default function App() {
       supabase.removeChannel(channel);
       stopSirenSound();
     };
-  }, []);
+  }, [currentUser]);
 
   const triggerSirenSound = () => {
     try {
@@ -504,7 +509,7 @@ export default function App() {
 
     navigator.geolocation.getCurrentPosition(async pos => {
       const sosData = {
-        name: 'אריק',
+        name: currentUser,
         lat: pos.coords.latitude,
         lng: pos.coords.longitude,
         updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
@@ -522,7 +527,7 @@ export default function App() {
     stopSirenSound();
     setActiveSosAlert(null);
     try {
-      await supabase.from('family_radar').upsert([{ name: 'אריק', is_sos: false }], { onConflict: 'name' });
+      await supabase.from('family_radar').upsert([{ name: currentUser, is_sos: false }], { onConflict: 'name' });
     } catch (e) {}
   };
 
@@ -601,9 +606,9 @@ export default function App() {
   };
 
   const broadcastMyLocation = async (coords) => {
-    const locObj = { name: 'אריק', lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false };
+    const locObj = { name: currentUser, lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false };
     setMyLocation({ lat: coords.latitude, lng: coords.longitude });
-    setFamilyLocations(prev => ({ ...prev, 'אריק': locObj }));
+    setFamilyLocations(prev => ({ ...prev, [currentUser]: locObj }));
     try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
   };
 
@@ -611,7 +616,7 @@ export default function App() {
     if (isTriviaPaused || selectedAnswer !== null) return;
     setSelectedAnswer(optIdx);
     const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
-    const currentTraveler = travelers[travelerIndex];
+    const currentTraveler = TRAVELERS_LIST[travelerIndex];
     if (optIdx === currentQ.correct) {
       setTravelerScores(prev => ({ ...prev, [currentTraveler]: (prev[currentTraveler] || 0) + 10 }));
     }
@@ -619,7 +624,7 @@ export default function App() {
       setSelectedAnswer(null);
       setQuestionTimeLeft(45);
       setTriviaIndex(prev => prev + 1);
-      setTravelerIndex(prev => (prev + 1) % travelers.length);
+      setTravelerIndex(prev => (prev + 1) % TRAVELERS_LIST.length);
     }, 1200);
   };
 
@@ -694,7 +699,6 @@ export default function App() {
             </button>
           </div>
 
-          {/* Center: Interactive garda-mobile button triggering admin backup */}
           <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button 
               onClick={handleProtectedBackup}
@@ -775,6 +779,19 @@ export default function App() {
             </div>
           </div>
           <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
+        </div>
+
+        {/* בחירת משתמש עבור הרדאר */}
+        <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: '1.5px solid rgba(59, 130, 246, 0.3)', padding: '12px', borderRadius: '16px' }}>
+          <label style={{ fontSize: '12px', fontWeight: '900', color: '#3b82f6', display: 'block', marginBottom: '6px' }}>👤 מי משתמש בטלפון הזה?</label>
+          <select 
+            value={currentUser} 
+            onChange={e => setCurrentUser(e.target.value)} 
+            style={{ width: '100%', padding: '10px', borderRadius: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold', fontSize: '14px', outline: 'none' }}
+          >
+            {TRAVELERS_LIST.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <p style={{ fontSize: '10px', color: textSub, margin: '6px 0 0', lineHeight: '1.4' }}>בחר את השם שלך כדי שתוכל לעדכן את מיקומך למשפחה.</p>
         </div>
 
         <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: isDark ? '#1e293b' : '#f8fafc', border: `1.5px solid ${borderColor}`, color: textColor, padding: '12px 16px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
@@ -869,7 +886,6 @@ export default function App() {
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
               <small style={{ color: '#2563eb', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
-              {/* כותרת היום הפכה לכפתור שפותח חלון מפה עם קו ניווט ברור מהמיקום הנוכחי ליעד של אותו יום */}
               <button 
                 onClick={() => setModalType('route-map')}
                 style={{ background: 'transparent', border: 'none', padding: 0, textAlign: 'right', cursor: 'pointer' }}
@@ -1096,7 +1112,7 @@ export default function App() {
 
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <div style={{ flex: 1, height: '46px', background: isDark ? '#1e293b' : '#ffffff', padding: '0 14px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor, boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
-                    <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{travelers[travelerIndex]}</span>
+                    <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{TRAVELERS_LIST[travelerIndex]}</span>
                   </div>
                   <button onClick={handleNewGame} style={{ flex: 1, height: '46px', background: isDark ? '#334155' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '0 14px', borderRadius: '14px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                     משחק חדש
@@ -1104,7 +1120,7 @@ export default function App() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
-                  {travelers.map((t, tIdx) => {
+                  {TRAVELERS_LIST.map((t, tIdx) => {
                     const isCurrent = tIdx === travelerIndex;
                     return (
                       <div key={tIdx} style={{ background: isCurrent ? (isDark ? '#334155' : '#e2e8f0') : (isDark ? '#1e293b' : '#ffffff'), color: textColor, padding: '10px 4px', borderRadius: '12px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#64748b' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(0,0,0,0.1)' : '0 2px 6px rgba(0,0,0,0.03)', boxSizing: 'border-box' }}>
