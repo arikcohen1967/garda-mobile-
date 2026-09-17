@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v6.4 ---
-const APP_VERSION = 'v6.4';
+// --- GARDA-MOBILE v6.5 ---
+const APP_VERSION = 'v6.5';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -119,7 +119,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: true, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
   { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: true, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
   { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
-  { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true },
+  { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
   { id: 'gardaland-2', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 2 (Serial 601)', ticketCode: 'VKN1P01Y901ME4T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
   { id: 'gardaland-3', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 3 (Serial 606)', ticketCode: 'TKN1P01Y901MUTT', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
@@ -1156,35 +1156,37 @@ export default function App() {
         {/* קו הפרדה עדין מעל ימי השבוע */}
         <hr style={{ border: 'none', height: '1.5px', background: borderColor, opacity: 0.5, margin: '0 0 16px 0' }} />
 
-        {/* שורת ימי הטיול המעוצבת באותה שפה אחידה של כרטיסי התחנות */}
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '16px', scrollbarWidth: 'none' }}>
-          {INITIAL_TRIP_DAYS.map((d, i) => {
-            const isActive = activeDay === i;
-            return (
-              <button 
-                key={i} 
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveDay(i);
-                }} 
-                style={{ 
-                  flex: '1 0 auto', 
-                  padding: '12px 18px', 
-                  borderRadius: '16px', 
-                  background: isActive ? '#0f172a' : cardBg, 
-                  color: isActive ? '#ffffff' : textColor, 
-                  border: `2px solid ${isActive ? '#0f172a' : borderColor}`, 
-                  fontSize: '13px', 
-                  fontWeight: '800', 
-                  cursor: 'pointer', 
-                  boxShadow: isActive ? '0 6px 16px rgba(15, 23, 42, 0.25)' : enhancedCardShadow, 
-                  transition: 'all 0.2s ease' 
-                }}
-              >
-                {d.label}
-              </button>
-            );
-          })}
+        {/* עטיפת כפתורי הימים בתוך קונטיינר מעוצב דמוי קלף נקי שסוגר אותם יפה מכל צד */}
+        <div style={{ background: cardBg, borderRadius: '20px', padding: '12px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow, marginBottom: '16px' }}>
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+            {INITIAL_TRIP_DAYS.map((d, i) => {
+              const isActive = activeDay === i;
+              return (
+                <button 
+                  key={i} 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveDay(i);
+                  }} 
+                  style={{ 
+                    flex: '1 0 auto', 
+                    padding: '12px 18px', 
+                    borderRadius: '14px', 
+                    background: isActive ? '#0f172a' : (isDark ? '#1e293b' : '#f8fafc'), 
+                    color: isActive ? '#ffffff' : textColor, 
+                    border: `1.5px solid ${isActive ? '#0f172a' : borderColor}`, 
+                    fontSize: '13px', 
+                    fontWeight: '800', 
+                    cursor: 'pointer', 
+                    boxShadow: isActive ? '0 4px 12px rgba(15, 23, 42, 0.2)' : '0 2px 6px rgba(0,0,0,0.02)', 
+                    transition: 'all 0.2s ease' 
+                  }}
+                >
+                  {d.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* קו הפרדה עדין מתחת לימי השבוע */}
@@ -1261,19 +1263,34 @@ export default function App() {
             <button onClick={() => setViewerItem(null)} style={{ position: 'absolute', top: '16px', left: '16px', background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
             <span style={{ fontSize: '36px', marginTop: '10px' }}>🎟️</span>
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>{viewerItem.title}</h3>
-            <div style={{ background: isDark ? '#1e293b' : '#f8fafc', padding: '14px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <span style={{ fontSize: '12px', fontWeight: '800', color: textSub }}>קטגוריה: {viewerItem.folder}</span>
-              {viewerItem.ticketCode && <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🔑 קוד כרטיס: {viewerItem.ticketCode}</span>}
-              {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 קוד טרנזקציה: {viewerItem.trans}</span>}
-              {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️ פרטים: {viewerItem.desc}</span>}
-              {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>👤 נוסע: {viewerItem.passenger}</span>}
-              {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
-            </div>
-            {viewerItem.isLink ? (
+            
+            {viewerItem.isHotelInfo ? (
+              <div style={{ background: isDark ? '#1e293b' : '#f8fafc', padding: '16px', borderRadius: '16px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>🏨 מלון: Bio Agriturismo Vojon</span>
+                <span style={{ fontSize: '13px', fontWeight: '800', color: textColor }}>📍 כתובת: {viewerItem.hotelAddress}</span>
+                <span style={{ fontSize: '13px', fontWeight: '800', color: textColor }}>📞 טלפון: {viewerItem.hotelPhone}</span>
+                <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>📋 מספר הזמנה: {viewerItem.bookingRef}</span>
+                <a href={viewerItem.bookingUrl} target="_blank" rel="noreferrer" style={{ marginTop: '8px', padding: '12px', background: '#003580', color: '#fff', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center', display: 'block' }}>
+                  פתח באתר Booking.com 🌐
+                </a>
+              </div>
+            ) : (
+              <div style={{ background: isDark ? '#1e293b' : '#f8fafc', padding: '14px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <span style={{ fontSize: '12px', fontWeight: '800', color: textSub }}>קטגוריה: {viewerItem.folder}</span>
+                {viewerItem.ticketCode && <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🔑 קוד כרטיס: {viewerItem.ticketCode}</span>}
+                {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 קוד טרנזקציה: {viewerItem.trans}</span>}
+                {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️ פרטים: {viewerItem.desc}</span>}
+                {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>👤 נוסע: {viewerItem.passenger}</span>}
+                {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
+              </div>
+            )}
+
+            {viewerItem.isLink && !viewerItem.isHotelInfo ? (
               <a href={viewerItem.url} target="_blank" rel="noreferrer" style={{ padding: '12px', background: '#2563eb', color: '#fff', borderRadius: '14px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', display: 'block' }}>
                 פתח קובץ PDF 📄
               </a>
             ) : null}
+
             <button onClick={() => setViewerItem(null)} style={{ padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
               סגור ✓
             </button>
