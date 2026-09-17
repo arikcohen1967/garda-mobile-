@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v6.8 ---
-const APP_VERSION = 'v6.8';
+// --- GARDA-MOBILE v6.9 ---
+const APP_VERSION = 'v6.9';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1155,6 +1155,7 @@ export default function App() {
         
         <hr style={{ border: 'none', height: '1.5px', background: borderColor, opacity: 0.5, margin: '0 0 16px 0' }} />
 
+        {/* עטיפת כפתורי הימים בתוך קונטיינר מעוצב דמוי קלף */}
         <div style={{ background: cardBg, borderRadius: '20px', padding: '12px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow, marginBottom: '16px' }}>
           <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
             {INITIAL_TRIP_DAYS.map((d, i) => {
@@ -1168,16 +1169,17 @@ export default function App() {
                   }} 
                   style={{ 
                     flex: '1 0 auto', 
-                    padding: '12px 18px', 
-                    borderRadius: '16px', 
-                    background: isActive ? '#0f172a' : (isDark ? '#1e293b' : '#f8fafc'), 
-                    color: isActive ? '#ffffff' : textColor, 
-                    border: `1.5px solid ${isActive ? '#0f172a' : borderColor}`, 
+                    padding: '12px 20px', 
+                    borderRadius: '999px', 
+                    background: isActive ? '#2563eb' : (isDark ? '#1e293b' : '#ffffff'), 
+                    color: isActive ? '#ffffff' : '#2563eb', 
+                    border: '1.5px solid #2563eb', 
                     fontSize: '13px', 
-                    fontWeight: '800', 
+                    fontWeight: '900', 
                     cursor: 'pointer', 
-                    boxShadow: isActive ? '0 4px 12px rgba(15, 23, 42, 0.2)' : '0 2px 6px rgba(0,0,0,0.02)', 
-                    transition: 'all 0.2s ease' 
+                    boxShadow: isActive ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {d.label}
