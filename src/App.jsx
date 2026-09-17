@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v7.9 ---
-const APP_VERSION = 'v7.9';
+// --- GARDA-MOBILE v8.0 ---
+const APP_VERSION = 'v8.0';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -34,80 +34,248 @@ const HOTEL_ADDRESS = "Bio Agriturismo Vojon, Ponti sul Mincio, Italy";
 const INITIAL_TRIP_DAYS = [
   {
     date: "2026-09-30", label: "רביעי · 30/09", title: "נחיתה והגעה למלון", icon: "✈️",
-    challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
-    challengeDesc: "הרגע נחתנו ביום הראשון של הטיול! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
-      { time: "18:00", name: "נסיעה למלון והתארגנות", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין במלון ומנוחה קצרה לפני ארוחת הערב." }
-    ],
-    culinary: { name: "Pizzeria Trattoria al Ponte (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "פיצות נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית, ולקינוח גלידה איטלקית אמיתית (Gelateria Popolare)." },
-    creative: { name: "נהר המינצ'ו בפסקיירה", dest: "Peschiera del Garda, Italy", desc: "עצירה קצרה ליד גדת הנהר לפתיחת מחברות ציור ותיעוד הנוף הראשון שלכם באיטליה." }
+      { 
+        time: "16:00", 
+        name: "נחיתה בנמל התעופה ורונה", 
+        dest: "Verona Villafranca Airport", 
+        lat: 45.3957, 
+        lng: 10.8885, 
+        note: "איסוף מזוודות וקבלת הרכב השכור בשדה התעופה.",
+        challenge: {
+          title: "סלפי משפחתי ראשון באיטליה!",
+          desc: "נחתנו! המשימה שלכם: סלפי משפחתי חגיגי בשדה או מיד עם קבלת הרכב השכור."
+        }
+      },
+      { 
+        time: "18:00", 
+        name: "נסיעה למלון והתארגנות", 
+        dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", 
+        lat: 45.4192, 
+        lng: 10.6908, 
+        note: "צ׳ק-אין במלון ומנוחה קצרה לפני היציאה לארוחת ערב.",
+        creative: {
+          name: "נהר המינצ'ו בפסקיירה",
+          dest: "Peschiera del Garda, Italy",
+          desc: "עצירה קצרה ומרגיעה ליד גדת הנהר לפתיחת מחברות ציור ותיעוד הנוף הראשון שלכם באיטליה."
+        },
+        culinary: {
+          name: "Pizzeria Trattoria al Ponte (פסקיירה)",
+          dest: "Peschiera del Garda, Italy",
+          desc: "פיצות נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית, ולקינוח גלידה איטלקית אמיתית (Gelateria Popolare)."
+        }
+      }
+    ]
   },
   {
     date: "2026-10-01", label: "חמישי · 01/10", title: "Gardaland – יום פארק מלא", icon: "🎢",
-    challenge: "לבחור יחד את שלושת המתקנים הכי אקסטרימיים!",
-    challengeDesc: "צלמו תמונה צועקים על אחד המתקנים וספרו מי צעק הכי חזק.",
     stops: [
-      { time: "08:30", name: "יציאה מהמלון לגארדלנד", dest: "Gardaland Resort, Castelnuovo del Garda", lat: 45.4526, lng: 10.7153, note: "הגעה מוקדמת לפני פתיחת השערים." },
-      { time: "13:00", name: "ארוחת צהריים בפארק", dest: "Gardaland Resort", lat: 45.4526, lng: 10.7153, note: "אוכל מהיר והמבורגרים במסעדות הפארק." }
-    ],
-    culinary: { name: "Roadhouse Restaurant (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "הבורגרים עסיסיים וסטייקים מעולים על האש לאחר יום הבילוי בפארק." },
-    creative: { name: "הכנת סיכות אמיצים", dest: "Gardaland Resort", desc: "הכנת סיכת 'אמיצים בגארדלנד' מקרטון קשיח וטושים בתיק המשפחתי." }
+      { 
+        time: "08:30", 
+        name: "יציאה מהמלון לגארדלנד", 
+        dest: "Gardaland Resort, Castelnuovo del Garda", 
+        lat: 45.4526, 
+        lng: 10.7153, 
+        note: "הגעה מוקדמת לפני פתיחת השערים כדי לתפוס את הרכבות הראשונות!",
+        creative: {
+          name: "סדנת סיכות האמיצים",
+          dest: "Gardaland Resort",
+          desc: "הכנת סיכת 'אמיצים בגארדלנד' מקרטון קשיח וטושים מהתיק המשפחתי לפני שנכנסים לרכבות."
+        }
+      },
+      { 
+        time: "13:00", 
+        name: "אקשן ומתקנים בגארדלנד", 
+        dest: "Gardaland Resort", 
+        lat: 45.4526, 
+        lng: 10.7153, 
+        note: "בילוי בכל מתקני הפארק, הופעות חיות וארוחת צהריים מהירה.",
+        challenge: {
+          title: "שלושת המתקנים הכי אקסטרימיים!",
+          desc: "צלמו תמונה צועקים על אחד המתקנים וספרו מי צעק הכי חזק."
+        },
+        culinary: {
+          name: "Roadhouse Restaurant (פסקיירה)",
+          dest: "Peschiera del Garda, Italy",
+          desc: "המבורגרים עסיסיים וסטייקים מעולים על האש להתאוששות לאחר יום הבילוי האינטנסיבי בפארק."
+        }
+      }
+    ]
   },
   {
     date: "2026-10-02", label: "שישי · 02/10", title: "מונטה באלדו + סירמיונה", icon: "🚠",
-    challenge: "תמונת פנורמה משפחתית מפסגת הרכבל!",
-    challengeDesc: "תצפית מרהיבה מגובה 1,800 מטר באלדו ולאחר מכן שיטוט בסמטאות סירמיונה.",
     stops: [
-      { time: "08:30", name: "רכבל מונטה באלדו (מלצ׳סינה)", dest: "Funivia Malcesine-Monte Baldo", lat: 45.7797, lng: 10.8105, note: "רכבל מסתובב אל פסגת ההר." },
-      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", lat: 45.4925, lng: 10.6053, note: "עיירת ימי ביניים קסומה על שפת האגם." }
-    ],
-    culinary: { name: "Trattoria La Marsa & Gelateria Iguana", dest: "Sirmione, Italy", desc: "פסטה טרטליני מדהימה צופה לאגם, וגלידריית בוטיק עם עשרות טעמים ייחודיים." },
-    creative: { name: "פסגת מונטה באלדו", dest: "Funivia Malcesine-Monte Baldo", desc: "ציור הנוף מלמעלה כמפה של הרפתקנים על רקע העננים." }
+      { 
+        time: "08:30", 
+        name: "רכבל מונטה באלדו (מלצ׳סינה)", 
+        dest: "Funivia Malcesine-Monte Baldo", 
+        lat: 45.7797, 
+        lng: 10.8105, 
+        note: "עלייה ברכבל המסתובב אל פסגת ההר המושלג בגובה 1,800 מטר.",
+        challenge: {
+          title: "תמונת פנורמה משפחתית מפסגת הרכבל!",
+          desc: "תצפית מרהיבה על כל אגם גארדה מלמעלה – לא לשכוח ללבוש שכבה חמה."
+        },
+        creative: {
+          name: "פסגת מונטה באלדו",
+          dest: "Funivia Malcesine-Monte Baldo",
+          desc: "ציור הנוף הנשקף מלמעלה כמפת הרפתקנים על רקע העננים והאגם."
+        }
+      },
+      { 
+        time: "13:00", 
+        name: "סירמיונה וחצי האי", 
+        dest: "Sirmione, Italy", 
+        lat: 45.4925, 
+        lng: 10.6053, 
+        note: "שיטוט בסמטאות עיירת ימי הביניים, טירת סקאליג'רו וטיילת האגם הקסומה.",
+        culinary: {
+          name: "Trattoria La Marsa & Gelateria Iguana",
+          dest: "Sirmione, Italy",
+          desc: "פסטה טורטליני מדהימה הצופה לאגם, ולאחר מכן גלידריית בוטיק עם עשרות טעמים ייחודיים בסמטאות."
+        }
+      }
+    ]
   },
   {
     date: "2026-10-03", label: "שבת · 03/10", title: "Movieland + Medieval Times", icon: "🎬",
-    challenge: "סלפי משפחתי שנראה כמו פוסטר של סרט הוליוודי!",
-    challengeDesc: "פוזה דרמטית ליד תפאורת סרט ב-Movieland.",
     stops: [
-      { time: "09:00", name: "Movieland The Hollywood Park", dest: "Movieland The Hollywood Park, Lazise", lat: 45.4745, lng: 10.7291, note: "יום אקשן וחוויות קולנועיות." },
-      { time: "20:00", name: "Medieval Times – מופע האבירים", dest: "Medieval Times, Lazise", lat: 45.4745, lng: 10.7291, note: "ארוחת ערב חווייתית ללא סכו״ם." }
-    ],
-    culinary: { name: "Medieval Times Banquet", dest: "Medieval Times, Lazise", desc: "ארוחת אבירים מסורתית הכוללת עוף צלוי, תפוחי אדמה ומאפים." },
-    creative: { name: "סדנת כתרים אביריים", dest: "Medieval Times, Lazise", desc: "הכנת כתרים מקושטים מנייר כסף ודפים צבעוניים לפני תחילת המופע." }
+      { 
+        time: "09:00", 
+        name: "Movieland The Hollywood Park", 
+        dest: "Movieland The Hollywood Park, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "יום הרפתקאות, אפקטים מיוחדים, צוללות ופעלולים הוליוודיים.",
+        challenge: {
+          title: "פוסטר קולנועי משפחתי!",
+          desc: "צלמו סלפי משפחתי בפוזה דרמטית ליד אחת מתפאורות הסרטים בפארק."
+        }
+      },
+      { 
+        time: "20:00", 
+        name: "Medieval Times – מופע האבירים", 
+        dest: "Medieval Times, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "טורניר אבירים סוער עם סוסים וארוחת ערב מלכותית ללא סכו״ם!",
+        creative: {
+          name: "סדנת כתרים אביריים",
+          dest: "Medieval Times, Lazise",
+          desc: "הכנת כתרים מקושטים מנייר כסף ודפים צבעוניים לפני תחילת המופע."
+        },
+        culinary: {
+          name: "Medieval Times Banquet",
+          dest: "Medieval Times, Lazise",
+          desc: "ארוחת אבירים מסורתית הכוללת עוף צלוי, תפוחי אדמה חמים, מרק ומאפים – הכול נאכל בידיים!"
+        }
+      }
+    ]
   },
   {
     date: "2026-10-04", label: "ראשון · 04/10", title: "ונציה – עיר המים", icon: "🛶",
-    challenge: "למצוא גשר קטן ומיוחד מחוץ למסלול הראשי!",
-    challengeDesc: "צלמו את הגשר הכי מיוחד שמצאתם בסמטאות ונציה.",
     stops: [
-      { time: "07:30", name: "יציאה לוונציה", dest: "Venezia Tronchetto Parking", lat: 45.4384, lng: 12.3167, note: "חנייה מסודרת ומעבר בסירה למרכז העיר." },
-      { time: "09:30", name: "כיכר סן מרקו", dest: "St. Mark's Square, Venice", lat: 45.4343, lng: 12.3388, note: "הלב הפועם והמרכזי של ונציה." }
-    ],
-    culinary: { name: "Suso Gelatoteca & Pizza al Taglio", dest: "St. Mark's Square, Venice", desc: "פיצה מהירה בסמטאות וגלידת בוטיק מעולה המפורסמת ביותר בעיר." },
-    creative: { name: "גשר הציורים בוונציה", dest: "Venice, Italy", desc: "עצירה קצרה על גשר שקט לציור מהיר של סירת גונדולה חולפת." }
+      { 
+        time: "07:30", 
+        name: "יציאה וחניה בוונציה (Tronchetto)", 
+        dest: "Venezia Tronchetto Parking", 
+        lat: 45.4384, 
+        lng: 12.3167, 
+        note: "חניה נוחה בחניון טרונקטו ומעבר בסירת ואפורטו (או מונית מים) לכיוון המרכז."
+      },
+      { 
+        time: "09:30", 
+        name: "כיכר סן מרקו וסמטאות ונציה", 
+        dest: "St. Mark's Square, Venice", 
+        lat: 45.4343, 
+        lng: 12.3388, 
+        note: "הלב הפועם של ונציה – הבזיליקה, גשר האנחות ושיטוט בגשרים הקטנים.",
+        challenge: {
+          title: "הגשר הנסתר בסמטה!",
+          desc: "מצאו גשר אבן קטן ומיוחד מחוץ למסלול הראשי והעמוס והצטלמו עליו."
+        },
+        creative: {
+          name: "גשר הציורים בוונציה",
+          dest: "Venice, Italy",
+          desc: "עצירה קצרה על גשר שקט לציור מהיר של גונדולה חולפת מתחת לתעלה."
+        },
+        culinary: {
+          name: "Suso Gelatoteca & Pizza al Taglio",
+          dest: "St. Mark's Square, Venice",
+          desc: "משולשי פיצה דקים וטריים בסמטאות, ולקינוח גלידת סוסו (Suso) המפורסמת ביותר בוונציה."
+        }
+      }
+    ]
   },
   {
     date: "2026-10-05", label: "שני · 05/10", title: "X Rafting + Borghetto", icon: "🚣",
-    challenge: "תמונה משפחתית מטורפת מהראפטינג!",
-    challengeDesc: "אקשן מים מסעיר בבוקר וטיול רומנטי בבורגטו בצהריים.",
     stops: [
-      { time: "09:00", name: "X Rafting", dest: "X Rafting, Italy", lat: 45.5512, lng: 10.8523, note: "שיט ראפטינג משפחתי מרגש בנהר." },
-      { time: "12:30", name: "Borghetto sul Mincio", dest: "Borghetto sul Mincio", lat: 45.3524, lng: 10.6972, note: "ביקור בכפר הטחנות הקסום." }
-    ],
-    culinary: { name: "Ristorante Alla Borsa (Valeggio)", dest: "Valeggio sul Mincio, Italy", desc: "טעימת טורטליני האהבה המפורסם באחת המסעדות הוותיקות על גדות הנהר." },
-    creative: { name: "טחנות המים בבורגטו", dest: "Borghetto sul Mincio", desc: "בניית סירות עץ ועלים קטנות ושילוחן בזרם המינצ'ו." }
+      { 
+        time: "09:00", 
+        name: "שיט אקסטרים ב-X Rafting", 
+        dest: "X Rafting, Italy", 
+        lat: 45.5512, 
+        lng: 10.8523, 
+        note: "חוויית ראפטינג רטובה ומגבשת בנהר האדיג'ה.",
+        challenge: {
+          title: "סלפי מים בראפטינג!",
+          desc: "תמונה משפחתית רטובה ומחייכת עם חגורות ההצלה והמשוטים."
+        }
+      },
+      { 
+        time: "12:30", 
+        name: "Borghetto sul Mincio – כפר הטחנות", 
+        dest: "Borghetto sul Mincio", 
+        lat: 45.3524, 
+        lng: 10.6972, 
+        note: "אחד הכפרים היפים ביותר באיטליה – טחנות מים עתיקות וגשרי עץ.",
+        creative: {
+          name: "טחנות המים בבורגטו",
+          dest: "Borghetto sul Mincio",
+          desc: "בניית סירות עץ ועלים קטנות ושילוחן בזרם השקט של נהר המינצ'ו ליד הטחנות."
+        },
+        culinary: {
+          name: "Ristorante Alla Borsa (Valeggio)",
+          dest: "Valeggio sul Mincio, Italy",
+          desc: "טעימת 'קשר האהבה' (Nodo d'Amore) – הטורטליני המפורסם והדקיק ביותר בעולם במסעדה אותנטית."
+        }
+      }
+    ]
   },
   {
     date: "2026-10-06", label: "שלישי · 06/10", title: "ורונה + חזרה לישראל", icon: "❤️",
-    challenge: "לבחור יחד את רגע השיא של הטיול כולו!",
-    challengeDesc: "סיכום חוויות בוורונה וטיסה חזרה הביתה.",
     stops: [
-      { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", lat: 45.4384, lng: 10.9916, note: "סיור בארנה והמרפסת של יוליה." },
-      { time: "18:30", name: "שדה התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "החזרת הרכב וטיסה חזרה לישראל." }
-    ],
-    culinary: { name: "Farcito Verona", dest: "Verona, Italy", desc: "המבורגר משובח ופיצה דקה ומיוחדת במרכז וורונה ממש לפני הנסיעה לשדה." },
-    creative: { name: "גלוית פרידה איטלקית", dest: "Verona, Italy", desc: "כתיבת גלוית סיכום וציור מזכרת אישית מהטיול במלון לפני העזיבה." }
+      { 
+        time: "09:00", 
+        name: "סיור בעיר העתיקה בוורונה", 
+        dest: "Piazza Cittadella, Verona", 
+        lat: 45.4384, 
+        lng: 10.9916, 
+        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        challenge: {
+          title: "שיא הטיול המשפחתי!",
+          desc: "בוחרים יחד בארנה של ורונה את הרגע המצחיק והמרגש ביותר של הטיול."
+        },
+        culinary: {
+          name: "Farcito Verona",
+          dest: "Verona, Italy",
+          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב ורונה לפני הנסיעה לשדה."
+        }
+      },
+      { 
+        time: "18:30", 
+        name: "שדה התעופה ורונה וחזרה הביתה", 
+        dest: "Verona Villafranca Airport", 
+        lat: 45.3957, 
+        lng: 10.8885, 
+        note: "החזרת הרכב השכור, צ'ק-אין וטיסה ישירה חזרה לישראל.",
+        creative: {
+          name: "גלוית פרידה מאיטליה",
+          dest: "Verona, Italy",
+          desc: "כתיבת גלוית סיכום משפחתית וציור קטן למזכרת במחברת הטיול לפני העלייה למטוס."
+        }
+      }
+    ]
   }
 ];
 
@@ -1173,7 +1341,6 @@ export default function App() {
                 >
                   {d.label}
                 </button>
-                {/* קו הדגשה רחב (100% רוחב הכפתור, 4px עובי) */}
                 <div 
                   style={{ 
                     height: '4px', 
@@ -1193,7 +1360,7 @@ export default function App() {
 
         <div style={{ marginBottom: '20px', marginTop: '16px' }}>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', padding: '0 4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px', padding: '0 4px' }}>
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
               <small style={{ color: '#2563eb', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
@@ -1209,45 +1376,75 @@ export default function App() {
             </div>
           </div>
 
-          <button 
-            onClick={() => setModalType('daily-tasks')}
-            style={{ 
-              width: '100%', 
-              background: '#2563eb', 
-              color: '#ffffff', 
-              border: '1.5px solid #2563eb', 
-              borderRadius: '12px', 
-              padding: '14px 20px', 
-              fontWeight: '900', 
-              fontSize: '14px', 
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between', 
-              marginBottom: '20px', 
-              boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)',
-              transition: 'all 0.2s'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '18px' }}>✨</span>
-              <span>משימות והמלצות היום</span>
-            </div>
-            <span style={{ fontSize: '14px', opacity: 0.9 }}>פתח ➔</span>
-          </button>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* תחנות היום - משולבות עם משימות, חוויות והמלצות לפי שלב */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             {day.stops.map((stop, sIdx) => (
-              <div key={sIdx} style={{ background: cardBg, borderRadius: '16px', padding: '18px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
-                  <span style={{ fontSize: '11px', fontWeight: '800', color: textSub, background: isDark ? '#1e293b' : '#f8fafc', padding: '4px 10px', borderRadius: '8px', border: `1.5px solid ${borderColor}` }}>{stop.time}</span>
+              <div key={sIdx} style={{ background: cardBg, borderRadius: '18px', padding: '20px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                
+                {/* כותרת תחנה ושעה */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#2563eb', background: isDark ? 'rgba(37, 99, 235, 0.15)' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(37, 99, 235, 0.3)' }}>{stop.time}</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45' }}>{stop.note}</p>
                 </div>
-                <p style={{ margin: '0 0 14px', fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{stop.note}</p>
+
+                {/* כפתורי ניווט לתחנה */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#1e293b' : '#ffffff', color: '#2563eb', padding: '10px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: '1.5px solid #2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(37, 99, 235, 0.15)' }}>{MAPS_SVG} Maps</a>
-                  <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '10px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: '1.5px solid #38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.3)' }}>{WAZE_SVG} Waze</a>
+                  <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#1e293b' : '#ffffff', color: '#2563eb', padding: '10px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: '1.5px solid #2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(37, 99, 235, 0.12)' }}>{MAPS_SVG} Maps</a>
+                  <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '10px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: '1.5px solid #38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.25)' }}>{WAZE_SVG} Waze</a>
                 </div>
+
+                {/* אתגר משפחתי משולב בתחנה (אם יש) */}
+                {stop.challenge && (
+                  <div style={{ background: isDark ? 'rgba(37, 99, 235, 0.08)' : '#f0f7ff', border: '1.5px dashed #3b82f6', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '15px' }}>🎯</span>
+                      <strong style={{ fontSize: '13px', color: '#2563eb' }}>אתגר התחנה: {stop.challenge.title}</strong>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{stop.challenge.desc}</p>
+                  </div>
+                )}
+
+                {/* תחנת יצירה וחוויות משולבת (אם יש) */}
+                {stop.creative && (
+                  <div style={{ background: isDark ? 'rgba(16, 185, 129, 0.08)' : '#f0fdf4', border: '1.5px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '15px' }}>🎨</span>
+                      <strong style={{ fontSize: '13px', color: '#059669' }}>נקודת חוויה ויצירה: {stop.creative.name}</strong>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{stop.creative.desc}</p>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.creative.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#1e293b' : '#ffffff', color: '#059669', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                        {MAPS_SVG} Maps
+                      </a>
+                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.creative.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#10b981', color: '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                        {WAZE_SVG} Waze
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* המלצה קולינרית לאותו אזור/שלב (אם יש) */}
+                {stop.culinary && (
+                  <div style={{ background: isDark ? 'rgba(217, 119, 6, 0.08)' : '#fffbeb', border: '1.5px solid rgba(217, 119, 6, 0.3)', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '15px' }}>🍝</span>
+                      <strong style={{ fontSize: '13px', color: '#d97706' }}>עצירה מומלצת לאוכל וגלידה: {stop.culinary.name}</strong>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{stop.culinary.desc}</p>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.culinary.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#1e293b' : '#ffffff', color: '#d97706', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: '1px solid rgba(217, 119, 6, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                        {MAPS_SVG} Maps
+                      </a>
+                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.culinary.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#f59e0b', color: '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                        {WAZE_SVG} Waze
+                      </a>
+                    </div>
+                  </div>
+                )}
+
               </div>
             ))}
           </div>
@@ -1307,7 +1504,6 @@ export default function App() {
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי ומופת האגם'}
                 {modalType === 'route-map' && `🗺️ ניווט ליעד: ${day.title}`}
-                {modalType === 'daily-tasks' && `✨ משימות והמלצות: ${day.title}`}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 Car Finder Pro - שמירת מיקום רכב'}
@@ -1333,47 +1529,6 @@ export default function App() {
                 <div style={{ width: '100%', flex: 1, minHeight: '80vh', overflow: 'hidden', boxSizing: 'border-box' }}>
                   <iframe title="Route Map" srcDoc={generateRouteMapHTML(myLocation, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
-              </div>
-            )}
-
-            {modalType === 'daily-tasks' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 20px 30px', boxSizing: 'border-box', overflowY: 'auto', gap: '20px', background: bgMain }}>
-                
-                <div style={{ background: cardBg, border: `2px solid ${borderColor}`, borderRadius: '16px', padding: '20px', boxShadow: enhancedCardShadow }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '20px' }}>🎯</span>
-                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: '#2563eb' }}>אתגר משפחתי להיום</h3>
-                  </div>
-                  <p style={{ margin: '0 0 6px', fontWeight: '900', fontSize: '15px', color: textColor }}>{day.challenge}</p>
-                  <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{day.challengeDesc}</p>
-                </div>
-
-                <div style={{ background: cardBg, border: `2px solid ${borderColor}`, borderRadius: '16px', padding: '20px', boxShadow: enhancedCardShadow }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '20px' }}>🍝</span>
-                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: '#d97706' }}>המלצה קולינרית (פסטה, פיצה, גלידה)</h3>
-                  </div>
-                  <p style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: '900', color: textColor }}>{day.culinary.name}</p>
-                  <p style={{ margin: '0 0 14px', fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{day.culinary.desc}</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                    <a href={`https://maps.google.com/?q=${encodeURIComponent(day.culinary.dest)}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#1e293b' : '#ffffff', color: '#2563eb', padding: '12px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '13px', textAlign: 'center', border: '1.5px solid #2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(37, 99, 235, 0.15)' }}>{MAPS_SVG} Google Maps</a>
-                    <a href={`https://www.waze.com/ul?q=${encodeURIComponent(day.culinary.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '12px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '13px', textAlign: 'center', border: '1.5px solid #38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.3)' }}>{WAZE_SVG} Waze</a>
-                  </div>
-                </div>
-
-                <div style={{ background: cardBg, border: `2px solid ${borderColor}`, borderRadius: '16px', padding: '20px', boxShadow: enhancedCardShadow }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '20px' }}>🎨</span>
-                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: '#10b981' }}>תחנת יצירה וחוויות</h3>
-                  </div>
-                  <p style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: '900', color: textColor }}>{day.creative.name}</p>
-                  <p style={{ margin: '0 0 14px', fontSize: '13px', color: textSub, lineHeight: '1.4' }}>{day.creative.desc}</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                    <a href={`https://maps.google.com/?q=${encodeURIComponent(day.creative.dest)}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#1e293b' : '#ffffff', color: '#2563eb', padding: '12px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '13px', textAlign: 'center', border: '1.5px solid #2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(37, 99, 235, 0.15)' }}>{MAPS_SVG} Google Maps</a>
-                    <a href={`https://www.waze.com/ul?q=${encodeURIComponent(day.creative.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '12px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '13px', textAlign: 'center', border: '1.5px solid #38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.3)' }}>{WAZE_SVG} Waze</a>
-                  </div>
-                </div>
-
               </div>
             )}
 
@@ -1689,28 +1844,6 @@ const rectMenuCardStyle = {
   transition: 'all 0.2s ease',
   boxSizing: 'border-box'
 };
-
-const categoryGroupStyle = (isDark, borderColor) => ({
-  background: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.015)',
-  border: `1.5px solid ${borderColor}`,
-  borderRadius: '14px',
-  padding: '10px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '6px'
-});
-
-const categoryTitleStyle = (accentColor) => ({
-  fontSize: '11px',
-  fontWeight: '900',
-  color: accentColor,
-  paddingRight: '6px',
-  marginBottom: '2px',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '6px',
-  letterSpacing: '0.02em'
-});
 
 const timerPresetBtn = {
   padding: '16px',
