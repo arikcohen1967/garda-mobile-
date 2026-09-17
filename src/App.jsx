@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.5 ---
-const APP_VERSION = 'v9.5';
+// --- GARDA-MOBILE v9.7 ---
+const APP_VERSION = 'v9.7';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -300,7 +300,6 @@ const DEFAULT_DOCUMENTS = [
   { id: 'movieland-5', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 5', ticketCode: '32D6C578DF258ACF', trans: '017JUNAR0073', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' }
 ];
 
-// מאגר 1000 שאלות טריויה עשירות לגילאי 13-18
 const ROAD_TRIVIA_QUESTIONS = Array.from({ length: 1000 }, (_, i) => {
   const id = i + 1;
   const banks = [
@@ -511,6 +510,69 @@ export default function App() {
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   const [activeSoundAlert, setActiveSoundAlert] = useState(null);
   
+  // מצב אלבום טיול משפחתי
+  const [tripPhotos, setTripPhotos] = useState([]);
+  const [photoCaptionInput, setPhotoCaptionInput] = useState('');
+  const [selectedPhotoViewer, setSelectedPhotoViewer] = useState(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const { data } = await supabase.from('family_trip_photos').select('*').order('created_at', { ascending: false });
+        if (data) setTripPhotos(data);
+      } catch (e) {}
+    };
+    fetchPhotos();
+
+    const photoChannel = supabase.channel('family_trip_photos_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_trip_photos' }, payload => {
+        if (payload.eventType === 'INSERT') {
+          setTripPhotos(prev => [payload.new, ...prev]);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(photoChannel);
+    };
+  }, []);
+
+  const handleUploadPhotoFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64Data = event.target.result;
+      const newPhotoRecord = {
+        uploader: currentUser,
+        caption: photoCaptionInput || 'תמונה מהטיול האיטלקי 📸',
+        image_url: base64Data,
+        created_at: new Date().toISOString(),
+        time_str: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        date_str: new Date().toLocaleDateString('he-IL')
+      };
+
+      try {
+        const { data, error } = await supabase.from('family_trip_photos').insert([newPhotoRecord]).select();
+        if (error) {
+          setTripPhotos(prev => [newPhotoRecord, ...prev]);
+        } else if (data && data[0]) {
+          setTripPhotos(prev => [data[0], ...prev]);
+        }
+        setPhotoCaptionInput('');
+        alert('✨ התמונה הועלתה בהצלחה לאלבום המרכזי וזמינה לכולם!');
+      } catch (err) {
+        setTripPhotos(prev => [newPhotoRecord, ...prev]);
+      } finally {
+        setIsUploadingPhoto(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const [sharedTimer, setSharedTimer] = useState(null);
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
@@ -683,7 +745,7 @@ export default function App() {
     }
   }, []);
 
-  // ניהול טריויה עם שמירת מצב מדויקת (LocalStorage) והשהייה אוטומטית באיפוס/משחק חדש
+  // ניהול טריויה
   const [triviaIndex, setTriviaIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
@@ -709,7 +771,6 @@ export default function App() {
     } catch (e) {}
   }, [triviaIndex, travelerIndex, travelerScores, isTriviaPaused]);
 
-  // שעון מעבר שאלה אוטומטי
   useEffect(() => {
     if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
 
@@ -1008,45 +1069,28 @@ export default function App() {
     }, 1200);
   };
 
-  // אזור מנהל מאובטח לאיפוס מלא — השעון מתחיל ממושהה אוטומטית
-  const handleAdminReset = () => {
-    const adminPassword = window.prompt("🔒 אזור מנהל בלבד: הזן סיסמת מנהל (1967)");
+  // פעולות בקרת משחק חדש / איפוס / התחל / השהה
+  const handleResetTrivia = () => {
+    const adminPassword = window.prompt("🔒 קוד מנהל לאיפוס מלא של משחק הטרוויה (1967):");
     if (adminPassword && adminPassword.trim() === "1967") {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(true); // השעון מושהה אוטומטית באיפוס
+      setIsTriviaPaused(true);
       setSelectedAnswer(null);
       setQuestionTimeLeft(45);
-      alert("🔄 משחק הטרוויה אותחל בהצלחה! השעון מושהה עד ללחיצה על 'המשך'.");
+      alert("🔄 משחק הטרוויה אופס לחלוטין למשחק חדש לגמרי!");
     } else if (adminPassword !== null) {
       alert("❌ סיסמה שגויה!");
     }
   };
 
-  const handleNewGame = () => {
-    const adminPassword = window.prompt("🔒 קוד מנהל נדרש למשחק חדש (1967):");
-    if (adminPassword && adminPassword.trim() === "1967") {
-      setTriviaIndex(0);
-      setTravelerIndex(0);
-      setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(true); // השעון מושהה אוטומטית במשחק חדש
-      setSelectedAnswer(null);
-      setQuestionTimeLeft(45);
-      alert("🎮 משחק טרוויה חדש התחיל מאפס! השעון מושהה עד ללחיצה על 'המשך'.");
-    } else if (adminPassword !== null) {
-      alert("❌ סיסמה שגויה!");
-    }
+  const handleStartTrivia = () => {
+    setIsTriviaPaused(false);
   };
 
-  const toggleAdminPause = () => {
-    const adminPassword = window.prompt("🔒 קוד מנהל להשהייה/המשך המשחק (1967):");
-    if (adminPassword && adminPassword.trim() === "1967") {
-      setIsTriviaPaused(prev => !prev);
-      alert(isTriviaPaused ? "▶️ המשחק חודש בהצלחה והשעון החל לרוץ!" : "⏸️ המשחק הושהה בהצלחה.");
-    } else if (adminPassword !== null) {
-      alert("❌ סיסמה שגויה!");
-    }
+  const handlePauseTrivia = () => {
+    setIsTriviaPaused(true);
   };
 
   return (
@@ -1163,6 +1207,17 @@ export default function App() {
           <button onClick={() => setActiveSoundAlert(null)} style={{ padding: '8px 22px', background: '#fff', color: '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
             אישור והסרה ✓
           </button>
+        </div>
+      )}
+
+      {selectedPhotoViewer && (
+        <div onClick={() => setSelectedPhotoViewer(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
+          <button onClick={() => setSelectedPhotoViewer(null)} style={{ position: 'absolute', top: '20px', left: '20px', background: '#1e293b', color: '#fff', border: '1px solid #fff', width: '40px', height: '40px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', fontSize: '18px' }}>✕</button>
+          <img src={selectedPhotoViewer.image_url} alt="Full view" style={{ maxWidth: '100%', maxHeight: '75vh', objectFit: 'contain', borderRadius: '12px', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }} />
+          <div style={{ color: '#fff', textAlign: 'center', marginTop: '16px' }}>
+            <h4 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: '900' }}>{selectedPhotoViewer.caption}</h4>
+            <span style={{ fontSize: '12px', opacity: 0.8 }}>הועלה ע"י: {selectedPhotoViewer.uploader} ({selectedPhotoViewer.time_str || 'עכשיו'})</span>
+          </div>
         </div>
       )}
 
@@ -1341,6 +1396,10 @@ export default function App() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>העשרה ובידור</span>
 
+          <button onClick={() => { setSidebarOpen(false); setModalType('trip-album'); }} style={{ ...rectMenuCardStyle, background: 'linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(59,130,246,0.1) 100%)', borderColor: '#2563eb' }}>
+            <span>📸 אלבום טיול למשפחת כהן</span>
+          </button>
+
           <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={rectMenuCardStyle}>
             <span>טריויה חכמה לדרך (1000 שאלות)</span>
           </button>
@@ -1457,7 +1516,7 @@ export default function App() {
                     </div>
                     <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{stop.creative.desc}</p>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.creative.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#1e293b' : '#ffffff', color: '#059669', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.creative.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#1e293b' : '#ffffff', color: '#059669', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: '1.5px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                         {MAPS_SVG} Maps
                       </a>
                       <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.creative.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#10b981', color: '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
@@ -1475,7 +1534,7 @@ export default function App() {
                     </div>
                     <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{stop.culinary.desc}</p>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.culinary.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#1e293b' : '#ffffff', color: '#d97706', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: '1px solid rgba(217, 119, 6, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.culinary.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#1e293b' : '#ffffff', color: '#d97706', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: '1.5px solid rgba(217, 119, 6, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                         {MAPS_SVG} Maps
                       </a>
                       <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.culinary.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#f59e0b', color: '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
@@ -1548,17 +1607,21 @@ export default function App() {
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 Car Finder Pro - שמירת מיקום רכב'}
                 {modalType === 'trivia' && '🧠 טריויה משפחתית (1000 שאלות)'}
+                {modalType === 'trip-album' && '📸 אלבום טיול למשפחת כהן'}
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום ושגרירות'}
               </h2>
 
               {modalType === 'trivia' ? (
-                <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                  <button onClick={toggleAdminPause} style={{ background: isTriviaPaused ? '#10b981' : (isDark ? '#1e293b' : '#f1f5f9'), color: isTriviaPaused ? '#fff' : textColor, border: `1.5px solid ${borderColor}`, padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
-                    {isTriviaPaused ? '▶️ המשך (קוד מנהל)' : '⏸️ השהה (קוד מנהל)'}
+                <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                  <button onClick={handleStartTrivia} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
+                    ▶️ התחל
                   </button>
-                  <button onClick={handleAdminReset} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
-                    🔒 איפוס
+                  <button onClick={handlePauseTrivia} style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
+                    ⏸️ השהה
+                  </button>
+                  <button onClick={handleResetTrivia} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
+                    🔄 איפוס
                   </button>
                 </div>
               ) : <div style={{ width: '40px', flexShrink: 0 }} />}
@@ -1677,11 +1740,67 @@ export default function App() {
                 </div>
               )}
 
+              {modalType === 'trip-album' && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
+                  <div style={{ background: isDark ? 'rgba(37,99,235,0.1)' : '#eff6ff', border: '1.5px solid rgba(37,99,235,0.3)', padding: '16px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: '#2563eb' }}>📸 העלאת תמונה חדשה לאלבום המשפחתי</h3>
+                    <p style={{ margin: 0, fontSize: '12px', color: textSub }}>התמונה שתעלה תופיע מיד במכשירים של כל בני המשפחה בזמן אמת!</p>
+                    
+                    <input 
+                      type="text" 
+                      placeholder="הוסף כותרת או תיאור לתמונה (למשל: סלפי בגארדלנד 🎢)" 
+                      value={photoCaptionInput} 
+                      onChange={e => setPhotoCaptionInput(e.target.value)} 
+                      style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#fff', color: textColor, outline: 'none', fontSize: '14px', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                    />
+
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      id="trip-photo-file-input" 
+                      style={{ display: 'none' }} 
+                      onChange={handleUploadPhotoFile} 
+                    />
+                    <button 
+                      disabled={isUploadingPhoto}
+                      onClick={() => document.getElementById('trip-photo-file-input').click()} 
+                      style={{ width: '100%', padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: isUploadingPhoto ? 'wait' : 'pointer', boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    >
+                      {isUploadingPhoto ? '⏳ מעלה תמונה...' : '📤 בחר תמונה והעלה לאלבום 📷'}
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>גלריית תמונות משפחתית ({tripPhotos.length})</h4>
+                  </div>
+
+                  {tripPhotos.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px 20px', color: textSub, fontWeight: '800', fontSize: '14px' }}>
+                      📷 עדיין אין תמונות באלבום. היה הראשון להעלות תמונה מהטיול!
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', paddingBottom: '20px' }}>
+                      {tripPhotos.map((photo, pIdx) => (
+                        <div key={pIdx} onClick={() => setSelectedPhotoViewer(photo)} style={{ background: cardBg, border: `1.5px solid ${borderColor}`, borderRadius: '14px', overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', transition: 'transform 0.2s' }}>
+                          <div style={{ width: '100%', height: '140px', background: '#000', overflow: 'hidden', position: 'relative' }}>
+                            <img src={photo.image_url} alt="Trip" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+                          <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{photo.caption}</span>
+                            <span style={{ fontSize: '11px', color: textSub, fontWeight: '800' }}>👤 {photo.uploader} | 🕒 {photo.time_str || 'עכשיו'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {modalType === 'trivia' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
                   {isTriviaPaused && (
                     <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
-                      ⏸️ המשחק מושהה (השעון עומד במקום עד ללחיצה על "המשך" בסיסמת מנהל)
+                      ⏸️ המשחק מושהה (לחץ על כפתור "התחל" למעלה כדי להפעיל את השעון)
                     </div>
                   )}
 
@@ -1697,8 +1816,8 @@ export default function App() {
                     <div style={{ flex: 1, height: '46px', background: isDark ? '#1e293b' : '#ffffff', padding: '0 14px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor, boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                       <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{TRAVELERS_LIST[travelerIndex]}</span>
                     </div>
-                    <button onClick={handleNewGame} style={{ flex: 1, height: '46px', background: isDark ? '#334155' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '0 14px', borderRadius: '12px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
-                      משחק חדש (מנהל)
+                    <button onClick={handleResetTrivia} style={{ flex: 1, height: '46px', background: isDark ? '#334155' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '0 14px', borderRadius: '12px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                      איפוס משחק (מנהל)
                     </button>
                   </div>
 
