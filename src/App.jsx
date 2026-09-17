@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v7.7 ---
-const APP_VERSION = 'v7.7';
+// --- GARDA-MOBILE v7.8 ---
+const APP_VERSION = 'v7.8';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const WAZE_SVG = (
-  <svg viewBox="0 0 512 512" width="14" height="14" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 512 512" width="13" height="13" xmlns="http://www.w3.org/2000/svg">
     <rect width="512" height="512" rx="90" fill="#38bdf8"/>
     <path d="M375.4 233.5c-3.7-31.8-29.3-56.7-61.6-59.5-35.3-3.1-66.5 19.3-73.8 53.6-1.5 7-1.4 14.3.4 21.2-22.1 4.7-38.6 24.1-38.6 47.3 0 17.5 9.7 32.7 24.1 40.5l-10.7 33.3c-2.4 7.4 2.8 15 10.6 15 3.3 0 6.4-1.4 8.6-3.8l21.9-23.7c13.7 4.9 28.7 7.5 44.1 7.5 70.7 0 128-50.5 128-112.7 0-11.8-1.8-23.3-5.2-34.4zm-146 5.3c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20zm112 40c-11 0-20-9-20-20s9-20 20-20 20 9 20 20-9 20-20 20zm-56 22c-29.8 0-54-15.6-54-35 0-3.3 2.7-6 6-6h96c3.3 0 6 2.7 6 6 0 19.4-24.2 35-54 35z" fill="#fff"/>
     <path d="M220.5 240c-1.2 5.5-6.2 9.5-12 9.5s-10.8-4-12-9.5-2.8-12.7-14.2-22-27.5-22-15.5 0-28 12.5-28 28s12.5 28 28 28c4.4 0 8 3.6 8 8s-3.6 8-8 8c-24.3 0-44-19.7-44-44s19.7-44 44-44c21.2 0 39.1 14.7 43.5 34.5z" fill="#18181b"/>
@@ -20,7 +20,7 @@ const WAZE_SVG = (
 );
 
 const MAPS_SVG = (
-  <svg viewBox="0 0 512 512" width="14" height="14" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 512 512" width="13" height="13" xmlns="http://www.w3.org/2000/svg">
     <rect width="512" height="512" rx="90" fill="#71717a"/>
     <path d="M120 392l80-160 160-80-80 160z" fill="#10b981"/>
     <path d="M200 232l152-72-72 152-80-80z" fill="#3b82f6"/>
@@ -104,7 +104,7 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "סיכום חוויות בוורונה וטיסה חזרה הביתה.",
     stops: [
       { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", lat: 45.4384, lng: 10.9916, note: "סיור בארנה והמרפסת של יוליה." },
-      { time: "18:30", name: "שדה התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "החזרת הרכב וטיסה חזרה לישראל." }
+      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "החזרת הרכב וטיסה חזרה לישראל." }
     ],
     culinary: { name: "Farcito Verona", dest: "Verona, Italy", desc: "המבורגר משובח ופיצה דקה ומיוחדת במרכז וורונה ממש לפני הנסיעה לשדה." },
     creative: { name: "גלוית פרידה איטלקית", dest: "Verona, Italy", desc: "כתיבת גלוית סיכום וציור מזכרת אישית מהטיול במלון לפני העזיבה." }
@@ -201,16 +201,16 @@ const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
           z-index: 9999;
           background: ${isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.95)'};
           color: ${isDark ? '#f8fafc' : '#0f172a'};
-          padding: 10px 18px;
-          border-radius: 12px;
+          padding: 8px 14px;
+          border-radius: 10px;
           font-weight: 900;
-          font-size: 13px;
+          font-size: 12px;
           box-shadow: 0 10px 25px rgba(0,0,0,0.25);
           backdrop-filter: blur(10px);
           border: 1.5px solid ${isDark ? 'rgba(255,255,255,0.2)' : '#cbd5e1'};
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
           direction: rtl;
         }
         .route-badge span { color: #2563eb; }
@@ -1145,45 +1145,46 @@ export default function App() {
 
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
-        {/* קו הפרדה עדין מודגש מעל ימי הטיול שזז ימינה ושמאלה (גולש בקצוות) */}
-        <div style={{ margin: '0 -16px 16px -16px', borderBottom: `2px solid ${borderColor}`, opacity: 0.8 }} />
+        {/* קו עדין מודגש מעל ימי הטיול שגולש ימינה ושמאלה */}
+        <div style={{ margin: '0 -16px 14px -16px', borderBottom: `1.5px solid ${borderColor}`, opacity: 0.6 }} />
 
-        {/* שורת ימי הטיול פתוחה מימין ומשמאל ללא קופסת מעטפת סגורה */}
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
-          {INITIAL_TRIP_DAYS.map((d, i) => {
-            const isActive = activeDay === i;
-            return (
-              <button 
-                key={i} 
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveDay(i);
-                }} 
-                style={{ 
-                  flex: '1 0 auto', 
-                  padding: '10px 18px', 
-                  borderRadius: '10px', 
-                  background: isActive ? '#2563eb' : (isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff'), 
-                  color: isActive ? '#ffffff' : '#2563eb', 
-                  border: '1.5px solid #2563eb', 
-                  fontSize: '13px', 
-                  fontWeight: '900', 
-                  cursor: 'pointer', 
-                  boxShadow: isActive ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {d.label}
-              </button>
-            );
-          })}
+        {/* שורת ימי הטיול פתוחה מימין ומשמאל עם קו תחתון מדגיש */}
+        <div style={{ position: 'relative', paddingBottom: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '6px', scrollbarWidth: 'none' }}>
+            {INITIAL_TRIP_DAYS.map((d, i) => {
+              const isActive = activeDay === i;
+              return (
+                <button 
+                  key={i} 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveDay(i);
+                  }} 
+                  style={{ 
+                    flex: '1 0 auto', 
+                    padding: '10px 18px', 
+                    borderRadius: '10px', 
+                    background: isActive ? '#2563eb' : (isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff'), 
+                    color: isActive ? '#ffffff' : '#2563eb', 
+                    border: '1.5px solid #2563eb', 
+                    fontSize: '13px', 
+                    fontWeight: '900', 
+                    cursor: 'pointer', 
+                    boxShadow: isActive ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {d.label}
+                </button>
+              );
+            })}
+          </div>
+          {/* קו תחתון מדגיש שגולש ימינה ושמאלה מתחת לטאבים */}
+          <div style={{ position: 'absolute', bottom: 0, left: '-16px', right: '-16px', height: '2px', background: '#2563eb', opacity: 0.4 }} />
         </div>
 
-        {/* קו הפרדה עדין מתחת לימי הטיול שזז ימינה ושמאלה (גולש בקצוות) */}
-        <div style={{ margin: '16px -16px 22px -16px', borderBottom: `2px solid ${borderColor}`, opacity: 0.8 }} />
-
-        <div style={{ marginBottom: '20px' }}>
+        <div style={{ marginBottom: '20px', marginTop: '22px' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', padding: '0 4px' }}>
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
