@@ -1145,7 +1145,7 @@ export default function App() {
 
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
-        {/* שורת ימי הטיול עם קו תחתון מודגש תחת הטאב הפעיל בלבד */}
+        {/* שורת ימי הטיול עם קו תחתון מודגש רחב ובולט תחת הטאב הפעיל */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', scrollbarWidth: 'none' }}>
           {INITIAL_TRIP_DAYS.map((d, i) => {
             const isActive = activeDay === i;
@@ -1173,14 +1173,14 @@ export default function App() {
                 >
                   {d.label}
                 </button>
-                {/* קו הדגשה רק תחת הטאב הנבחר */}
+                {/* קו הדגשה רחב (100% רוחב הכפתור, 4px עובי) */}
                 <div 
                   style={{ 
-                    height: '3px', 
-                    width: '80%', 
-                    borderRadius: '3px', 
+                    height: '4px', 
+                    width: '100%', 
+                    borderRadius: '4px', 
                     background: '#2563eb', 
-                    marginTop: '5px', 
+                    marginTop: '6px', 
                     opacity: isActive ? 1 : 0, 
                     transition: 'opacity 0.2s ease, transform 0.2s ease',
                     transform: isActive ? 'scaleX(1)' : 'scaleX(0)'
