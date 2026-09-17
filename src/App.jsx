@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v7.2 ---
-const APP_VERSION = 'v7.2';
+// --- GARDA-MOBILE v7.2.1 ---
+const APP_VERSION = 'v7.2.1';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1073,7 +1073,7 @@ export default function App() {
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
-      {/* תפריט צד מעוצב מחדש עם כפתורי קפסולה תואמים */}
+      {/* תפריט צד מעוצב מחדש עם מסגרות קפסולה כחולות ובלי חיצים */}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
@@ -1099,54 +1099,46 @@ export default function App() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>ניווט ומעקב</span>
           
-          <button onClick={() => { setSidebarOpen(false); setActiveDay(activeDay); setModalType(null); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setActiveDay(activeDay); setModalType(null); }} style={pillMenuCardStyle}>
             <span>מסלול ימי הטיול</span>
-            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={pillMenuCardStyle}>
             <span>רדאר משפחתי חי</span>
-            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>כלים ושימושי</span>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={pillMenuCardStyle}>
             <span>טיימר משפחתי</span>
-            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={pillMenuCardStyle}>
             <span>שמירת מיקום רכב חכם</span>
-            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={pillMenuCardStyle}>
             <span>סביבי (Around Me)</span>
-            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>העשרה ובידור</span>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={pillMenuCardStyle}>
             <span>טריויה חכמה לדרך</span>
-            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={pillMenuCardStyle}>
             <span>ארנק כרטיסים ומסמכים</span>
-            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto', paddingTop: '10px' }}>
-          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...pillMenuCardStyle(isDark, '#ef4444', '#fecaca'), background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2', borderColor: '#fca5a5' }}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...pillMenuCardStyle, borderColor: '#fca5a5', color: '#ef4444', background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2' }}>
             <span>מספרי חירום ושגרירות</span>
-            <span style={{ color: '#ef4444', fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
@@ -1156,7 +1148,7 @@ export default function App() {
         
         <hr style={{ border: 'none', height: '1.5px', background: borderColor, opacity: 0.5, margin: '0 0 16px 0' }} />
 
-        {/* קונוטיינר מעוגל לימי הטיול */}
+        {/* עטיפת כפתורי הימים בעיצוב הקפסולה האחיד */}
         <div style={{ background: cardBg, borderRadius: '20px', padding: '12px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow, marginBottom: '16px' }}>
           <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
             {INITIAL_TRIP_DAYS.map((d, i) => {
@@ -1269,7 +1261,7 @@ export default function App() {
               <div style={{ background: isDark ? '#1e293b' : '#f8fafc', padding: '16px', borderRadius: '16px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <span style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>🏨 מלון: Bio Agriturismo Vojon</span>
                 <span style={{ fontSize: '13px', fontWeight: '800', color: textColor }}>📍 כתובת: {viewerItem.hotelAddress}</span>
-                <span style={{ fontSize: '13px', fontWeight: '800', color: textColor }}>📞 טלפון: {viewerItem.hotelPhone}</span>
+                <span style={{ fontSize: '13px', fontWeight: '800', color: textColor }ស}>📞 טלפון: {viewerItem.hotelPhone}</span>
                 <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>📋 מספר הזמנה: {viewerItem.bookingRef}</span>
                 <a href={viewerItem.bookingUrl} target="_blank" rel="noreferrer" style={{ marginTop: '8px', padding: '12px', background: '#003580', color: '#fff', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center', display: 'block' }}>
                   פתח באתר Booking.com 🌐
@@ -1673,8 +1665,8 @@ export default function App() {
   );
 }
 
-const pillMenuCardStyle = (isDark, textColor, borderColor) => ({
-  background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff',
+const pillMenuCardStyle = {
+  background: 'transparent',
   border: '1.5px solid #2563eb',
   color: '#2563eb',
   padding: '12px 18px',
@@ -1687,29 +1679,10 @@ const pillMenuCardStyle = (isDark, textColor, borderColor) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   width: '100%',
-  boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 2px 8px rgba(37, 99, 235, 0.08)',
+  boxShadow: '0 2px 6px rgba(37, 99, 235, 0.08)',
   transition: 'all 0.2s ease',
   boxSizing: 'border-box'
-});
-
-const cleanMenuCardStyle = (isDark, textColor, borderColor) => ({
-  background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff',
-  border: `1.5px solid ${borderColor}`,
-  color: textColor,
-  padding: '14px 16px',
-  borderRadius: '16px',
-  textAlign: 'right',
-  fontWeight: '800',
-  fontSize: '14px',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  width: '100%',
-  boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 2px 8px rgba(15, 23, 42, 0.04)',
-  transition: 'all 0.2s ease',
-  boxSizing: 'border-box'
-});
+};
 
 const categoryGroupStyle = (isDark, borderColor) => ({
   background: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.015)',
