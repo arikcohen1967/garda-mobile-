@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v7.5 ---
-const APP_VERSION = 'v7.5';
+// --- GARDA-MOBILE v7.6 ---
+const APP_VERSION = 'v7.6';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1073,7 +1073,6 @@ export default function App() {
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
-      {/* תפריט צד מעוצב עם מלבנים ישרים לחלוטין */}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
@@ -1146,43 +1145,43 @@ export default function App() {
 
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
-        <hr style={{ border: 'none', height: '1.5px', background: borderColor, opacity: 0.5, margin: '0 0 16px 0' }} />
+        {/* קו עדין מודגש מעל ימי הטיול שגולש ימינה ושמאלה */}
+        <div style={{ margin: '0 -16px 16px -16px', borderBottom: `2px solid ${borderColor}`, opacity: 0.8 }} />
 
-        {/* מלבן מעטפת עליון לימי הטיול עם פינות ישרות */}
-        <div style={{ background: cardBg, borderRadius: '16px', padding: '12px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow, marginBottom: '16px' }}>
-          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
-            {INITIAL_TRIP_DAYS.map((d, i) => {
-              const isActive = activeDay === i;
-              return (
-                <button 
-                  key={i} 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setActiveDay(i);
-                  }} 
-                  style={{ 
-                    flex: '1 0 auto', 
-                    padding: '10px 18px', 
-                    borderRadius: '10px', 
-                    background: isActive ? '#2563eb' : (isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff'), 
-                    color: isActive ? '#ffffff' : '#2563eb', 
-                    border: '1.5px solid #2563eb', 
-                    fontSize: '13px', 
-                    fontWeight: '900', 
-                    cursor: 'pointer', 
-                    boxShadow: isActive ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {d.label}
-                </button>
-              );
-            })}
-          </div>
+        {/* שורת ימי הטיול פתוחה מימין ומשמאל ללא קופסת מעטפת */}
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+          {INITIAL_TRIP_DAYS.map((d, i) => {
+            const isActive = activeDay === i;
+            return (
+              <button 
+                key={i} 
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveDay(i);
+                }} 
+                style={{ 
+                  flex: '1 0 auto', 
+                  padding: '12px 20px', 
+                  borderRadius: '12px', 
+                  background: isActive ? '#2563eb' : (isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff'), 
+                  color: isActive ? '#ffffff' : '#2563eb', 
+                  border: '1.5px solid #2563eb', 
+                  fontSize: '13px', 
+                  fontWeight: '900', 
+                  cursor: 'pointer', 
+                  boxShadow: isActive ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {d.label}
+              </button>
+            );
+          })}
         </div>
 
-        <hr style={{ border: 'none', height: '1.5px', background: borderColor, opacity: 0.5, margin: '0 0 22px 0' }} />
+        {/* קו הפרדה עדין מתחת לימי הטיול שגולש ימינה ושמאלה */}
+        <div style={{ margin: '16px -16px 22px -16px', borderBottom: `2px solid ${borderColor}`, opacity: 0.8 }} />
 
         <div style={{ marginBottom: '20px' }}>
           
@@ -1202,7 +1201,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* כפתור "משימות והמלצות היום" בעיצוב מלבני ישר */}
           <button 
             onClick={() => setModalType('daily-tasks')}
             style={{ 
