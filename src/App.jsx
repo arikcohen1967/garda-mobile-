@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v5.6 ---
-const APP_VERSION = 'v5.6';
+// --- GARDA-MOBILE v5.7 ---
+const APP_VERSION = 'v5.7';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -775,6 +775,11 @@ export default function App() {
   const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
   const enhancedCardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.08)';
 
+  // צבע רקע מובדל ומודגש מעט להדר העליון כדי ליצור עומק והפרדה מהתוכן
+  const headerBg = isDark 
+    ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(11, 15, 25, 0.95) 100%)' 
+    : 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)';
+
   const day = INITIAL_TRIP_DAYS[activeDay];
 
   const formatClock = (sec) => {
@@ -850,7 +855,6 @@ export default function App() {
         </div>
       )}
 
-      {/* מודל ניהול גיבויים ושחזור עם גודל פונט מעודכן למניעת זום במובייל */}
       {backupModalOpen && (
         <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '24px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
@@ -965,12 +969,13 @@ export default function App() {
         </div>
       )}
 
-      <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
+      {/* הדר עליון מעוצב עם רקע מובדל מעט מהמסך וצללית מודגשת להבלטה */}
+      <header style={{ background: headerBg, backdropFilter: 'blur(20px)', borderBottom: `2px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : '#cbd5e1'}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: isDark ? '0 8px 25px rgba(0,0,0,0.6)' : '0 6px 20px rgba(15, 23, 42, 0.08)' }}>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: '8px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-            <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#f8fafc', color: textColor, border: `1.5px solid ${borderColor}`, height: '44px', padding: '0 16px', borderRadius: '14px', fontSize: '16px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', transition: 'all 0.2s ease' }}>
+            <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? 'rgba(30, 41, 59, 0.9)' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, height: '44px', padding: '0 16px', borderRadius: '14px', fontSize: '16px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', transition: 'all 0.2s ease' }}>
               ☰
             </button>
           </div>
@@ -979,7 +984,7 @@ export default function App() {
             <button 
               onClick={handleProtectedBackup}
               style={{
-                background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#f8fafc',
+                background: isDark ? 'rgba(30, 41, 59, 0.9)' : '#ffffff',
                 border: `1.5px solid ${borderColor}`,
                 color: textColor,
                 fontSize: '14px',
@@ -1004,7 +1009,7 @@ export default function App() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <div style={{ background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#f8fafc', border: `1.5px solid ${borderColor}`, height: '44px', padding: '0 14px', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+            <div style={{ background: isDark ? 'rgba(30, 41, 59, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, height: '44px', padding: '0 14px', borderRadius: '14px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
               <span style={{ fontSize: '11px', fontWeight: '900', color: isOnline ? '#22c55e' : '#f59e0b' }}>
                 {isOnline ? 'Online' : 'Offline'}
               </span>
@@ -1023,7 +1028,7 @@ export default function App() {
             {WAZE_SVG} למלון Vojon
           </a>
 
-          <div style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: isDark ? 'rgba(30, 41, 59, 0.7)' : '#f8fafc', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '800', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }} title="מזג אוויר מותאם לפי מיקום המכשיר">
+          <div style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '800', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }} title="מזג אוויר מותאם לפי מיקום המכשיר">
             <span>{currentWeather.condition.split(' ')[0]}</span>
             <span>{currentWeather.temp}</span>
           </div>
