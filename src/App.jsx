@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.1 ---
-const APP_VERSION = 'v9.1';
+// --- GARDA-MOBILE v9.2 ---
+const APP_VERSION = 'v9.2';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -943,22 +943,6 @@ export default function App() {
   const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
   const enhancedCardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.08)';
 
-  // סגנון מלבני התחנות המעוצבים עם צל מטאלי יוקרתי
-  const itineraryStopCardStyle = {
-    background: isDark ? 'rgba(17, 24, 39, 0.98)' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-    borderRadius: '18px',
-    padding: '20px',
-    border: `1px solid ${borderColor}`,
-    borderRight: '4px solid #475569',
-    boxShadow: isDark 
-      ? '0 10px 25px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4)' 
-      : '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '14px',
-    boxSizing: 'border-box'
-  };
-
   const headerBg = isDark 
     ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(11, 15, 25, 0.95) 100%)' 
     : 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)';
@@ -1392,7 +1376,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* מלבני התחנות הגדולים של מסלול היום עם הצל המהמם והפס הצידי */}
+          {/* מלבני התחנות הגדולים עם הצל היוקרתי והפס המטאלי הצידי */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             {day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={itineraryStopCardStyle}>
@@ -1400,7 +1384,7 @@ export default function App() {
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#2563eb', background: isDark ? 'rgba(37, 99, 235, 0.15)' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: '1.5px solid rgba(37, 99, 235, 0.3)' }}>{stop.time}</span>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#2563eb', background: isDark ? 'rgba(37, 99, 235, 0.15)' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(37, 99, 235, 0.3)' }}>{stop.time}</span>
                   </div>
                   <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45' }}>{stop.note}</p>
                 </div>
@@ -1488,7 +1472,7 @@ export default function App() {
                 {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 קוד טרנזקציה: {viewerItem.trans}</span>}
                 {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️ פרטים: {viewerItem.desc}</span>}
                 {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>👤 נוסע: {viewerItem.passenger}</span>}
-                {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
+                {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' => `🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
               </div>
             )}
 
@@ -1839,13 +1823,14 @@ export default function App() {
   );
 }
 
-// עיצוב מלבני התפריט הימני
+// עיצוב מלבני התפריט הימני עם צל מטאלי יוקרתי
 const rectMenuCardStyle = {
-  background: '#ffffff',
-  border: '1.5px solid #475569',
-  color: '#374151',
+  background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+  border: '1px solid #cbd5e1',
+  borderRight: '3.5px solid #475569',
+  color: '#334155',
   padding: '12px 16px',
-  borderRadius: '10px',
+  borderRadius: '12px',
   textAlign: 'right',
   fontWeight: '900',
   fontSize: '13px',
@@ -1854,9 +1839,10 @@ const rectMenuCardStyle = {
   alignItems: 'center',
   justifyContent: 'space-between',
   width: '100%',
-  boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)',
-  transition: 'all 0.2s ease',
-  boxSizing: 'border-box'
+  boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
+  transition: 'all 0.15s ease',
+  boxSizing: 'border-box',
+  letterSpacing: '-0.01em'
 };
 
 const timerPresetBtn = {
