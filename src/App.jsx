@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v6.6 ---
-const APP_VERSION = 'v6.6';
+// --- GARDA-MOBILE v6.7 ---
+const APP_VERSION = 'v6.7';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו ביום הראשון של הטיול! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה וורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
       { time: "18:00", name: "נסיעה למלון והתארגנות", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין במלון ומנוחה קצרה לפני ארוחת הערב." }
     ],
     culinary: { name: "Pizzeria Trattoria al Ponte (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "פיצות נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית, ולקינוח גלידה איטלקית אמיתית (Gelateria Popolare)." },
@@ -1169,7 +1169,7 @@ export default function App() {
                   style={{ 
                     flex: '1 0 auto', 
                     padding: '12px 18px', 
-                    borderRadius: '16px', 
+                    borderRadius: '14px', 
                     background: isActive ? '#0f172a' : (isDark ? '#1e293b' : '#f8fafc'), 
                     color: isActive ? '#ffffff' : textColor, 
                     border: `1.5px solid ${isActive ? '#0f172a' : borderColor}`, 
@@ -1709,23 +1709,6 @@ const categoryTitleStyle = (accentColor) => ({
   gap: '6px',
   letterSpacing: '0.02em'
 });
-
-const menuBtnStyle = (isDark, textColor) => ({
-  background: 'transparent',
-  border: 'none',
-  color: textColor,
-  padding: '10px 12px',
-  borderRadius: '12px',
-  textAlign: 'right',
-  fontWeight: '700',
-  fontSize: '13px',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-  width: '100%',
-  transition: 'all 0.2s ease'
-};
 
 const timerPresetBtn = {
   padding: '16px',
