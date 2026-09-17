@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.2 ---
-const APP_VERSION = 'v9.2';
+// --- GARDA-MOBILE v9.3 ---
+const APP_VERSION = 'v9.3';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -943,6 +943,18 @@ export default function App() {
   const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
   const enhancedCardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.08)';
 
+  const itineraryStopCardStyle = {
+    background: cardBg,
+    borderRadius: '16px',
+    padding: '18px',
+    border: `2px solid ${borderColor}`,
+    boxShadow: enhancedCardShadow,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '14px',
+    boxSizing: 'border-box'
+  };
+
   const headerBg = isDark 
     ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(11, 15, 25, 0.95) 100%)' 
     : 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)';
@@ -1376,7 +1388,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* מלבני התחנות הגדולים עם הצל היוקרתי והפס המטאלי הצידי */}
+          {/* מלבני התחנות הגדולים של מסלול היום עם הצל המטאלי והפס הצידי */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             {day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={itineraryStopCardStyle}>
@@ -1472,7 +1484,7 @@ export default function App() {
                 {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 קוד טרנזקציה: {viewerItem.trans}</span>}
                 {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️ פרטים: {viewerItem.desc}</span>}
                 {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>👤 נוסע: {viewerItem.passenger}</span>}
-                {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' => `🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
+                {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
               </div>
             )}
 
@@ -1823,7 +1835,7 @@ export default function App() {
   );
 }
 
-// עיצוב מלבני התפריט הימני עם צל מטאלי יוקרתי
+// עיצוב מלבני התפריט הימני
 const rectMenuCardStyle = {
   background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
   border: '1px solid #cbd5e1',
