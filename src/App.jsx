@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v7.4 ---
-const APP_VERSION = 'v7.4';
+// --- GARDA-MOBILE v7.5 ---
+const APP_VERSION = 'v7.5';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -863,7 +863,7 @@ export default function App() {
             
             {backupSuccessMsg ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1.5px solid #10b981', padding: '16px', borderRadius: '12px', fontWeight: '900', fontSize: '14px', lineHeight: '1.4' }}>
+                <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1.5px solid #10b981', padding: '16px', borderRadius: '14px', fontWeight: '900', fontSize: '14px', lineHeight: '1.4' }}>
                   💾 גיבוי מלא של האפליקציה הורד בהצלחה ונשמר בתיקיית ההורדות/קבצים!
                 </div>
                 <button 
@@ -1071,7 +1071,7 @@ export default function App() {
         </div>
       )}
 
-      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} lang="he" />}
+      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
       {/* תפריט צד מעוצב עם מלבנים ישרים לחלוטין */}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
