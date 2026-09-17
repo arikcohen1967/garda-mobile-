@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.3 ---
-const APP_VERSION = 'v9.3';
+// --- GARDA-MOBILE v9.3.1 ---
+const APP_VERSION = 'v9.3.1';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה وרונה", 
+        name: "נחיתה בנמל התעופה ורונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -251,20 +251,20 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         challenge: {
           title: "שיא הטיול המשפחתי!",
-          desc: "בוחרים יחד בארנה של ורונה את הרגע המצחיק והמרגש ביותר של הטיול."
+          desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
         },
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
-          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב ורונה לפני הנסיעה לשדה."
+          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
         }
       },
       { 
         time: "18:30", 
-        name: "שדה התעופה ורונה וחזרה הביתה", 
+        name: "שדה התעופה وרונה וחזרה הביתה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -682,7 +682,9 @@ export default function App() {
   const [travelerScores, setTravelerScores] = useState(() => {
     try { const saved = localStorage.getItem('garda-traveler-scores'); return saved ? JSON.parse(saved) : { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; } catch (e) { return { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; }
   });
-  const [isTriviaPaused, setIsTriviaPaused] = useState(true);
+  
+  // מתחילים ברירת מחדל שהטריויה לא מושהה או לפי בחירה נכונה של המשתמש
+  const [isTriviaPaused, setIsTriviaPaused] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [questionTimeLeft, setQuestionTimeLeft] = useState(45);
 
@@ -694,6 +696,7 @@ export default function App() {
     } catch (e) {}
   }, [triviaIndex, travelerIndex, travelerScores]);
 
+  // טיפול בשעון ובמעבר שאלה אוטומטי כשנגמר הזמן
   useEffect(() => {
     if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
 
@@ -942,7 +945,6 @@ export default function App() {
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.15)' : '#cbd5e1';
   const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
 
-  // עיצוב מלבני התחנות הגדולים המעודכן עם הצללית והפס הצידי (בדיוק כמו בתפריט הימני)
   const itineraryStopCardStyle = {
     background: isDark ? 'linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(11, 15, 25, 0.98) 100%)' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
     borderRadius: '16px',
@@ -980,9 +982,11 @@ export default function App() {
     setSelectedAnswer(optIdx);
     const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
     const currentTraveler = TRAVELERS_LIST[travelerIndex];
+    
     if (optIdx === currentQ.correct) {
       setTravelerScores(prev => ({ ...prev, [currentTraveler]: (prev[currentTraveler] || 0) + 10 }));
     }
+    
     setTimeout(() => {
       setSelectedAnswer(null);
       setQuestionTimeLeft(45);
@@ -997,9 +1001,10 @@ export default function App() {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(true);
+      setIsTriviaPaused(false);
+      setSelectedAnswer(null);
       setQuestionTimeLeft(45);
-      alert("🔄 המשחק אותחל בהצלחה על ידי המנהל (מושהה עד ללחיצה על המשך)!");
+      alert("🔄 המשחק אותחל בהצלחה על ידי המנהל!");
     } else if (adminPassword !== null) {
       alert("❌ סיסמה שגויה!");
     }
@@ -1010,7 +1015,8 @@ export default function App() {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(true);
+      setIsTriviaPaused(false);
+      setSelectedAnswer(null);
       setQuestionTimeLeft(45);
     }
   };
@@ -1254,7 +1260,6 @@ export default function App() {
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
-      {/* תפריט צד ימין */}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
@@ -1389,7 +1394,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* מלבני התחנות הגדולים של מסלול היום עם הצל הדומה לתפריט */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             {day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={itineraryStopCardStyle}>
@@ -1702,7 +1706,12 @@ export default function App() {
                         }
                       }
                       return (
-                        <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ width: '100%', height: '48px', borderRadius: '12px', background: btnBg, color: btnColor, border: `1.5px solid ${btnBorder}`, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s ease', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                        <button 
+                          key={oIdx} 
+                          disabled={isTriviaPaused || selectedAnswer !== null}
+                          onClick={() => handleTriviaAnswer(oIdx)} 
+                          style={{ width: '100%', height: '48px', borderRadius: '12px', background: btnBg, color: btnColor, border: `1.5px solid ${btnBorder}`, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (isTriviaPaused || selectedAnswer !== null) ? 'not-allowed' : 'pointer', opacity: (isTriviaPaused || selectedAnswer !== null) ? 0.85 : 1, transition: 'all 0.2s ease', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
+                        >
                           {opt}
                         </button>
                       );
@@ -1836,7 +1845,6 @@ export default function App() {
   );
 }
 
-// עיצוב מלבני התפריט הימני
 const rectMenuCardStyle = {
   background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
   border: '1px solid #cbd5e1',
