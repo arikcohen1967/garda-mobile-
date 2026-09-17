@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v5.7 ---
-const APP_VERSION = 'v5.7';
+// --- GARDA-MOBILE v5.8 ---
+const APP_VERSION = 'v5.8';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -775,7 +775,6 @@ export default function App() {
   const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
   const enhancedCardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.08)';
 
-  // צבע רקע מובדל ומודגש מעט להדר העליון כדי ליצור עומק והפרדה מהתוכן
   const headerBg = isDark 
     ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(11, 15, 25, 0.95) 100%)' 
     : 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)';
@@ -857,8 +856,9 @@ export default function App() {
 
       {backupModalOpen && (
         <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '24px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
-            <span style={{ fontSize: '32px' }}>🛡️</span>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '24px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center', position: 'relative' }}>
+            <button onClick={() => setBackupModalOpen(false)} style={{ position: 'absolute', top: '16px', left: '16px', background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+            <span style={{ fontSize: '32px', marginTop: '10px' }}>🛡️</span>
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>ניהול גיבוי ושחזור (גרסה {APP_VERSION})</h3>
             
             {backupSuccessMsg ? (
@@ -969,14 +969,35 @@ export default function App() {
         </div>
       )}
 
-      {/* הדר עליון מעוצב עם רקע מובדל מעט מהמסך וצללית מודגשת להבלטה */}
+      {/* הדר עליון מעוצב עם עומק והפרדה מהתוכן מתחתיו */}
       <header style={{ background: headerBg, backdropFilter: 'blur(20px)', borderBottom: `2px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : '#cbd5e1'}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: isDark ? '0 8px 25px rgba(0,0,0,0.6)' : '0 6px 20px rgba(15, 23, 42, 0.08)' }}>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: '8px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-            <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? 'rgba(30, 41, 59, 0.9)' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, height: '44px', padding: '0 16px', borderRadius: '14px', fontSize: '16px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', transition: 'all 0.2s ease' }}>
-              ☰
+            {/* כפתור תפריט המציג 3 נקודות בסגנון iOS */}
+            <button 
+              onClick={() => setSidebarOpen(true)} 
+              style={{ 
+                background: isDark ? 'rgba(30, 41, 59, 0.9)' : '#ffffff', 
+                color: textColor, 
+                border: `1.5px solid ${borderColor}`, 
+                height: '44px', 
+                padding: '0 16px', 
+                borderRadius: '14px', 
+                fontSize: '20px', 
+                fontWeight: '900', 
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)', 
+                transition: 'all 0.2s ease',
+                letterSpacing: '2px'
+              }}
+              title="תפריט"
+            >
+              •••
             </button>
           </div>
 
@@ -1065,7 +1086,8 @@ export default function App() {
               <span style={{ fontSize: '11px', color: textSub, fontWeight: '700' }}>גארדה ואזור הטיול ({APP_VERSION})</span>
             </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: isDark ? '#f8fafc' : '#1e293b', width: '34px', height: '34px', borderRadius: '12px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
+          {/* כפתור סגירה תפריט עם X ברור וחזרה למצב הקודם */}
+          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: isDark ? '#f8fafc' : '#1e293b', width: '36px', height: '36px', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
         </div>
 
         <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: '1.5px solid rgba(59, 130, 246, 0.3)', padding: '12px', borderRadius: '16px' }}>
@@ -1210,7 +1232,7 @@ export default function App() {
           </button>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {day.stops.map((stop, sIdx) => (
+            {day.stops.pop && day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={{ background: cardBg, borderRadius: '20px', padding: '18px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
@@ -1231,8 +1253,9 @@ export default function App() {
 
       {viewerItem && (
         <div onClick={() => setViewerItem(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 4000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '24px', borderRadius: '24px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.3)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'center' }}>
-            <span style={{ fontSize: '36px' }}>🎟️</span>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '24px', borderRadius: '24px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.3)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'center', position: 'relative' }}>
+            <button onClick={() => setViewerItem(null)} style={{ position: 'absolute', top: '16px', left: '16px', background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+            <span style={{ fontSize: '36px', marginTop: '10px' }}>🎟️</span>
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>{viewerItem.title}</h3>
             <div style={{ background: isDark ? '#1e293b' : '#f8fafc', padding: '14px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <span style={{ fontSize: '12px', fontWeight: '800', color: textSub }}>קטגוריה: {viewerItem.folder}</span>
@@ -1258,8 +1281,9 @@ export default function App() {
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, padding: 0, borderRadius: 0, width: '100vw', height: '100vh', maxWidth: 'none', maxHeight: 'none', overflowY: 'auto', border: 'none', boxShadow: 'none', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative' }}>
             
+            {/* כותרת מודאל הכוללת X ברור לחזרה למצב הקודם */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', flexShrink: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10050, background: isDark ? 'rgba(11, 15, 25, 0.96)' : 'rgba(255, 255, 255, 0.96)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box', minHeight: '76px' }}>
-              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '42px', height: '42px', borderRadius: '14px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexShrink: 0 }}>✕</button>
+              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '42px', height: '42px', borderRadius: '14px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexShrink: 0 }} title="חזור למצב קודם">✕</button>
               
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי ומופת האגם'}
