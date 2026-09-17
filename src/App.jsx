@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v6.0 ---
-const APP_VERSION = 'v6.0';
+// --- GARDA-MOBILE v6.1 ---
+const APP_VERSION = 'v6.1';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1039,18 +1039,21 @@ export default function App() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.3fr 1.2fr', gap: '8px', alignItems: 'center' }}>
+          {/* כפתור SOS חירום: לבן עם טקסט אדום */}
           <button onClick={triggerSos} style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: '#ffffff', color: '#ef4444', border: '1.5px solid #fecaca', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.15)' }}>
             <span>🚨</span> SOS חירום
           </button>
 
+          {/* כפתור למלון Waze: לבן עם טקסט ותכלת של Waze */}
           <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: '#ffffff', color: '#0284c7', textDecoration: 'none', border: '1.5px solid #bae6fd', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.15)' }}>
             {WAZE_SVG} למלון Vojon
           </a>
 
-          <div style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '800', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }} title="מזג אוויר מותאם לפי מיקום המכשיר">
+          {/* כפתור מזג אוויר מחובר לאפליקציית מזג אוויר (iOS Weather / Web Weather) */}
+          <a href="weather://" target="_blank" rel="noreferrer" style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#ffffff', color: textColor, textDecoration: 'none', border: `1.5px solid ${borderColor}`, fontWeight: '800', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }} title="פתח את אפליקציית מזג האוויר בטלפון">
             <span>{currentWeather.condition.split(' ')[0]}</span>
             <span>{currentWeather.temp}</span>
-          </div>
+          </a>
         </div>
 
       </header>
@@ -1073,16 +1076,13 @@ export default function App() {
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
-      {/* תפריט צד מעוצב מחדש לפי התמונה בסגנון נקי ומקצועי בלי אייקונים קטנים מימין */}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
-        {/* כותרת התפריט עם כפתור סגירה X */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: textColor }}>תפריט מהיר</h3>
           <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '50%', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
         </div>
 
-        {/* בחירת משתמש מצב תצוגה עליון כמו בתמונה */}
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, padding: '10px 14px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             <span>{isDark ? '🌙 כהה' : '☀️ בהיר'}</span>
@@ -1098,7 +1098,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* קטגוריה 1: ניווט ומסלול */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>ניווט ומעקב</span>
           
@@ -1113,7 +1112,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* קטגוריה 2: כלים ושימושי */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>כלים ושימושי</span>
 
@@ -1133,7 +1131,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* קטגוריה 3: העשרה ובידור */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>העשרה ובידור</span>
 
@@ -1148,7 +1145,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* קטגוריה 4: חירום */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto', paddingTop: '10px' }}>
           <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...cleanMenuCardStyle(isDark, '#ef4444', '#fecaca'), background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2' }}>
             <span>מספרי חירום ושגרירות</span>
@@ -1655,7 +1651,6 @@ export default function App() {
   );
 }
 
-// סטייל מעוצב מחדש לכפתורי התפריט הנקיים והרחבים (בסגנון התמונה ששלחת)
 const cleanMenuCardStyle = (isDark, textColor, borderColor) => ({
   background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff',
   border: `1.5px solid ${borderColor}`,
