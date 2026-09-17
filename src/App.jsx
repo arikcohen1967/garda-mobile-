@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v5.3 ---
-const APP_VERSION = 'v5.3';
+// --- GARDA-MOBILE v5.4 ---
+const APP_VERSION = 'v5.4';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -239,83 +239,6 @@ const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
   `;
 };
 
-// תהליך ניווט חי עם סיכה אדומה למשתמש, סיכת רכב ליעד, וקו אדום מקווקו ביניהם
-const generateParkingMapHTML = (myLoc, carLoc, isDark) => {
-  const currentLat = myLoc?.lat || carLoc?.lat || 45.4384;
-  const currentLng = myLoc?.lng || carLoc?.lng || 10.6816;
-  const carLat = carLoc?.lat || currentLat;
-  const carLng = carLoc?.lng || currentLng;
-
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-      <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; }
-        #map { width: 100%; height: 100%; }
-        .nav-instruction-banner {
-          position: absolute;
-          bottom: 25px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 9999;
-          background: ${isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)'};
-          color: ${isDark ? '#f8fafc' : '#0f172a'};
-          padding: 14px 24px;
-          border-radius: 20px;
-          font-weight: 900;
-          font-size: 14px;
-          box-shadow: 0 15px 35px rgba(0,0,0,0.35);
-          backdrop-filter: blur(12px);
-          border: 2px solid #ef4444;
-          direction: rtl;
-          text-align: center;
-          width: 85%;
-          max-width: 350px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="nav-instruction-banner">
-        <span>🔴 מעקב חי: המשך בעקבות הקו האדום אל הרכב שלך 🚗</span>
-      </div>
-      <div id="map"></div>
-      <script>
-        const map = L.map('map').setView([${carLat}, ${carLng}], 17);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
-        // סיכה אדומה בולטת למיקום הנוכחי שלך
-        const redPinIcon = L.divIcon({
-          className: 'user-red-pin',
-          html: '<div style="background-color: #ef4444; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6); animation: pulse 1.5s infinite;"></div>',
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
-        });
-
-        // סיכת הרכב כיעד
-        L.marker([${carLat}, ${carLng}]).addTo(map).bindPopup('🚗 הרכב החונה שלך (יעד)').openPopup();
-        
-        const myLoc = ${JSON.stringify(myLoc)};
-        if (myLoc && myLoc.lat) {
-          L.marker([myLoc.lat, myLoc.lng], {icon: redPinIcon}).addTo(map).bindPopup('📍 המיקום הנוכחי שלך');
-          
-          // קו אדום מקווקו המתוח בין המיקום שלך לרכב
-          const latlngs = [
-            [myLoc.lat, myLoc.lng],
-            [${carLat}, ${carLng}]
-          ];
-          L.polyline(latlngs, {color: '#ef4444', weight: 6, opacity: 0.9, dashArray: '12, 12'}).addTo(map);
-        }
-      </script>
-    </body>
-    </html>
-  `;
-};
-
 const generateMapHTML = (familyLocs, myLoc, sosState, activeDayIndex, isDark) => {
   let centerLat = 45.4384, centerLng = 10.6816;
   if (sosState?.lat) { centerLat = sosState.lat; centerLng = sosState.lng; }
@@ -461,7 +384,7 @@ export default function App() {
       alert('🔴 כפתור אדום ננעץ! מיקום הרכב נשמר בהצלחה.');
     }, () => {
       alert('❌ לא ניתן לקבוע את מיקום ה-GPS. בדוק את הרשאות המיקום.');
-    });
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
   };
 
   const clearCarLocation = () => {
@@ -488,8 +411,7 @@ export default function App() {
   const executeBackupDownload = () => {
     if (adminPassInput.trim() === "1967") {
       try {
-        const componentSource = document.documentElement.outerHTML;
-        const fullSourceCode = `// Garda-Mobile ${APP_VERSION} Full Backup Source Code\n// תאריך הפקה: ${new Date().toLocaleString('he-IL')}\n\n` + componentSource;
+        const fullSourceCode = `// Garda-Mobile ${APP_VERSION} Full Backup Source Code\n// תאריך הפקה: ${new Date().toLocaleString('he-IL')}\n\n` + document.documentElement.outerHTML;
         const blob = new Blob([fullSourceCode], { type: 'text/javascript;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -536,7 +458,8 @@ export default function App() {
         },
         () => {
           setCurrentWeather({ temp: '25°C', condition: '☀️ שמש נעימה' });
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     }
   }, []);
@@ -791,7 +714,7 @@ export default function App() {
       try {
         await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
       } catch (e) {}
-    });
+    }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
   };
 
   const dismissSos = async () => {
@@ -948,15 +871,21 @@ export default function App() {
         </div>
       )}
 
-      {/* מודל ניווט חי עם סיכה אדומה וקו אדום לרכב */}
+      {/* מודל ניווט חי עם מפת React דינמית וקו מקווקו */}
       {showParkingMapModal && savedCarParking && (
         <div onClick={() => setShowParkingMapModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', flexDirection: 'column', backdropFilter: 'blur(10px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#0b0f19' : '#fff', borderBottom: `1px solid ${borderColor}` }}>
-            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>🧭 ניווט חי לרכב (סיכה אדומה ➔ הרכב)</h3>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>🧭 ניווט חי לרכב (מעקב מיקום דינמי)</h3>
             <button onClick={() => setShowParkingMapModal(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
           </div>
-          <div style={{ flex: 1, width: '100%', height: '100%' }}>
-            <iframe title="Parking Map" srcDoc={generateParkingMapHTML(myLocation, savedCarParking, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
+          <div style={{ flex: 1, width: '100%', height: '100%', background: isDark ? '#0b0f19' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <span style={{ fontSize: '32px' }}>🚗</span>
+              <p style={{ fontWeight: '800', fontSize: '14px', color: textColor }}>רכב חונה בנסיון ניווט חי מהיר.</p>
+              <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '12px 20px', background: '#2563eb', color: '#fff', borderRadius: '12px', fontWeight: '900', textDecoration: 'none' }}>
+                פתח מפות Google מותאמות 🗺️
+              </a>
+            </div>
           </div>
         </div>
       )}
@@ -1400,7 +1329,7 @@ export default function App() {
                   </div>
 
                   <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                    <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords))} style={{ flex: 1, padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '12px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)' }}>📍 עדכן מיקום יום</button>
+                    <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ flex: 1, padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '12px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)' }}>📍 עדכן מיקום יום</button>
                     <button onClick={() => alert('🔄 המיקומים עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '12px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן מיקומים</button>
                   </div>
                 </div>
