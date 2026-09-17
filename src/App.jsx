@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v8.3 ---
-const APP_VERSION = 'v8.3';
+// --- GARDA-MOBILE v8.4 ---
+const APP_VERSION = 'v8.4';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1241,22 +1241,23 @@ export default function App() {
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
+      {/* תפריט צד ימין - מלבנים עם גרדיאנט לבן-מטאלי, פס כסוף בצד וצל עמוק ויוקרתי */}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: textColor }}>תפריט מהיר</h3>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: '#ffffff', border: '1.5px solid #475569', color: '#374151', width: '34px', height: '34px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRight: '3px solid #475569', color: '#334155', width: '34px', height: '34px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(15, 23, 42, 0.08)' }}>✕</button>
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: '#ffffff', color: '#374151', border: '1.5px solid #475569', fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)' }}>
+          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)', color: '#334155', border: '1px solid #cbd5e1', borderRight: '3px solid #475569', fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 3px 10px rgba(15, 23, 42, 0.05)' }}>
             <span>{isDark ? '🌙 כהה' : '☀️ בהיר'}</span>
           </button>
           <div style={{ flex: 1.2 }}>
             <select 
               value={currentUser} 
               onChange={e => setCurrentUser(e.target.value)} 
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', background: '#ffffff', color: '#374151', border: '1.5px solid #475569', fontWeight: 'bold', fontSize: '14px', outline: 'none', boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', background: '#ffffff', color: '#334155', border: '1px solid #cbd5e1', borderRight: '3px solid #475569', fontWeight: 'bold', fontSize: '14px', outline: 'none', boxShadow: '0 3px 10px rgba(15, 23, 42, 0.05)' }}
             >
               {TRAVELERS_LIST.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -1304,7 +1305,7 @@ export default function App() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto', paddingTop: '10px' }}>
-          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...rectMenuCardStyle, borderColor: '#fca5a5', color: '#ef4444', background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2' }}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...rectMenuCardStyle, border: '1px solid #fecaca', borderRight: '3.5px solid #ef4444', color: '#ef4444', background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2' }}>
             <span>מספרי חירום ושגרירות</span>
           </button>
         </div>
@@ -1821,12 +1822,14 @@ export default function App() {
   );
 }
 
+// עיצוב מלבני התפריט הימני: גרדיאנט לבן-מטאלי, פס כסוף בצד וצל עמוק ויוקרתי
 const rectMenuCardStyle = {
-  background: '#ffffff',
-  border: '1.5px solid #475569',
-  color: '#374151',
+  background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+  border: '1px solid #cbd5e1',
+  borderRight: '3.5px solid #475569',
+  color: '#334155',
   padding: '12px 16px',
-  borderRadius: '10px',
+  borderRadius: '12px',
   textAlign: 'right',
   fontWeight: '900',
   fontSize: '13px',
@@ -1835,9 +1838,10 @@ const rectMenuCardStyle = {
   alignItems: 'center',
   justifyContent: 'space-between',
   width: '100%',
-  boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)',
-  transition: 'all 0.2s ease',
-  boxSizing: 'border-box'
+  boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.06)',
+  transition: 'all 0.15s ease',
+  boxSizing: 'border-box',
+  letterSpacing: '-0.01em'
 };
 
 const timerPresetBtn = {
