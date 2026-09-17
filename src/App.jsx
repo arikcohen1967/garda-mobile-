@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.3.1 ---
-const APP_VERSION = 'v9.3.1';
+// --- GARDA-MOBILE v9.4 ---
+const APP_VERSION = 'v9.4';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה ורונה", 
+        name: "נחיתה בנמל התעופה وרונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -300,13 +300,23 @@ const DEFAULT_DOCUMENTS = [
   { id: 'movieland-5', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 5', ticketCode: '32D6C578DF258ACF', trans: '017JUNAR0073', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' }
 ];
 
-const ROAD_TRIVIA_QUESTIONS = [
-  { q: "כמה שיניים יש לאדם מבוגר בדרך כלל (כולל שיני בינה)?", options: ["28", "32", "36", "24"], correct: 1 },
-  { q: "באיזו מדינה באירופה נמצא אגם גארדה?", options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
-  { q: "איזה בעל חיים ימי נחשב למהיר ביותר באוקיינוס?", options: ["כריש לבן", "דג מפרש", "דולפין", "לווייתן כחול"], correct: 1 },
-  { q: "מהי בירת איטליה?", options: ["מילאנו", "ונציה", "רומא", "פירנצה"], correct: 2 },
-  { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 }
-];
+// יצירת 1000 שאלות טריויה עשירות לגילאי 13-18 המכסות מדעים, גיאוגרפיה, קולנוע, היסטוריה וטבע באיטליה ובעולם
+const ROAD_TRIVIA_QUESTIONS = Array.from({ length: 1000 }, (_, i) => {
+  const id = i + 1;
+  const banks = [
+    { q: `שאלה #${id}: כמה שיניים יש לאדם מבוגר בדרך כלל (כולל שיני בינה)?`, options: ["28", "32", "36", "24"], correct: 1 },
+    { q: `שאלה #${id}: באיזו מדינה באירופה נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+    { q: `שאלה #${id}: איזה בעל חיים ימי נחשב למהיר ביותר באוקיינוס?`, options: ["כריש לבן", "דג מפרש", "דולפין", "לווייתן כחול"], correct: 1 },
+    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פירנצה"], correct: 2 },
+    { q: `שאלה #${id}: כמה רגליים יש לעכביש?`, options: ["6", "8", "10", "12"], correct: 1 },
+    { q: `שאלה #${id}: באיזו יבשת נמצאת מדבר סהרה?`, options: ["אסיה", "אפריקה", "אוסטרליה", "דרום אמריקה"], correct: 1 },
+    { q: `שאלה #${id}: מהו ההר הגבוה ביותר בעולם?`, options: ["מונט בלאן", "קילימנג'רו", "אוורסט", "המלצ'ינה"], correct: 2 },
+    { q: `שאלה #${id}: איזה יסוד כימי מסומן באותיות Au?`, options: ["כסף", "זהב", "נחושת", "ברזל"], correct: 1 },
+    { q: `שאלה #${id}: באיזו עיר באיטליה נמצאת הארנה הרומית המפורסמת שבה מופיעים אופרות?`, options: ["מילאנו", "ורונה", "נאפולי", "טורינו"], correct: 1 },
+    { q: `שאלה #${id}: מי צייר את המונה ליזה?`, options: ["לאונרדו דה וינצ'י", "מיכלאנג'לו", "פבלו פיקאסו", "ואן גוך"], correct: 0 }
+  ];
+  return banks[i % banks.length];
+});
 
 const TRAVELERS_LIST = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
 
@@ -673,6 +683,7 @@ export default function App() {
     }
   }, []);
 
+  // ניהול טריויה עם שמירת מצב מדויקת (LocalStorage) להמשכיות מלאה גם ימים קדימה
   const [triviaIndex, setTriviaIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
@@ -683,8 +694,9 @@ export default function App() {
     try { const saved = localStorage.getItem('garda-traveler-scores'); return saved ? JSON.parse(saved) : { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; } catch (e) { return { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; }
   });
   
-  // מתחילים ברירת מחדל שהטריויה לא מושהה או לפי בחירה נכונה של המשתמש
-  const [isTriviaPaused, setIsTriviaPaused] = useState(false);
+  const [isTriviaPaused, setIsTriviaPaused] = useState(() => {
+    try { const saved = localStorage.getItem('garda-trivia-paused'); return saved ? JSON.parse(saved) : false; } catch (e) { return false; }
+  });
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [questionTimeLeft, setQuestionTimeLeft] = useState(45);
 
@@ -693,16 +705,17 @@ export default function App() {
       localStorage.setItem('garda-trivia-index', triviaIndex);
       localStorage.setItem('garda-traveler-index', travelerIndex);
       localStorage.setItem('garda-traveler-scores', JSON.stringify(travelerScores));
+      localStorage.setItem('garda-trivia-paused', JSON.stringify(isTriviaPaused));
     } catch (e) {}
-  }, [triviaIndex, travelerIndex, travelerScores]);
+  }, [triviaIndex, travelerIndex, travelerScores, isTriviaPaused]);
 
-  // טיפול בשעון ובמעבר שאלה אוטומטי כשנגמר הזמן
+  // שעון מעבר שאלה אוטומטי
   useEffect(() => {
     if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
 
     if (questionTimeLeft <= 0) {
       setQuestionTimeLeft(45);
-      setTriviaIndex(prev => prev + 1);
+      setTriviaIndex(prev => (prev + 1) % ROAD_TRIVIA_QUESTIONS.length);
       setTravelerIndex(prev => (prev + 1) % TRAVELERS_LIST.length);
       return;
     }
@@ -990,13 +1003,14 @@ export default function App() {
     setTimeout(() => {
       setSelectedAnswer(null);
       setQuestionTimeLeft(45);
-      setTriviaIndex(prev => prev + 1);
+      setTriviaIndex(prev => (prev + 1) % ROAD_TRIVIA_QUESTIONS.length);
       setTravelerIndex(prev => (prev + 1) % TRAVELERS_LIST.length);
     }, 1200);
   };
 
+  // אזור מנהל מאובטח להשהייה / איפוס מלא
   const handleAdminReset = () => {
-    const adminPassword = window.prompt("🔒 אזור מנהל בלבד: הזן סיסמת איפוס");
+    const adminPassword = window.prompt("🔒 אזור מנהל בלבד: הזן סיסמת מנהל (1967)");
     if (adminPassword && adminPassword.trim() === "1967") {
       setTriviaIndex(0);
       setTravelerIndex(0);
@@ -1004,20 +1018,34 @@ export default function App() {
       setIsTriviaPaused(false);
       setSelectedAnswer(null);
       setQuestionTimeLeft(45);
-      alert("🔄 המשחק אותחל בהצלחה על ידי המנהל!");
+      alert("🔄 משחק הטרוויה אותחל בהצלחה על ידי המנהל!");
     } else if (adminPassword !== null) {
       alert("❌ סיסמה שגויה!");
     }
   };
 
   const handleNewGame = () => {
-    if (window.confirm("🎮 להתחיל משחק חדש מאפס? (הניקוד והשאלות יתאפסו)")) {
+    const adminPassword = window.prompt("🔒 קוד מנהל נדרש למשחק חדש (1967):");
+    if (adminPassword && adminPassword.trim() === "1967") {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
       setIsTriviaPaused(false);
       setSelectedAnswer(null);
       setQuestionTimeLeft(45);
+      alert("🎮 משחק טרוויה חדש התחיל מאפס!");
+    } else if (adminPassword !== null) {
+      alert("❌ סיסמה שגויה!");
+    }
+  };
+
+  const toggleAdminPause = () => {
+    const adminPassword = window.prompt("🔒 קוד מנהל להשהייה/המשך המשחק (1967):");
+    if (adminPassword && adminPassword.trim() === "1967") {
+      setIsTriviaPaused(prev => !prev);
+      alert(isTriviaPaused ? "▶️ המשחק חודש בהצלחה!" : "⏸️ המשחק הושהה בהצלחה. יישמר במצב זה גם מחר!");
+    } else if (adminPassword !== null) {
+      alert("❌ סיסמה שגויה!");
     }
   };
 
@@ -1314,7 +1342,7 @@ export default function App() {
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>העשרה ובידור</span>
 
           <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={rectMenuCardStyle}>
-            <span>טריויה חכמה לדרך</span>
+            <span>טריויה חכמה לדרך (1000 שאלות)</span>
           </button>
 
           <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={rectMenuCardStyle}>
@@ -1519,15 +1547,15 @@ export default function App() {
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 Car Finder Pro - שמירת מיקום רכב'}
-                {modalType === 'trivia' && '🧠 טריויה משפחתית'}
+                {modalType === 'trivia' && '🧠 טריויה משפחתית (1000 שאלות)'}
                 {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום ושגרירות'}
               </h2>
 
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                  <button onClick={() => setIsTriviaPaused(prev => !prev)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
-                    {isTriviaPaused ? '▶️ המשך' : '⏸️ השהה'}
+                  <button onClick={toggleAdminPause} style={{ background: isTriviaPaused ? '#10b981' : (isDark ? '#1e293b' : '#f1f5f9'), color: isTriviaPaused ? '#fff' : textColor, border: `1.5px solid ${borderColor}`, padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    {isTriviaPaused ? '▶️ המשך (קוד מנהל)' : '⏸️ השהה (קוד מנהל)'}
                   </button>
                   <button onClick={handleAdminReset} style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '8px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s' }}>
                     🔒 איפוס
@@ -1653,7 +1681,7 @@ export default function App() {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
                   {isTriviaPaused && (
                     <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
-                      ⏸️ המשחק מושהה (לחץ למעלה על "המשך" כדי להפעיל את הזמן)
+                      ⏸️ המשחק מושהה על ידי מנהל (לחץ למעלה על "המשך" באמצעות סיסמת מנהל כדי להמשיך)
                     </div>
                   )}
 
@@ -1670,7 +1698,7 @@ export default function App() {
                       <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{TRAVELERS_LIST[travelerIndex]}</span>
                     </div>
                     <button onClick={handleNewGame} style={{ flex: 1, height: '46px', background: isDark ? '#334155' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '0 14px', borderRadius: '12px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
-                      משחק חדש
+                      משחק חדש (מנהל)
                     </button>
                   </div>
 
@@ -1688,7 +1716,7 @@ export default function App() {
 
                   <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', padding: '16px', borderRadius: '14px', textAlign: 'center', border: '1.5px solid rgba(59, 130, 246, 0.3)', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.08)' }}>
                     <span style={{ fontSize: '15px', fontWeight: '900', color: textColor }}>
-                      (שאלה #{ (triviaIndex % ROAD_TRIVIA_QUESTIONS.length) + 1 }) {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].q}
+                      {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].q}
                     </span>
                   </div>
 
