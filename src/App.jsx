@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v8.1 ---
-const APP_VERSION = 'v8.1';
+// --- GARDA-MOBILE v8.2 ---
+const APP_VERSION = 'v8.2';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1241,22 +1241,23 @@ export default function App() {
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
+      {/* תפריט צד ימין עם מלבנים ברקע לבן ומסגרת/טקסט אפור כהה מטאלי */}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: textColor }}>תפריט מהיר</h3>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '34px', height: '34px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: '#ffffff', border: '1.5px solid #475569', color: '#374151', width: '34px', height: '34px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: isDark ? '#1e293b' : '#f8fafc', color: '#2563eb', border: '1.5px solid #2563eb', fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: '#ffffff', color: '#374151', border: '1.5px solid #475569', fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)' }}>
             <span>{isDark ? '🌙 כהה' : '☀️ בהיר'}</span>
           </button>
           <div style={{ flex: 1.2 }}>
             <select 
               value={currentUser} 
               onChange={e => setCurrentUser(e.target.value)} 
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', background: isDark ? '#1e293b' : '#f8fafc', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold', fontSize: '14px', outline: 'none' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', background: '#ffffff', color: '#374151', border: '1.5px solid #475569', fontWeight: 'bold', fontSize: '14px', outline: 'none', boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)' }}
             >
               {TRAVELERS_LIST.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -1489,12 +1490,10 @@ export default function App() {
         </div>
       )}
 
-      {/* מודאלים במסך מלא - סרגל עליון מקובע תמיד (Sticky) כדי שכפתור ה-X לעולם לא ייעלם בעת גלילה */}
       {modalType && (
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, padding: 0, width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
             
-            {/* סרגל כותרת עליון קבוע לחלוטין */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', flexShrink: 0, background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box', minHeight: '68px', zIndex: 100 }}>
               <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '40px', height: '40px', borderRadius: '10px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexShrink: 0 }} title="חזור">✕</button>
               
@@ -1521,7 +1520,6 @@ export default function App() {
               ) : <div style={{ width: '40px', flexShrink: 0 }} />}
             </div>
 
-            {/* גוף המודאל - אזור התוכן הנגלל פנימית בלבד */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', overflow: 'hidden', position: 'relative' }}>
               
               {modalType === 'route-map' && (
@@ -1536,7 +1534,6 @@ export default function App() {
                     <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                   </div>
                   
-                  {/* רשימת המשתמשים הנגללת בתחתית */}
                   <div style={{ background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', padding: '14px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', maxHeight: '42vh', overflowY: 'auto' }}>
                     <span style={{ fontSize: '11px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1783,41 +1780,39 @@ export default function App() {
                         style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} 
                       />
 
-                      <button 
-                        onClick={saveCarLocationNow}
-                        style={{ width: '100%', padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                      >
-                        <span>🔴</span> נָעץ מיקום חניה עכשיו
+                    <button 
+                      onClick={saveCarLocationNow}
+                      style={{ width: '100%', padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                    >
+                      <span>🔴</span> נָעץ מיקום חניה עכשיו
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `2.5px solid #ef4444`, borderRadius: '16px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
+                    <span style={{ background: '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
+                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
+
+                    <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(37, 99, 235, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <span>🗺️</span> הצג מפת ניווט חי (סיכה אדומה ➔ הרכב)
+                    </button>
+
+                    <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>
+                      מרחק הליכה: {carDistanceToWalk}
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%' }}>
+                      <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '10px', background: accentGradient, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>
+                        נווט ב-Google 🗺️
+                      </a>
+                      <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: '#ef4444', border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+                        אפס חניה 🗑️
                       </button>
                     </div>
-                  ) : (
-                    <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `2.5px solid #ef4444`, borderRadius: '16px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
-                      <span style={{ background: '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
-                      <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
+                  </div>
+                )}
 
-                      <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(37, 99, 235, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <span>🗺️</span> הצג מפת ניווט חי (סיכה אדומה ➔ הרכב)
-                      </button>
-
-                      <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>
-                        מרחק הליכה: {carDistanceToWalk}
-                      </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%' }}>
-                        <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '10px', background: accentGradient, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>
-                          נווט ב-Google 🗺️
-                        </a>
-                        <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: '#ef4444', border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
-                          אפס חניה 🗑️
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                </div>
-              )}
-
-            </div>
+              </div>
+            )}
 
           </div>
         </div>
@@ -1827,10 +1822,11 @@ export default function App() {
   );
 }
 
+// עיצוב מלבני התפריט הימני: רקע לבן, מסגרת וטקסט אפור כהה מטאלי
 const rectMenuCardStyle = {
-  background: 'transparent',
-  border: '1.5px solid #2563eb',
-  color: '#2563eb',
+  background: '#ffffff',
+  border: '1.5px solid #475569',
+  color: '#374151',
   padding: '12px 16px',
   borderRadius: '10px',
   textAlign: 'right',
@@ -1841,7 +1837,7 @@ const rectMenuCardStyle = {
   alignItems: 'center',
   justifyContent: 'space-between',
   width: '100%',
-  boxShadow: '0 2px 6px rgba(37, 99, 235, 0.08)',
+  boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)',
   transition: 'all 0.2s ease',
   boxSizing: 'border-box'
 };
