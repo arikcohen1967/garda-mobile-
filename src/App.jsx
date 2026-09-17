@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.4 ---
-const APP_VERSION = 'v9.4';
+// --- GARDA-MOBILE v9.5 ---
+const APP_VERSION = 'v9.5';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -300,7 +300,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'movieland-5', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 5', ticketCode: '32D6C578DF258ACF', trans: '017JUNAR0073', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' }
 ];
 
-// יצירת 1000 שאלות טריויה עשירות לגילאי 13-18 המכסות מדעים, גיאוגרפיה, קולנוע, היסטוריה וטבע באיטליה ובעולם
+// מאגר 1000 שאלות טריויה עשירות לגילאי 13-18
 const ROAD_TRIVIA_QUESTIONS = Array.from({ length: 1000 }, (_, i) => {
   const id = i + 1;
   const banks = [
@@ -683,7 +683,7 @@ export default function App() {
     }
   }, []);
 
-  // ניהול טריויה עם שמירת מצב מדויקת (LocalStorage) להמשכיות מלאה גם ימים קדימה
+  // ניהול טריויה עם שמירת מצב מדויקת (LocalStorage) והשהייה אוטומטית באיפוס/משחק חדש
   const [triviaIndex, setTriviaIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
@@ -695,7 +695,7 @@ export default function App() {
   });
   
   const [isTriviaPaused, setIsTriviaPaused] = useState(() => {
-    try { const saved = localStorage.getItem('garda-trivia-paused'); return saved ? JSON.parse(saved) : false; } catch (e) { return false; }
+    try { const saved = localStorage.getItem('garda-trivia-paused'); return saved ? JSON.parse(saved) : true; } catch (e) { return true; }
   });
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [questionTimeLeft, setQuestionTimeLeft] = useState(45);
@@ -1008,17 +1008,17 @@ export default function App() {
     }, 1200);
   };
 
-  // אזור מנהל מאובטח להשהייה / איפוס מלא
+  // אזור מנהל מאובטח לאיפוס מלא — השעון מתחיל ממושהה אוטומטית
   const handleAdminReset = () => {
     const adminPassword = window.prompt("🔒 אזור מנהל בלבד: הזן סיסמת מנהל (1967)");
     if (adminPassword && adminPassword.trim() === "1967") {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(false);
+      setIsTriviaPaused(true); // השעון מושהה אוטומטית באיפוס
       setSelectedAnswer(null);
       setQuestionTimeLeft(45);
-      alert("🔄 משחק הטרוויה אותחל בהצלחה על ידי המנהל!");
+      alert("🔄 משחק הטרוויה אותחל בהצלחה! השעון מושהה עד ללחיצה על 'המשך'.");
     } else if (adminPassword !== null) {
       alert("❌ סיסמה שגויה!");
     }
@@ -1030,10 +1030,10 @@ export default function App() {
       setTriviaIndex(0);
       setTravelerIndex(0);
       setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(false);
+      setIsTriviaPaused(true); // השעון מושהה אוטומטית במשחק חדש
       setSelectedAnswer(null);
       setQuestionTimeLeft(45);
-      alert("🎮 משחק טרוויה חדש התחיל מאפס!");
+      alert("🎮 משחק טרוויה חדש התחיל מאפס! השעון מושהה עד ללחיצה על 'המשך'.");
     } else if (adminPassword !== null) {
       alert("❌ סיסמה שגויה!");
     }
@@ -1043,7 +1043,7 @@ export default function App() {
     const adminPassword = window.prompt("🔒 קוד מנהל להשהייה/המשך המשחק (1967):");
     if (adminPassword && adminPassword.trim() === "1967") {
       setIsTriviaPaused(prev => !prev);
-      alert(isTriviaPaused ? "▶️ המשחק חודש בהצלחה!" : "⏸️ המשחק הושהה בהצלחה. יישמר במצב זה גם מחר!");
+      alert(isTriviaPaused ? "▶️ המשחק חודש בהצלחה והשעון החל לרוץ!" : "⏸️ המשחק הושהה בהצלחה.");
     } else if (adminPassword !== null) {
       alert("❌ סיסמה שגויה!");
     }
@@ -1681,7 +1681,7 @@ export default function App() {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
                   {isTriviaPaused && (
                     <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
-                      ⏸️ המשחק מושהה על ידי מנהל (לחץ למעלה על "המשך" באמצעות סיסמת מנהל כדי להמשיך)
+                      ⏸️ המשחק מושהה (השעון עומד במקום עד ללחיצה על "המשך" בסיסמת מנהל)
                     </div>
                   )}
 
