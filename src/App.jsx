@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v5.4 ---
-const APP_VERSION = 'v5.4';
+// --- GARDA-MOBILE v5.5 ---
+const APP_VERSION = 'v5.5';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -401,9 +401,12 @@ export default function App() {
   const [backupModalOpen, setBackupModalOpen] = useState(false);
   const [adminPassInput, setAdminPassInput] = useState('');
   const [backupSuccessMsg, setBackupSuccessMsg] = useState(false);
+  const [restorePassInput, setRestorePassInput] = useState('');
+  const fileInputRef = useRef(null);
 
   const handleProtectedBackup = () => {
     setAdminPassInput('');
+    setRestorePassInput('');
     setBackupSuccessMsg(false);
     setBackupModalOpen(true);
   };
@@ -429,6 +432,47 @@ export default function App() {
     } else {
       alert("❌ סיסמה שגויה!");
     }
+  };
+
+  // פונקציית משיכת ושחזור גיבוי מ"קבצים" בטלפון
+  const handleFileUploadRestore = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (restorePassInput.trim() !== "1967") {
+      alert("❌ נא להזין קוד מנהל תקין (1967) לפני העלאת קובץ השחזור!");
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const fileContent = event.target.result;
+        if (!fileContent.includes("Garda-Mobile")) {
+          alert("❌ קובץ לא חוקי או שאינו קובץ גיבוי של Garda-Mobile!");
+          return;
+        }
+
+        if (window.confirm("⚠️ אזהרה: שחזור מערכת יחליף את המצב הנוכחי בקובץ הגיבוי שנבחר מהקבצים. להמשיך?")) {
+          // שמירת קוד הגיבוי כהפעלה מחדש או כפתיחת מסמך גיבוי
+          const blob = new Blob([fileContent], { type: 'text/html;charset=utf-8' });
+          const restoreUrl = URL.createObjectURL(blob);
+          const newWin = window.open(restoreUrl, '_blank');
+          if (!newWin) {
+            // אם הדפדפן חסם חלון חדש, נציג טעינה מקומית או התראה
+            document.open();
+            document.write(fileContent);
+            document.close();
+          } else {
+            alert("✅ הגיבוי נטען ונפתח בהצלחה מהקבצים!");
+          }
+        }
+      } catch (err) {
+        alert("❌ שגיאה בקריאת קובץ הגיבוי.");
+      }
+    };
+    reader.readAsText(file);
   };
 
   useEffect(() => {
@@ -809,48 +853,83 @@ export default function App() {
         </div>
       )}
 
+      {/* מודל ניהול גיבויים ושחזור מ"קבצים" */}
       {backupModalOpen && (
         <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '24px', width: '100%', maxWidth: '380px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
-            <span style={{ fontSize: '32px' }}>🔒</span>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>גרסה נוכחית: {APP_VERSION}</h3>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '24px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
+            <span style={{ fontSize: '32px' }}>🛡️</span>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>ניהול גיבוי ושחזור (גרסה {APP_VERSION})</h3>
             
             {backupSuccessMsg ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1.5px solid #10b981', padding: '16px', borderRadius: '16px', fontWeight: '900', fontSize: '14px', lineHeight: '1.4' }}>
-                  💾 גיבוי מלא של גרסה {APP_VERSION} הורד בהצלחה למכשירך!
+                  💾 גיבוי מלא של האפליקציה הורד בהצלחה ונשמר בתיקיית ההורדות/קבצים!
                 </div>
                 <button 
-                  onClick={() => setBackupModalOpen(false)} 
+                  onClick={() => setBackupSuccessMsg(false)} 
                   style={{ width: '100%', padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
                 >
-                  סגור ✓
+                  חזור לתפריט גיבוי ➔
                 </button>
               </div>
             ) : (
               <>
-                <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: textSub }}>הזן סיסמת מנהל להורדת גיבוי מלא</p>
-                <input 
-                  type="password" 
-                  placeholder="הזן סיסמה (1967)" 
-                  value={adminPassInput} 
-                  onChange={e => setAdminPassInput(e.target.value)} 
-                  style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
-                />
-                <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'right' }}>
+                  <label style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>1. יצירת גיבוי חדש ושמירה ב"קבצים":</label>
+                  <input 
+                    type="password" 
+                    placeholder="הזן קוד מנהל ליצירת גיבוי (1967)" 
+                    value={adminPassInput} 
+                    onChange={e => setAdminPassInput(e.target.value)} 
+                    style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                  />
                   <button 
                     onClick={executeBackupDownload} 
-                    style={{ flex: 1, padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
+                    style={{ width: '100%', padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
                   >
-                    הורד גיבוי 💾
-                  </button>
-                  <button 
-                    onClick={() => setBackupModalOpen(false)} 
-                    style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
-                  >
-                    ביטול ✕
+                    הורד קובץ גיבוי לטלפון 💾
                   </button>
                 </div>
+
+                <hr style={{ width: '100%', border: `0.5px solid ${borderColor}`, margin: '4px 0' }} />
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'right' }}>
+                  <label style={{ fontSize: '12px', fontWeight: '900', color: '#ef4444' }}>2. מצב דיסאסטר - שחזור מ"קבצים":</label>
+                  <input 
+                    type="password" 
+                    placeholder="הזן קוד מנהל לשחזור (1967)" 
+                    value={restorePassInput} 
+                    onChange={e => setRestorePassInput(e.target.value)} 
+                    style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                  />
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleFileUploadRestore} 
+                    accept=".js,.html,.txt" 
+                    style={{ display: 'none' }} 
+                    id="restore-file-input" 
+                  />
+                  <button 
+                    onClick={() => {
+                      if (restorePassInput.trim() !== "1967") {
+                        alert("❌ חובה להזין קוד מנהל (1967) לפני בחירת קובץ השחזור!");
+                        return;
+                      }
+                      fileInputRef.current.click();
+                    }} 
+                    style={{ width: '100%', padding: '12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}
+                  >
+                    בחר קובץ גיבוי מ"קבצים" ושחזר 📂
+                  </button>
+                </div>
+
+                <button 
+                  onClick={() => setBackupModalOpen(false)} 
+                  style={{ width: '100%', padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '14px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', marginTop: '6px' }}
+                >
+                  סגור ✕
+                </button>
               </>
             )}
           </div>
@@ -871,12 +950,11 @@ export default function App() {
         </div>
       )}
 
-      {/* מודל ניווט חי עם מפת React דינמית וקו מקווקו */}
       {showParkingMapModal && savedCarParking && (
         <div onClick={() => setShowParkingMapModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', flexDirection: 'column', backdropFilter: 'blur(10px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#0b0f19' : '#fff', borderBottom: `1px solid ${borderColor}` }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>🧭 ניווט חי לרכב (מעקב מיקום דינמי)</h3>
-            <button onClick={() => setShowParkingMapModal(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+            <button onClick={() => setShowParkingMapModal(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
           </div>
           <div style={{ flex: 1, width: '100%', height: '100%', background: isDark ? '#0b0f19' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -890,7 +968,6 @@ export default function App() {
         </div>
       )}
 
-      {/* הדר עליון מורווח ומעוצב עם מלבנים תואמים */}
       <header style={{ background: isDark ? 'rgba(11, 15, 25, 0.9)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: '8px' }}>
@@ -923,7 +1000,7 @@ export default function App() {
                 gap: '6px',
                 width: '100%'
               }}
-              title={`לחץ להורדת גיבוי קוד מלא (גרסה ${APP_VERSION})`}
+              title={`לחץ לניהול גיבוי ושחזור (גרסה ${APP_VERSION})`}
             >
               <span>🛡️</span> garda-mobile
             </button>
