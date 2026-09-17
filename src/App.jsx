@@ -1145,23 +1145,19 @@ export default function App() {
 
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
-        {/* קו עדין מודגש מעל ימי הטיול שגולש ימינה ושמאלה */}
-        <div style={{ margin: '0 -16px 14px -16px', borderBottom: `1.5px solid ${borderColor}`, opacity: 0.6 }} />
-
-        {/* שורת ימי הטיול פתוחה מימין ומשמאל עם קו תחתון מדגיש */}
-        <div style={{ position: 'relative', paddingBottom: '10px' }}>
-          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '6px', scrollbarWidth: 'none' }}>
-            {INITIAL_TRIP_DAYS.map((d, i) => {
-              const isActive = activeDay === i;
-              return (
+        {/* שורת ימי הטיול עם קו תחתון מודגש תחת הטאב הפעיל בלבד */}
+        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', scrollbarWidth: 'none' }}>
+          {INITIAL_TRIP_DAYS.map((d, i) => {
+            const isActive = activeDay === i;
+            return (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: '1 0 auto' }}>
                 <button 
-                  key={i} 
                   onClick={(e) => {
                     e.preventDefault();
                     setActiveDay(i);
                   }} 
                   style={{ 
-                    flex: '1 0 auto', 
+                    width: '100%',
                     padding: '10px 18px', 
                     borderRadius: '10px', 
                     background: isActive ? '#2563eb' : (isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff'), 
@@ -1177,14 +1173,25 @@ export default function App() {
                 >
                   {d.label}
                 </button>
-              );
-            })}
-          </div>
-          {/* קו תחתון מדגיש שגולש ימינה ושמאלה מתחת לטאבים */}
-          <div style={{ position: 'absolute', bottom: 0, left: '-16px', right: '-16px', height: '2px', background: '#2563eb', opacity: 0.4 }} />
+                {/* קו הדגשה רק תחת הטאב הנבחר */}
+                <div 
+                  style={{ 
+                    height: '3px', 
+                    width: '80%', 
+                    borderRadius: '3px', 
+                    background: '#2563eb', 
+                    marginTop: '5px', 
+                    opacity: isActive ? 1 : 0, 
+                    transition: 'opacity 0.2s ease, transform 0.2s ease',
+                    transform: isActive ? 'scaleX(1)' : 'scaleX(0)'
+                  }} 
+                />
+              </div>
+            );
+          })}
         </div>
 
-        <div style={{ marginBottom: '20px', marginTop: '22px' }}>
+        <div style={{ marginBottom: '20px', marginTop: '16px' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px', padding: '0 4px' }}>
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
@@ -1559,8 +1566,8 @@ export default function App() {
                           fontWeight: '900', 
                           fontSize: '12px', 
                           cursor: 'pointer', 
-                          whiteSpace: 'nowrap',
-                          boxShadow: isActiveFolder ? '0 4px 12px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)',
+                          whiteSpace: 'nowrap', 
+                          boxShadow: isActiveFolder ? '0 4px 12px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
                           transition: 'all 0.2s ease'
                         }}
                       >
