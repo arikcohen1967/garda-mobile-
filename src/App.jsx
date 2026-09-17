@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v7.1 ---
-const APP_VERSION = 'v7.1';
+// --- GARDA-MOBILE v7.2 ---
+const APP_VERSION = 'v7.2';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1073,6 +1073,7 @@ export default function App() {
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
+      {/* תפריט צד מעוצב מחדש עם כפתורי קפסולה תואמים */}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
@@ -1081,14 +1082,14 @@ export default function App() {
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, padding: '10px 14px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '999px', background: isDark ? '#1e293b' : '#f8fafc', color: '#2563eb', border: '1.5px solid #2563eb', fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             <span>{isDark ? '🌙 כהה' : '☀️ בהיר'}</span>
           </button>
           <div style={{ flex: 1.2 }}>
             <select 
               value={currentUser} 
               onChange={e => setCurrentUser(e.target.value)} 
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '14px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold', fontSize: '14px', outline: 'none' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '14px', background: isDark ? '#1e293b' : '#f8fafc', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold', fontSize: '14px', outline: 'none' }}
             >
               {TRAVELERS_LIST.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -1098,52 +1099,52 @@ export default function App() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>ניווט ומעקב</span>
           
-          <button onClick={() => { setSidebarOpen(false); setActiveDay(activeDay); setModalType(null); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setActiveDay(activeDay); setModalType(null); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
             <span>מסלול ימי הטיול</span>
-            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
+            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
             <span>רדאר משפחתי חי</span>
-            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
+            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>כלים ושימושי</span>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
             <span>טיימר משפחתי</span>
-            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
+            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
             <span>שמירת מיקום רכב חכם</span>
-            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
+            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
             <span>סביבי (Around Me)</span>
-            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
+            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>העשרה ובידור</span>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
             <span>טריויה חכמה לדרך</span>
-            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
+            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={pillMenuCardStyle(isDark, textColor, borderColor)}>
             <span>ארנק כרטיסים ומסמכים</span>
-            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
+            <span style={{ color: '#2563eb', fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto', paddingTop: '10px' }}>
-          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...cleanMenuCardStyle(isDark, '#ef4444', '#fecaca'), background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2' }}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...pillMenuCardStyle(isDark, '#ef4444', '#fecaca'), background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2', borderColor: '#fca5a5' }}>
             <span>מספרי חירום ושגרירות</span>
             <span style={{ color: '#ef4444', fontSize: '14px' }}>‹</span>
           </button>
@@ -1155,7 +1156,7 @@ export default function App() {
         
         <hr style={{ border: 'none', height: '1.5px', background: borderColor, opacity: 0.5, margin: '0 0 16px 0' }} />
 
-        {/* עטיפת כפתורי הימים המעוצבים באחידות עם מסגרת וטקסט כחולים */}
+        {/* קונוטיינר מעוגל לימי הטיול */}
         <div style={{ background: cardBg, borderRadius: '20px', padding: '12px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow, marginBottom: '16px' }}>
           <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
             {INITIAL_TRIP_DAYS.map((d, i) => {
@@ -1209,15 +1210,16 @@ export default function App() {
             </div>
           </div>
 
+          {/* כפתור "משימות והמלצות היום" בעיצוב קפסולה חדש ואחיד */}
           <button 
             onClick={() => setModalType('daily-tasks')}
             style={{ 
               width: '100%', 
-              background: '#0f172a', 
+              background: '#2563eb', 
               color: '#ffffff', 
-              border: 'none', 
-              borderRadius: '16px', 
-              padding: '16px 20px', 
+              border: '1.5px solid #2563eb', 
+              borderRadius: '999px', 
+              padding: '16px 24px', 
               fontWeight: '900', 
               fontSize: '14px', 
               cursor: 'pointer', 
@@ -1225,7 +1227,7 @@ export default function App() {
               alignItems: 'center', 
               justifyContent: 'space-between', 
               marginBottom: '20px', 
-              boxShadow: '0 8px 20px rgba(15, 23, 42, 0.25)',
+              boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)',
               transition: 'all 0.2s'
             }}
           >
@@ -1233,7 +1235,7 @@ export default function App() {
               <span style={{ fontSize: '18px' }}>✨</span>
               <span>משימות והמלצות היום</span>
             </div>
-            <span style={{ fontSize: '14px', opacity: 0.85 }}>פתח ➔</span>
+            <span style={{ fontSize: '14px', opacity: 0.9 }}>פתח ➔</span>
           </button>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -1670,6 +1672,25 @@ export default function App() {
     </div>
   );
 }
+
+const pillMenuCardStyle = (isDark, textColor, borderColor) => ({
+  background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff',
+  border: '1.5px solid #2563eb',
+  color: '#2563eb',
+  padding: '12px 18px',
+  borderRadius: '999px',
+  textAlign: 'right',
+  fontWeight: '900',
+  fontSize: '13px',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+  boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 2px 8px rgba(37, 99, 235, 0.08)',
+  transition: 'all 0.2s ease',
+  boxSizing: 'border-box'
+});
 
 const cleanMenuCardStyle = (isDark, textColor, borderColor) => ({
   background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff',
