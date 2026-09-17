@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v6.2 ---
-const APP_VERSION = 'v6.2';
+// --- GARDA-MOBILE v6.3 ---
+const APP_VERSION = 'v6.3';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     challenge: "לצלם את התמונה המשפחתית הראשונה באיטליה.",
     challengeDesc: "הרגע נחתנו ביום הראשון של הטיול! המשימה שלכם: סלפי משפחתי ראשון בשדה או עם הרכב השכור.",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
+      { time: "16:00", name: "נחיתה בנמל התעופה וורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור." },
       { time: "18:00", name: "נסיעה למלון והתארגנות", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין במלון ומנוחה קצרה לפני ארוחת הערב." }
     ],
     culinary: { name: "Pizzeria Trattoria al Ponte (פסקיירה)", dest: "Peschiera del Garda, Italy", desc: "פיצות נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית, ולקינוח גלידה איטלקית אמיתית (Gelateria Popolare)." },
@@ -104,7 +104,7 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "סיכום חוויות בוורונה וטיסה חזרה הביתה.",
     stops: [
       { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", lat: 45.4384, lng: 10.9916, note: "סיור בארנה והמרפסת של יוליה." },
-      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "החזרת הרכב וטיסה חזרה לישראל." }
+      { time: "18:30", name: "שדה התעופה וורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "החזרת הרכב וטיסה חזרה לישראל." }
     ],
     culinary: { name: "Farcito Verona", dest: "Verona, Italy", desc: "המבורגר משובח ופיצה דקה ומיוחדת במרכז וורונה ממש לפני הנסיעה לשדה." },
     creative: { name: "גלוית פרידה איטלקית", dest: "Verona, Italy", desc: "כתיבת גלוית סיכום וציור מזכרת אישית מהטיול במלון לפני העזיבה." }
@@ -1154,8 +1154,9 @@ export default function App() {
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
         {/* קו עדין מפריד מעל ימי הטיול */}
-        <hr style={{ border: 'none', height: '1px', background: borderColor, opacity: 0.6, margin: '0 0 16px 0' }} />
+        <hr style={{ border: 'none', height: '1.5px', background: borderColor, opacity: 0.5, margin: '0 0 16px 0' }} />
 
+        {/* שורת ימי הטיול מעוצבת באותה שפה אחידה של כרטיסי התחנות */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '16px', scrollbarWidth: 'none' }}>
           {INITIAL_TRIP_DAYS.map((d, i) => {
             const isActive = activeDay === i;
@@ -1169,14 +1170,14 @@ export default function App() {
                 style={{ 
                   flex: '1 0 auto', 
                   padding: '12px 18px', 
-                  borderRadius: '20px', 
-                  background: isActive ? '#0f172a' : (isDark ? '#111827' : '#ffffff'), 
+                  borderRadius: '16px', 
+                  background: isActive ? '#0f172a' : cardBg, 
                   color: isActive ? '#ffffff' : textColor, 
-                  border: `1.5px solid ${isActive ? '#0f172a' : borderColor}`, 
+                  border: `2px solid ${isActive ? '#0f172a' : borderColor}`, 
                   fontSize: '13px', 
                   fontWeight: '800', 
                   cursor: 'pointer', 
-                  boxShadow: isActive ? '0 6px 16px rgba(15, 23, 42, 0.25)' : '0 2px 8px rgba(0,0,0,0.03)', 
+                  boxShadow: isActive ? '0 6px 16px rgba(15, 23, 42, 0.25)' : enhancedCardShadow, 
                   transition: 'all 0.2s ease' 
                 }}
               >
@@ -1186,8 +1187,8 @@ export default function App() {
           })}
         </div>
 
-        {/* קו עדין מפריד מתחת לימי הטיול (כפי שביקשת) */}
-        <hr style={{ border: 'none', height: '1px', background: borderColor, opacity: 0.6, margin: '0 0 22px 0' }} />
+        {/* קו עדין מפריד מתחת לימי הטיול */}
+        <hr style={{ border: 'none', height: '1.5px', background: borderColor, opacity: 0.5, margin: '0 0 22px 0' }} />
 
         <div style={{ marginBottom: '20px' }}>
           
