@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v5.5 ---
-const APP_VERSION = 'v5.5';
+// --- GARDA-MOBILE v5.6 ---
+const APP_VERSION = 'v5.6';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -434,7 +434,6 @@ export default function App() {
     }
   };
 
-  // פונקציית משיכת ושחזור גיבוי מ"קבצים" בטלפון
   const handleFileUploadRestore = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -455,12 +454,10 @@ export default function App() {
         }
 
         if (window.confirm("⚠️ אזהרה: שחזור מערכת יחליף את המצב הנוכחי בקובץ הגיבוי שנבחר מהקבצים. להמשיך?")) {
-          // שמירת קוד הגיבוי כהפעלה מחדש או כפתיחת מסמך גיבוי
           const blob = new Blob([fileContent], { type: 'text/html;charset=utf-8' });
           const restoreUrl = URL.createObjectURL(blob);
           const newWin = window.open(restoreUrl, '_blank');
           if (!newWin) {
-            // אם הדפדפן חסם חלון חדש, נציג טעינה מקומית או התראה
             document.open();
             document.write(fileContent);
             document.close();
@@ -853,7 +850,7 @@ export default function App() {
         </div>
       )}
 
-      {/* מודל ניהול גיבויים ושחזור מ"קבצים" */}
+      {/* מודל ניהול גיבויים ושחזור עם גודל פונט מעודכן למניעת זום במובייל */}
       {backupModalOpen && (
         <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '24px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
@@ -881,7 +878,7 @@ export default function App() {
                     placeholder="הזן קוד מנהל ליצירת גיבוי (1967)" 
                     value={adminPassInput} 
                     onChange={e => setAdminPassInput(e.target.value)} 
-                    style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                    style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
                   />
                   <button 
                     onClick={executeBackupDownload} 
@@ -900,7 +897,7 @@ export default function App() {
                     placeholder="הזן קוד מנהל לשחזור (1967)" 
                     value={restorePassInput} 
                     onChange={e => setRestorePassInput(e.target.value)} 
-                    style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '14px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                    style={{ width: '100%', padding: '12px', borderRadius: '14px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
                   />
                   <input 
                     type="file" 
@@ -1071,7 +1068,7 @@ export default function App() {
           <select 
             value={currentUser} 
             onChange={e => setCurrentUser(e.target.value)} 
-            style={{ width: '100%', padding: '10px', borderRadius: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold', fontSize: '14px', outline: 'none' }}
+            style={{ width: '100%', padding: '10px', borderRadius: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold', fontSize: '16px', outline: 'none' }}
           >
             {TRAVELERS_LIST.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
