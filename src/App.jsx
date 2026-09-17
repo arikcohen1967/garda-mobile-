@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v8.0 ---
-const APP_VERSION = 'v8.0';
+// --- GARDA-MOBILE v8.1 ---
+const APP_VERSION = 'v8.1';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1381,7 +1381,6 @@ export default function App() {
             {day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={{ background: cardBg, borderRadius: '18px', padding: '20px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 
-                {/* כותרת תחנה ושעה */}
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
@@ -1390,13 +1389,11 @@ export default function App() {
                   <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45' }}>{stop.note}</p>
                 </div>
 
-                {/* כפתורי ניווט לתחנה */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#1e293b' : '#ffffff', color: '#2563eb', padding: '10px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: '1.5px solid #2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(37, 99, 235, 0.12)' }}>{MAPS_SVG} Maps</a>
                   <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '10px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: '1.5px solid #38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.25)' }}>{WAZE_SVG} Waze</a>
                 </div>
 
-                {/* אתגר משפחתי משולב בתחנה (אם יש) */}
                 {stop.challenge && (
                   <div style={{ background: isDark ? 'rgba(37, 99, 235, 0.08)' : '#f0f7ff', border: '1.5px dashed #3b82f6', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1407,7 +1404,6 @@ export default function App() {
                   </div>
                 )}
 
-                {/* תחנת יצירה וחוויות משולבת (אם יש) */}
                 {stop.creative && (
                   <div style={{ background: isDark ? 'rgba(16, 185, 129, 0.08)' : '#f0fdf4', border: '1.5px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1426,7 +1422,6 @@ export default function App() {
                   </div>
                 )}
 
-                {/* המלצה קולינרית לאותו אזור/שלב (אם יש) */}
                 {stop.culinary && (
                   <div style={{ background: isDark ? 'rgba(217, 119, 6, 0.08)' : '#fffbeb', border: '1.5px solid rgba(217, 119, 6, 0.3)', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1494,15 +1489,17 @@ export default function App() {
         </div>
       )}
 
+      {/* מודאלים במסך מלא - סרגל עליון מקובע תמיד (Sticky) כדי שכפתור ה-X לעולם לא ייעלם בעת גלילה */}
       {modalType && (
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, backdropFilter: 'blur(10px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, padding: 0, borderRadius: 0, width: '100vw', height: '100vh', maxWidth: 'none', maxHeight: 'none', overflowY: 'auto', border: 'none', boxShadow: 'none', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, padding: 0, width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', flexShrink: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10050, background: isDark ? 'rgba(11, 15, 25, 0.96)' : 'rgba(255, 255, 255, 0.96)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box', minHeight: '76px' }}>
-              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '42px', height: '42px', borderRadius: '10px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexShrink: 0 }} title="חזור למצב קודם">✕</button>
+            {/* סרגל כותרת עליון קבוע לחלוטין */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', flexShrink: 0, background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box', minHeight: '68px', zIndex: 100 }}>
+              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '40px', height: '40px', borderRadius: '10px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexShrink: 0 }} title="חזור">✕</button>
               
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {modalType === 'radar' && '📡 רדאר משפחתי חי ומופת האגם'}
+                {modalType === 'radar' && '📡 רדאר משפחתי חי ומפת האגם'}
                 {modalType === 'route-map' && `🗺️ ניווט ליעד: ${day.title}`}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
@@ -1521,302 +1518,306 @@ export default function App() {
                     🔒 איפוס
                   </button>
                 </div>
-              ) : <div style={{ width: '42px', flexShrink: 0 }} />}
+              ) : <div style={{ width: '40px', flexShrink: 0 }} />}
             </div>
 
-            {modalType === 'route-map' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', position: 'relative', boxSizing: 'border-box', paddingTop: '75px' }}>
-                <div style={{ width: '100%', flex: 1, minHeight: '80vh', overflow: 'hidden', boxSizing: 'border-box' }}>
+            {/* גוף המודאל - אזור התוכן הנגלל פנימית בלבד */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', overflow: 'hidden', position: 'relative' }}>
+              
+              {modalType === 'route-map' && (
+                <div style={{ flex: 1, width: '100%', height: '100%' }}>
                   <iframe title="Route Map" srcDoc={generateRouteMapHTML(myLocation, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
-              </div>
-            )}
+              )}
 
-            {modalType === 'around-me' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(aroundMeQuery)}`} target="_blank" rel="noreferrer" style={{ padding: '14px 24px', background: accentGradient, color: '#fff', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', textAlign: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)' }}>
-                    חפש
-                  </a>
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '12px', padding: '0 14px', boxShadow: enhancedCardShadow }}>
-                    <input type="text" placeholder="" value={aroundMeQuery} onChange={e => setAroundMeQuery(e.target.value)} style={{ width: '100%', padding: '14px 0', border: 'none', background: 'transparent', color: textColor, outline: 'none', fontSize: '16px', fontWeight: '800' }} />
-                    <span style={{ fontSize: '18px', cursor: 'pointer' }}>🎙️</span>
+              {modalType === 'radar' && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', overflow: 'hidden' }}>
+                  <div style={{ flex: 1, width: '100%', minHeight: '45vh', overflow: 'hidden' }}>
+                    <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
                   </div>
-                </div>
-
-                <p style={{ fontSize: '13px', fontWeight: '800', color: textSub, margin: '4px 0 0' }}>או בחר קטגוריה מהירה לחיפוש במפה:</p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <a href="https://www.google.com/maps/search/?api=1&query=Autogrill" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '18px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: '#d97706', fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                    <span>☕</span> עצרת דרך / Autogrill & שירותים
-                  </a>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <a href="https://www.google.com/maps/search/?api=1&query=pharmacy" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '22px' }}>💊</span> פארם
-                    </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=gas+station" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '22px' }}>⛽</span> תחנת דלק
-                    </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=gelateria" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '22px' }}>🍦</span> גלידריה
-                    </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=pizza" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '22px' }}>🍕</span> פיצה
-                    </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=restaurant" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '22px' }}>🍲</span> מסעדות
-                    </a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=supermarket" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '22px' }}>🛒</span> סופרמרקט
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {modalType === 'radar' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', position: 'relative', boxSizing: 'border-box', paddingTop: '85px' }}>
-                <div style={{ width: '100%', flex: 1, minHeight: '60vh', overflow: 'hidden', boxSizing: 'border-box' }}>
-                  <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
-                </div>
-                
-                <div style={{ background: isDark ? 'rgba(11, 15, 25, 0.95)' : 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(15px)', padding: '12px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '140px', overflowY: 'auto' }}>
-                    {Object.values(familyLocations).map((person, pIdx) => (
-                      <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff', padding: '8px 12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '14px' }}>👤</span>
-                          <div>
-                            <div style={{ fontSize: '12px', fontWeight: '900', color: textColor }}>{person.name}</div>
-                            <div style={{ fontSize: '9px', color: textSub }}>עודכן: {person.updated_at || 'עכשיו'}</div>
+                  
+                  {/* רשימת המשתמשים הנגללת בתחתית */}
+                  <div style={{ background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', padding: '14px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', maxHeight: '42vh', overflowY: 'auto' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {Object.values(familyLocations).map((person, pIdx) => (
+                        <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#f8fafc', padding: '10px 12px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '16px' }}>👤</span>
+                            <div>
+                              <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>{person.name}</div>
+                              <div style={{ fontSize: '10px', color: textSub }}>עודכן: {person.updated_at || 'עכשיו'}</div>
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#1e293b' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+                              🔔 צליל
+                            </button>
+                            <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                              Directions 🧭
+                            </a>
                           </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#1e293b' : '#f8fafc', color: textColor, border: `1.5px solid ${borderColor}`, padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
-                            🔔 צליל
-                          </button>
-                          <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                            Directions 🧭
-                          </a>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                      <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ flex: 1, padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)' }}>📍 עדכן מיקום יום</button>
+                      <button onClick={() => alert('🔄 המיקומים עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן מיקומים</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {modalType === 'around-me' && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(aroundMeQuery)}`} target="_blank" rel="noreferrer" style={{ padding: '14px 24px', background: accentGradient, color: '#fff', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', textAlign: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)' }}>
+                      חפש
+                    </a>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '12px', padding: '0 14px', boxShadow: enhancedCardShadow }}>
+                      <input type="text" placeholder="" value={aroundMeQuery} onChange={e => setAroundMeQuery(e.target.value)} style={{ width: '100%', padding: '14px 0', border: 'none', background: 'transparent', color: textColor, outline: 'none', fontSize: '16px', fontWeight: '800' }} />
+                      <span style={{ fontSize: '18px', cursor: 'pointer' }}>🎙️</span>
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: '13px', fontWeight: '800', color: textSub, margin: '4px 0 0' }}>או בחר קטגוריה מהירה לחיפוש במפה:</p>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Autogrill" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '18px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: '#d97706', fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <span>☕</span> עצרת דרך / Autogrill & שירותים
+                    </a>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <a href="https://www.google.com/maps/search/?api=1&query=pharmacy" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '22px' }}>💊</span> פארם
+                      </a>
+                      <a href="https://www.google.com/maps/search/?api=1&query=gas+station" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '22px' }}>⛽</span> תחנת דלק
+                      </a>
+                      <a href="https://www.google.com/maps/search/?api=1&query=gelateria" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '22px' }}>🍦</span> גלידריה
+                      </a>
+                      <a href="https://www.google.com/maps/search/?api=1&query=pizza" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '22px' }}>🍕</span> פיצה
+                      </a>
+                      <a href="https://www.google.com/maps/search/?api=1&query=restaurant" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '22px' }}>🍲</span> מסעדות
+                      </a>
+                      <a href="https://www.google.com/maps/search/?api=1&query=supermarket" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: enhancedCardShadow, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '22px' }}>🛒</span> סופרמרקט
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {modalType === 'timer' && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '20px 16px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
+                  <p style={{ fontSize: '14px', fontWeight: '800', color: textSub, margin: 0 }}>בחר משך זמן מהיר להפעלת טיימר משפחתי לכולם:</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '12px' }}>
+                    <button onClick={() => startSharedTimer(5)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⚡ 5 דקות</button>
+                    <button onClick={() => startSharedTimer(15)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 15 דקות</button>
+                    <button onClick={() => startSharedTimer(30)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 30 דקות</button>
+                    <button onClick={() => startSharedTimer(45)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 45 דקות</button>
+                    <button onClick={() => startSharedTimer(60)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏰ 60 דקות (שעה)</button>
+                  </div>
+
+                  {sharedTimer && (
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', boxSizing: 'border-box', marginTop: '10px' }}>
+                      <button onClick={toggleSharedTimerPause} style={{ flex: 1, padding: '14px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+                        {isTimerPaused ? '▶️ המשך טיימר' : '⏸️ עצור טיימר'}
+                      </button>
+                      <button onClick={clearSharedTimer} style={{ flex: 1, padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+                        ✕ אפס טיימר
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {modalType === 'trivia' && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
+                  {isTriviaPaused && (
+                    <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
+                      ⏸️ המשחק מושהה (לחץ למעלה על "המשך" כדי להפעיל את הזמן)
+                    </div>
+                  )}
+
+                  <div style={{ background: isDark ? '#1e293b' : '#e2e8f0', borderRadius: '6px', height: '8px', width: '100%', overflow: 'hidden', display: 'flex' }}>
+                    <div style={{ background: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6', width: `${(questionTimeLeft / 45) * 100}%`, transition: 'width 1s linear' }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '800', color: textSub, marginTop: '-6px' }}>
+                    <span>⏳ זמן נותר לשאלה:</span>
+                    <span style={{ color: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6' }}>{questionTimeLeft} שניות</span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <div style={{ flex: 1, height: '46px', background: isDark ? '#1e293b' : '#ffffff', padding: '0 14px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor, boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                      <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{TRAVELERS_LIST[travelerIndex]}</span>
+                    </div>
+                    <button onClick={handleNewGame} style={{ flex: 1, height: '46px', background: isDark ? '#334155' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '0 14px', borderRadius: '12px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                      משחק חדש
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
+                    {TRAVELERS_LIST.map((t, tIdx) => {
+                      const isCurrent = tIdx === travelerIndex;
+                      return (
+                        <div key={tIdx} style={{ background: isCurrent ? (isDark ? '#334155' : '#e2e8f0') : (isDark ? '#1e293b' : '#ffffff'), color: textColor, padding: '10px 4px', borderRadius: '10px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#64748b' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(0,0,0,0.1)' : '0 2px 6px rgba(0,0,0,0.03)', boxSizing: 'border-box' }}>
+                          <div style={{ fontSize: '12px', fontWeight: '900', marginBottom: '2px' }}>{t}</div>
+                          <div style={{ fontSize: '11px', fontWeight: '800', color: textSub }}>{travelerScores[t] || 0} נק'</div>
                         </div>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', padding: '16px', borderRadius: '14px', textAlign: 'center', border: '1.5px solid rgba(59, 130, 246, 0.3)', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.08)' }}>
+                    <span style={{ fontSize: '15px', fontWeight: '900', color: textColor }}>
+                      (שאלה #{ (triviaIndex % ROAD_TRIVIA_QUESTIONS.length) + 1 }) {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].q}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].options.map((opt, oIdx) => {
+                      const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
+                      let btnBg = isDark ? '#1e293b' : '#ffffff';
+                      let btnColor = textColor;
+                      let btnBorder = borderColor;
+                      if (selectedAnswer !== null) {
+                        if (oIdx === currentQ.correct) {
+                          btnBg = '#10b981'; btnColor = '#fff'; btnBorder = '#10b981';
+                        } else if (oIdx === selectedAnswer) {
+                          btnBg = '#ef4444'; btnColor = '#fff'; btnBorder = '#ef4444';
+                        }
+                      }
+                      return (
+                        <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ width: '100%', height: '48px', borderRadius: '12px', background: btnBg, color: btnColor, border: `1.5px solid ${btnBorder}`, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s ease', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {modalType === 'tickets' && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '12px', background: bgMain }}>
+                  <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px' }}>
+                    {folders.map((f, idx) => {
+                      const isActiveFolder = activeFolder === f;
+                      return (
+                        <button 
+                          key={idx} 
+                          onClick={() => setActiveFolder(f)} 
+                          style={{ 
+                            padding: '10px 18px', 
+                            borderRadius: '10px', 
+                            background: isActiveFolder ? '#2563eb' : (isDark ? '#1e293b' : '#f8fafc'), 
+                            color: isActiveFolder ? '#ffffff' : '#2563eb', 
+                            border: '1.5px solid #2563eb', 
+                            fontWeight: '900', 
+                            fontSize: '12px', 
+                            cursor: 'pointer', 
+                            whiteSpace: 'nowrap', 
+                            boxShadow: isActiveFolder ? '0 4px 12px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {f}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {ticketFiles.filter(d => d.folder === activeFolder).map((doc, dIdx) => (
+                      <div key={dIdx} onClick={() => setViewerItem(doc)} style={{ background: isDark ? 'rgba(11, 15, 25, 0.4)' : '#ffffff', padding: '16px', borderRadius: '16px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', cursor: 'pointer', boxShadow: enhancedCardShadow }}>
+                        <span style={{ fontSize: '14px', fontWeight: '800' }}>📄 {doc.title}</span>
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
 
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                    <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ flex: 1, padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)' }}>📍 עדכן מיקום יום</button>
-                    <button onClick={() => alert('🔄 המיקומים עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן מיקומים</button>
+              {modalType === 'emergency' && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '10px', background: bgMain }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <a href="tel:112" style={emergencyBtnStyle}>🚨 חירום כללי: 112</a>
+                    <a href="tel:118" style={emergencyBtnStyle}>🚑 אמבולנס: 118</a>
+                    <a href="tel:113" style={emergencyBtnStyle}>👮 משטרה: 113</a>
+                    <a href="tel:115" style={emergencyBtnStyle}>🚒 כיבוי אש: 115</a>
+                  </div>
+                  <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: `1.5px solid rgba(59, 130, 246, 0.3)`, padding: '16px', borderRadius: '16px', marginTop: '6px', boxShadow: enhancedCardShadow }}>
+                    <strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px', color: '#3b82f6' }}>🇮🇱 שגרירות ישראל באיטליה (רומא)</strong>
+                    <p style={{ margin: '0 0 10px', fontSize: '13px', color: textSub }}>כתובת: Via Michele Mercati 12, 00197 Roma</p>
+                    <a href="tel:+3906361981" style={{ display: 'block', padding: '12px', background: '#3b82f6', color: '#fff', textAlign: 'center', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>📞 חיוג לשגרירות: +39 06 361981</a>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {modalType === 'timer' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
-                <p style={{ fontSize: '14px', fontWeight: '800', color: textSub, margin: 0 }}>בחר משך זמן מהיר להפעלת טיימר משפחתי לכולם:</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '12px' }}>
-                  <button onClick={() => startSharedTimer(5)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⚡ 5 דקות</button>
-                  <button onClick={() => startSharedTimer(15)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 15 דקות</button>
-                  <button onClick={() => startSharedTimer(30)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 30 דקות</button>
-                  <button onClick={() => startSharedTimer(45)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 45 דקות</button>
-                  <button onClick={() => startSharedTimer(60)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏰ 60 דקות (שעה)</button>
-                </div>
-
-                {sharedTimer && (
-                  <div style={{ display: 'flex', gap: '10px', width: '100%', boxSizing: 'border-box', marginTop: '10px' }}>
-                    <button onClick={toggleSharedTimerPause} style={{ flex: 1, padding: '14px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
-                      {isTimerPaused ? '▶️ המשך טיימר' : '⏸️ עצור טיימר'}
-                    </button>
-                    <button onClick={clearSharedTimer} style={{ flex: 1, padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
-                      ✕ אפס טיימר
-                    </button>
+              {modalType === 'parking' && (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px', boxSizing: 'border-box', overflow: 'hidden', gap: '10px', background: bgMain }}>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                      🏡 למלון Vojon
+                    </a>
+                    <a href={`https://maps.google.com/?q=${savedCarParking ? `${savedCarParking.lat},${savedCarParking.lng}` : HOTEL_ADDRESS}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: '#1e3a8a', color: '#fff', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(30, 58, 138, 0.3)' }}>
+                      🚗 לרכב החונה
+                    </a>
                   </div>
-                )}
-              </div>
-            )}
 
-            {modalType === 'trivia' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
-                {isTriviaPaused && (
-                  <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
-                    ⏸️ המשחק מושהה (לחץ למעלה על "המשך" כדי להפעיל את הזמן)
-                  </div>
-                )}
-
-                <div style={{ background: isDark ? '#1e293b' : '#e2e8f0', borderRadius: '6px', height: '8px', width: '100%', overflow: 'hidden', display: 'flex' }}>
-                  <div style={{ background: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6', width: `${(questionTimeLeft / 45) * 100}%`, transition: 'width 1s linear' }} />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '800', color: textSub, marginTop: '-6px' }}>
-                  <span>⏳ זמן נותר לשאלה:</span>
-                  <span style={{ color: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6' }}>{questionTimeLeft} שניות</span>
-                </div>
-
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <div style={{ flex: 1, height: '46px', background: isDark ? '#1e293b' : '#ffffff', padding: '0 14px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor, boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
-                    <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{TRAVELERS_LIST[travelerIndex]}</span>
-                  </div>
-                  <button onClick={handleNewGame} style={{ flex: 1, height: '46px', background: isDark ? '#334155' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '0 14px', borderRadius: '12px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
-                    משחק חדש
-                  </button>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
-                  {TRAVELERS_LIST.map((t, tIdx) => {
-                    const isCurrent = tIdx === travelerIndex;
-                    return (
-                      <div key={tIdx} style={{ background: isCurrent ? (isDark ? '#334155' : '#e2e8f0') : (isDark ? '#1e293b' : '#ffffff'), color: textColor, padding: '10px 4px', borderRadius: '10px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#64748b' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(0,0,0,0.1)' : '0 2px 6px rgba(0,0,0,0.03)', boxSizing: 'border-box' }}>
-                        <div style={{ fontSize: '12px', fontWeight: '900', marginBottom: '2px' }}>{t}</div>
-                        <div style={{ fontSize: '11px', fontWeight: '800', color: textSub }}>{travelerScores[t] || 0} נק'</div>
+                  {!savedCarParking ? (
+                    <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '16px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
+                      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', fontSize: '26px' }}>
+                        🚗
                       </div>
-                    );
-                  })}
-                </div>
+                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>חנית את הרכב?</h3>
+                      <p style={{ margin: 0, fontSize: '12px', color: textSub }}>לחץ על הכפתור האדום לשמירת מיקום ה-GPS המדויק.</p>
+                      
+                      <input 
+                        type="text" 
+                        placeholder="הוסף הערה (למשל: קומה 2, ליד עמוד B4)" 
+                        value={carNoteInput} 
+                        onChange={e => setCarNoteInput(e.target.value)} 
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} 
+                      />
 
-                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', padding: '16px', borderRadius: '14px', textAlign: 'center', border: '1.5px solid rgba(59, 130, 246, 0.3)', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.08)' }}>
-                  <span style={{ fontSize: '15px', fontWeight: '900', color: textColor }}>
-                    (שאלה #{ (triviaIndex % ROAD_TRIVIA_QUESTIONS.length) + 1 }) {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].q}
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].options.map((opt, oIdx) => {
-                    const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
-                    let btnBg = isDark ? '#1e293b' : '#ffffff';
-                    let btnColor = textColor;
-                    let btnBorder = borderColor;
-                    if (selectedAnswer !== null) {
-                      if (oIdx === currentQ.correct) {
-                        btnBg = '#10b981'; btnColor = '#fff'; btnBorder = '#10b981';
-                      } else if (oIdx === selectedAnswer) {
-                        btnBg = '#ef4444'; btnColor = '#fff'; btnBorder = '#ef4444';
-                      }
-                    }
-                    return (
-                      <button key={oIdx} onClick={() => handleTriviaAnswer(oIdx)} style={{ width: '100%', height: '48px', borderRadius: '12px', background: btnBg, color: btnColor, border: `1.5px solid ${btnBorder}`, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s ease', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-                        {opt}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {modalType === 'tickets' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '12px', background: bgMain }}>
-                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px' }}>
-                  {folders.map((f, idx) => {
-                    const isActiveFolder = activeFolder === f;
-                    return (
                       <button 
-                        key={idx} 
-                        onClick={() => setActiveFolder(f)} 
-                        style={{ 
-                          padding: '10px 18px', 
-                          borderRadius: '10px', 
-                          background: isActiveFolder ? '#2563eb' : (isDark ? '#1e293b' : '#f8fafc'), 
-                          color: isActiveFolder ? '#ffffff' : '#2563eb', 
-                          border: '1.5px solid #2563eb', 
-                          fontWeight: '900', 
-                          fontSize: '12px', 
-                          cursor: 'pointer', 
-                          whiteSpace: 'nowrap', 
-                          boxShadow: isActiveFolder ? '0 4px 12px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
-                          transition: 'all 0.2s ease'
-                        }}
+                        onClick={saveCarLocationNow}
+                        style={{ width: '100%', padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                       >
-                        {f}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {ticketFiles.filter(d => d.folder === activeFolder).map((doc, dIdx) => (
-                    <div key={dIdx} onClick={() => setViewerItem(doc)} style={{ background: isDark ? 'rgba(11, 15, 25, 0.4)' : '#ffffff', padding: '16px', borderRadius: '16px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', cursor: 'pointer', boxShadow: enhancedCardShadow }}>
-                      <span style={{ fontSize: '14px', fontWeight: '800' }}>📄 {doc.title}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {modalType === 'emergency' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '10px', background: bgMain }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <a href="tel:112" style={emergencyBtnStyle}>🚨 חירום כללי: 112</a>
-                  <a href="tel:118" style={emergencyBtnStyle}>🚑 אמבולנס: 118</a>
-                  <a href="tel:113" style={emergencyBtnStyle}>👮 משטרה: 113</a>
-                  <a href="tel:115" style={emergencyBtnStyle}>🚒 כיבוי אש: 115</a>
-                </div>
-                <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: `1.5px solid rgba(59, 130, 246, 0.3)`, padding: '16px', borderRadius: '16px', marginTop: '6px', boxShadow: enhancedCardShadow }}>
-                  <strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px', color: '#3b82f6' }}>🇮🇱 שגרירות ישראל באיטליה (רומא)</strong>
-                  <p style={{ margin: '0 0 10px', fontSize: '13px', color: textSub }}>כתובת: Via Michele Mercati 12, 00197 Roma</p>
-                  <a href="tel:+3906361981" style={{ display: 'block', padding: '12px', background: '#3b82f6', color: '#fff', textAlign: 'center', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>📞 חיוג לשגרירות: +39 06 361981</a>
-                </div>
-              </div>
-            )}
-
-            {modalType === 'parking' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '95px 16px 16px', boxSizing: 'border-box', overflow: 'hidden', gap: '10px', background: bgMain }}>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
-                    🏡 למלון Vojon
-                  </a>
-                  <a href={`https://maps.google.com/?q=${savedCarParking ? `${savedCarParking.lat},${savedCarParking.lng}` : HOTEL_ADDRESS}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: '#1e3a8a', color: '#fff', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(30, 58, 138, 0.3)' }}>
-                    🚗 לרכב החונה
-                  </a>
-                </div>
-
-                {!savedCarParking ? (
-                  <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '16px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
-                    <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', fontSize: '26px' }}>
-                      🚗
-                    </div>
-                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>חנית את הרכב?</h3>
-                    <p style={{ margin: 0, fontSize: '12px', color: textSub }}>לחץ על הכפתור האדום לשמירת מיקום ה-GPS המדויק.</p>
-                    
-                    <input 
-                      type="text" 
-                      placeholder="הוסף הערה (למשל: קומה 2, ליד עמוד B4)" 
-                      value={carNoteInput} 
-                      onChange={e => setCarNoteInput(e.target.value)} 
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} 
-                    />
-
-                    <button 
-                      onClick={saveCarLocationNow}
-                      style={{ width: '100%', padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                    >
-                      <span>🔴</span> נָעץ מיקום חניה עכשיו
-                    </button>
-                  </div>
-                ) : (
-                  <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `2.5px solid #ef4444`, borderRadius: '16px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
-                    <span style={{ background: '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
-                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
-
-                    <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(37, 99, 235, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <span>🗺️</span> הצג מפת ניווט חי (סיכה אדומה ➔ הרכב)
-                    </button>
-
-                    <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>
-                      מרחק הליכה: {carDistanceToWalk}
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%' }}>
-                      <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '10px', background: accentGradient, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>
-                        נווט ב-Google 🗺️
-                      </a>
-                      <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: '#ef4444', border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
-                        אפס חניה 🗑️
+                        <span>🔴</span> נָעץ מיקום חניה עכשיו
                       </button>
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `2.5px solid #ef4444`, borderRadius: '16px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', boxShadow: enhancedCardShadow, marginTop: '10px' }}>
+                      <span style={{ background: '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
+                      <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
-              </div>
-            )}
+                      <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(37, 99, 235, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        <span>🗺️</span> הצג מפת ניווט חי (סיכה אדומה ➔ הרכב)
+                      </button>
+
+                      <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>
+                        מרחק הליכה: {carDistanceToWalk}
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%' }}>
+                        <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '10px', background: accentGradient, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>
+                          נווט ב-Google 🗺️
+                        </a>
+                        <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: '#ef4444', border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+                          אפס חניה 🗑️
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              )}
+
+            </div>
 
           </div>
         </div>
