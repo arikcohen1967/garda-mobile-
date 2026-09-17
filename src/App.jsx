@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v5.9 ---
-const APP_VERSION = 'v5.9';
+// --- GARDA-MOBILE v6.0 ---
+const APP_VERSION = 'v6.0';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -969,7 +969,6 @@ export default function App() {
         </div>
       )}
 
-      {/* הדר עליון מעוצב עם העיצוב החדש לכפתורי SOS ולמלון */}
       <header style={{ background: headerBg, backdropFilter: 'blur(20px)', borderBottom: `2px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : '#cbd5e1'}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: isDark ? '0 8px 25px rgba(0,0,0,0.6)' : '0 6px 20px rgba(15, 23, 42, 0.08)' }}>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: '8px' }}>
@@ -1040,12 +1039,10 @@ export default function App() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.3fr 1.2fr', gap: '8px', alignItems: 'center' }}>
-          {/* כפתור SOS חירום: רקע לבן, טקסט ואיקון באדום בולט */}
           <button onClick={triggerSos} style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: '#ffffff', color: '#ef4444', border: '1.5px solid #fecaca', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.15)' }}>
             <span>🚨</span> SOS חירום
           </button>
 
-          {/* כפתור למלון Waze: רקע לבן, טקסט ואיקון בתכלת של Waze */}
           <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ height: '38px', padding: '0 10px', borderRadius: '12px', background: '#ffffff', color: '#0284c7', textDecoration: 'none', border: '1.5px solid #bae6fd', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.15)' }}>
             {WAZE_SVG} למלון Vojon
           </a>
@@ -1075,80 +1072,87 @@ export default function App() {
       )}
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
-      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
+      
+      {/* תפריט צד מעוצב מחדש לפי התמונה בסגנון נקי ומקצועי בלי אייקונים קטנים מימין */}
+      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${borderColor}`, paddingBottom: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '14px', background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.35)' }}>
-              🇮🇹
-            </div>
-            <div>
-              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '900', letterSpacing: '-0.01em' }}>תפריט הטיול</h3>
-              <span style={{ fontSize: '11px', color: textSub, fontWeight: '700' }}>גארדה ואזור הטיול ({APP_VERSION})</span>
-            </div>
+        {/* כותרת התפריט עם כפתור סגירה X */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: textColor }}>תפריט מהיר</h3>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '50%', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
+        </div>
+
+        {/* בחירת משתמש מצב תצוגה עליון כמו בתמונה */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, padding: '10px 14px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            <span>{isDark ? '🌙 כהה' : '☀️ בהיר'}</span>
+          </button>
+          <div style={{ flex: 1.2 }}>
+            <select 
+              value={currentUser} 
+              onChange={e => setCurrentUser(e.target.value)} 
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '14px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold', fontSize: '14px', outline: 'none' }}
+            >
+              {TRAVELERS_LIST.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
           </div>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: isDark ? '#f8fafc' : '#1e293b', width: '36px', height: '36px', borderRadius: '12px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
         </div>
 
-        <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: '1.5px solid rgba(59, 130, 246, 0.3)', padding: '12px', borderRadius: '16px' }}>
-          <label style={{ fontSize: '12px', fontWeight: '900', color: '#3b82f6', display: 'block', marginBottom: '6px' }}>👤 מי משתמש בטלפון הזה?</label>
-          <select 
-            value={currentUser} 
-            onChange={e => setCurrentUser(e.target.value)} 
-            style={{ width: '100%', padding: '10px', borderRadius: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold', fontSize: '16px', outline: 'none' }}
-          >
-            {TRAVELERS_LIST.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-          <p style={{ fontSize: '10px', color: textSub, margin: '6px 0 0', lineHeight: '1.4' }}>בחר את השם שלך כדי שתוכל לעדכן את מיקומך למשפחה.</p>
-        </div>
-
-        <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: isDark ? '#1e293b' : '#f8fafc', border: `1.5px solid ${borderColor}`, color: textColor, padding: '12px 16px', borderRadius: '14px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
-          <span>{isDark ? 'מצב תצוגה: כהה' : 'מצב תצוגה: בהיר'}</span>
-          <span style={{ fontSize: '16px' }}>{isDark ? '🌙' : '☀️'}</span>
-        </button>
-
-        <div style={categoryGroupStyle(isDark, borderColor)}>
-          <div style={categoryTitleStyle('#3b82f6')}>
-            <span>📍</span> ניווט ראשי
-          </div>
-          <button onClick={() => { setSidebarOpen(false); setActiveDay(activeDay); setModalType(null); }} style={menuBtnStyle(isDark, textColor)}>
-            <span style={{ fontSize: '16px' }}>📅</span> מסלול ימי הטיול
+        {/* קטגוריה 1: ניווט ומסלול */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>ניווט ומעקב</span>
+          
+          <button onClick={() => { setSidebarOpen(false); setActiveDay(activeDay); setModalType(null); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+            <span>מסלול ימי הטיול</span>
+            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
           </button>
-          <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={menuBtnStyle(isDark, textColor)}>
-            <span style={{ fontSize: '16px' }}>🧭</span> רדאר משפחתי חי
+
+          <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+            <span>רדאר משפחתי חי</span>
+            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
-        <div style={categoryGroupStyle(isDark, borderColor)}>
-          <div style={categoryTitleStyle('#f59e0b')}>
-            <span>📍</span> סביבי (בקרבת מקום)
-          </div>
-          <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={menuBtnStyle(isDark, textColor)}>
-            <span style={{ fontSize: '16px' }}>📍</span> סביבי (Around Me)
+        {/* קטגוריה 2: כלים ושימושי */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>כלים ושימושי</span>
+
+          <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+            <span>טיימר משפחתי</span>
+            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
+          </button>
+
+          <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+            <span>שמירת מיקום רכב חכם</span>
+            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
+          </button>
+
+          <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+            <span>סביבי (Around Me)</span>
+            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
-        <div style={categoryGroupStyle(isDark, borderColor)}>
-          <div style={categoryTitleStyle('#10b981')}>
-            <span>⚡</span> כלים ושימושי
-          </div>
-          <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={menuBtnStyle(isDark, textColor)}>
-            <span style={{ fontSize: '16px' }}>⏱️</span> טיימר משפחתי
+        {/* קטגוריה 3: העשרה ובידור */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>העשרה ובידור</span>
+
+          <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+            <span>טריויה חכמה לדרך</span>
+            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
           </button>
-          <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={menuBtnStyle(isDark, textColor)}>
-            <span style={{ fontSize: '16px' }}>🚗</span> שמירת מיקום רכב חכם
-          </button>
-          <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={menuBtnStyle(isDark, textColor)}>
-            <span style={{ fontSize: '16px' }}>🧠</span> טריויה משפחתית
-          </button>
-          <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={menuBtnStyle(isDark, textColor)}>
-            <span style={{ fontSize: '16px' }}>🎟️</span> ארנק כרטיסים ומסמכים
+
+          <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={cleanMenuCardStyle(isDark, textColor, borderColor)}>
+            <span>ארנק כרטיסים ומסמכים</span>
+            <span style={{ color: textSub, fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'auto', paddingTop: '10px', borderTop: `1px solid ${borderColor}` }}>
-          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...menuBtnStyle(isDark, textColor), background: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fee2e2', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)' }}>
-            <span style={{ fontSize: '16px' }}>🆘</span> מספרי חירום ושגרירות
+        {/* קטגוריה 4: חירום */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto', paddingTop: '10px' }}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...cleanMenuCardStyle(isDark, '#ef4444', '#fecaca'), background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2' }}>
+            <span>מספרי חירום ושגרירות</span>
+            <span style={{ color: '#ef4444', fontSize: '14px' }}>‹</span>
           </button>
         </div>
 
@@ -1650,6 +1654,26 @@ export default function App() {
     </div>
   );
 }
+
+// סטייל מעוצב מחדש לכפתורי התפריט הנקיים והרחבים (בסגנון התמונה ששלחת)
+const cleanMenuCardStyle = (isDark, textColor, borderColor) => ({
+  background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff',
+  border: `1.5px solid ${borderColor}`,
+  color: textColor,
+  padding: '14px 16px',
+  borderRadius: '16px',
+  textAlign: 'right',
+  fontWeight: '800',
+  fontSize: '14px',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+  boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 2px 8px rgba(15, 23, 42, 0.04)',
+  transition: 'all 0.2s ease',
+  boxSizing: 'border-box'
+});
 
 const categoryGroupStyle = (isDark, borderColor) => ({
   background: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.015)',
