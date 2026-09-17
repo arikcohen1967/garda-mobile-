@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v8.7 ---
-const APP_VERSION = 'v8.7';
+// --- GARDA-MOBILE v8.8 ---
+const APP_VERSION = 'v8.8';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -943,7 +943,7 @@ export default function App() {
   const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
   const enhancedCardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.08)';
 
-  // סגנון מיוחד אך ורק למלבנים הגדולים של תחנות היום
+  // סגנון מעוצב וייחודי אך ורק למלבנים הגדולים של מסלול כל יום
   const itineraryStopCardStyle = {
     background: isDark ? 'rgba(17, 24, 39, 0.98)' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
     borderRadius: '18px',
@@ -1257,6 +1257,7 @@ export default function App() {
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
+      {/* תפריט צד ימין - רקע לבן ומסגרת/טקסט אפור כהה מטאלי */}
       <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
@@ -1391,7 +1392,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* רק המרובעים הגדולים של תחנות היום מקבלים את הפס המטאלי והצל העמוק */}
+          {/* רק המרובעים הגדולים של מסלול היום מקבלים את העיצוב המטאלי המשודרג */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             {day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={itineraryStopCardStyle}>
@@ -1448,7 +1449,7 @@ export default function App() {
                       <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.culinary.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#1e293b' : '#ffffff', color: '#d97706', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: '1px solid rgba(217, 119, 6, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                         {MAPS_SVG} Maps
                       </a>
-                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.culinary.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#f59e0b', color: '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.culinary.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#f59e0b', color: '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                         {WAZE_SVG} Waze
                       </a>
                     </div>
@@ -1840,12 +1841,11 @@ export default function App() {
 
 // עיצוב מלבני התפריט הימני
 const rectMenuCardStyle = {
-  background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-  border: '1px solid #cbd5e1',
-  borderRight: '3.5px solid #475569',
-  color: '#334155',
+  background: '#ffffff',
+  border: '1.5px solid #475569',
+  color: '#374151',
   padding: '12px 16px',
-  borderRadius: '12px',
+  borderRadius: '10px',
   textAlign: 'right',
   fontWeight: '900',
   fontSize: '13px',
@@ -1854,10 +1854,9 @@ const rectMenuCardStyle = {
   alignItems: 'center',
   justifyContent: 'space-between',
   width: '100%',
-  boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.06)',
-  transition: 'all 0.15s ease',
-  boxSizing: 'border-box',
-  letterSpacing: '-0.01em'
+  boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)',
+  transition: 'all 0.2s ease',
+  boxSizing: 'border-box'
 };
 
 const timerPresetBtn = {
