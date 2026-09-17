@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v6.9 ---
-const APP_VERSION = 'v6.9';
+// --- GARDA-MOBILE v7.0 ---
+const APP_VERSION = 'v7.0';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -1155,7 +1155,7 @@ export default function App() {
         
         <hr style={{ border: 'none', height: '1.5px', background: borderColor, opacity: 0.5, margin: '0 0 16px 0' }} />
 
-        {/* עטיפת כפתורי הימים בתוך קונטיינר מעוצב דמוי קלף */}
+        {/* עטיפת כפתורי הימים המעוצבים באחידות עם מסגרת וטקסט כחולים (Pill Buttons) */}
         <div style={{ background: cardBg, borderRadius: '20px', padding: '12px', border: `2px solid ${borderColor}`, boxShadow: enhancedCardShadow, marginBottom: '16px' }}>
           <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
             {INITIAL_TRIP_DAYS.map((d, i) => {
@@ -1169,9 +1169,9 @@ export default function App() {
                   }} 
                   style={{ 
                     flex: '1 0 auto', 
-                    padding: '12px 20px', 
+                    padding: '12px 22px', 
                     borderRadius: '999px', 
-                    background: isActive ? '#2563eb' : (isDark ? '#1e293b' : '#ffffff'), 
+                    background: isActive ? '#2563eb' : (isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff'), 
                     color: isActive ? '#ffffff' : '#2563eb', 
                     border: '1.5px solid #2563eb', 
                     fontSize: '13px', 
