@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.0 ---
-const APP_VERSION = 'v9.0';
+// --- GARDA-MOBILE v9.1 ---
+const APP_VERSION = 'v9.1';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -943,6 +943,22 @@ export default function App() {
   const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
   const enhancedCardShadow = isDark ? '0 10px 30px rgba(0, 0, 0, 0.5)' : '0 10px 25px rgba(15, 23, 42, 0.08)';
 
+  // סגנון מלבני התחנות המעוצבים עם צל מטאלי יוקרתי
+  const itineraryStopCardStyle = {
+    background: isDark ? 'rgba(17, 24, 39, 0.98)' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+    borderRadius: '18px',
+    padding: '20px',
+    border: `1px solid ${borderColor}`,
+    borderRight: '4px solid #475569',
+    boxShadow: isDark 
+      ? '0 10px 25px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4)' 
+      : '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '14px',
+    boxSizing: 'border-box'
+  };
+
   const headerBg = isDark 
     ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(11, 15, 25, 0.95) 100%)' 
     : 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)';
@@ -1376,7 +1392,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* רק המרובעים הגדולים של מסלול היום מקבלים את העיצוב המטאלי המשודרג */}
+          {/* מלבני התחנות הגדולים של מסלול היום עם הצל המהמם והפס הצידי */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             {day.stops.map((stop, sIdx) => (
               <div key={sIdx} style={itineraryStopCardStyle}>
@@ -1384,7 +1400,7 @@ export default function App() {
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#2563eb', background: isDark ? 'rgba(37, 99, 235, 0.15)' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(37, 99, 235, 0.3)' }}>{stop.time}</span>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#2563eb', background: isDark ? 'rgba(37, 99, 235, 0.15)' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: '1.5px solid rgba(37, 99, 235, 0.3)' }}>{stop.time}</span>
                   </div>
                   <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45' }}>{stop.note}</p>
                 </div>
@@ -1489,7 +1505,6 @@ export default function App() {
         </div>
       )}
 
-      {/* מודאלים במסך מלא - סרגל עליון מקובע לחלוטין (Sticky) למניעת בעיות גלילה במובייל */}
       {modalType && (
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, padding: 0, width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
