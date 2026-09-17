@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v7.6 ---
-const APP_VERSION = 'v7.6';
+// --- GARDA-MOBILE v7.7 ---
+const APP_VERSION = 'v7.7';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -104,7 +104,7 @@ const INITIAL_TRIP_DAYS = [
     challengeDesc: "סיכום חוויות בוורונה וטיסה חזרה הביתה.",
     stops: [
       { time: "09:00", name: "סיור בוורונה", dest: "Piazza Cittadella, Verona", lat: 45.4384, lng: 10.9916, note: "סיור בארנה והמרפסת של יוליה." },
-      { time: "18:30", name: "שדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "החזרת הרכב וטיסה חזרה לישראל." }
+      { time: "18:30", name: "שדה התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "החזרת הרכב וטיסה חזרה לישראל." }
     ],
     culinary: { name: "Farcito Verona", dest: "Verona, Italy", desc: "המבורגר משובח ופיצה דקה ומיוחדת במרכז וורונה ממש לפני הנסיעה לשדה." },
     creative: { name: "גלוית פרידה איטלקית", dest: "Verona, Italy", desc: "כתיבת גלוית סיכום וציור מזכרת אישית מהטיול במלון לפני העזיבה." }
@@ -1145,10 +1145,10 @@ export default function App() {
 
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
         
-        {/* קו עדין מודגש מעל ימי הטיול שגולש ימינה ושמאלה */}
+        {/* קו הפרדה עדין מודגש מעל ימי הטיול שזז ימינה ושמאלה (גולש בקצוות) */}
         <div style={{ margin: '0 -16px 16px -16px', borderBottom: `2px solid ${borderColor}`, opacity: 0.8 }} />
 
-        {/* שורת ימי הטיול פתוחה מימין ומשמאל ללא קופסת מעטפת */}
+        {/* שורת ימי הטיול פתוחה מימין ומשמאל ללא קופסת מעטפת סגורה */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
           {INITIAL_TRIP_DAYS.map((d, i) => {
             const isActive = activeDay === i;
@@ -1161,8 +1161,8 @@ export default function App() {
                 }} 
                 style={{ 
                   flex: '1 0 auto', 
-                  padding: '12px 20px', 
-                  borderRadius: '12px', 
+                  padding: '10px 18px', 
+                  borderRadius: '10px', 
                   background: isActive ? '#2563eb' : (isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff'), 
                   color: isActive ? '#ffffff' : '#2563eb', 
                   border: '1.5px solid #2563eb', 
@@ -1180,7 +1180,7 @@ export default function App() {
           })}
         </div>
 
-        {/* קו הפרדה עדין מתחת לימי הטיול שגולש ימינה ושמאלה */}
+        {/* קו הפרדה עדין מתחת לימי הטיול שזז ימינה ושמאלה (גולש בקצוות) */}
         <div style={{ margin: '16px -16px 22px -16px', borderBottom: `2px solid ${borderColor}`, opacity: 0.8 }} />
 
         <div style={{ marginBottom: '20px' }}>
