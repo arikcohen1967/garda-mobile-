@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.7 ---
-const APP_VERSION = 'v9.7';
+// --- GARDA-MOBILE v9.8 ---
+const APP_VERSION = 'v9.8';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -153,21 +153,21 @@ const INITIAL_TRIP_DAYS = [
         }
       },
       { 
-        time: "20:00", 
-        name: "Medieval Times – מופע האבירים", 
+        time: "19:30", 
+        name: "Medieval Times – מופע האבירים והמשתה (הזמנה CVBDK20260922114620)", 
         dest: "Medieval Times, Lazise", 
         lat: 45.4745, 
         lng: 10.7291, 
-        note: "טורניר אבירים סוער עם סוסים וארוחת ערב מלכותית ללא סכו״ם!",
+        note: "טורניר אבירים סוער עם סוסים וארוחת ערב מלכותית (5 מבוגרים) ללא סכו״ם!",
         creative: {
           name: "סדנת כתרים אביריים",
           dest: "Medieval Times, Lazise",
           desc: "הכנת כתרים מקושטים מנייר כסף ודפים צבעוניים לפני תחילת המופע."
         },
         culinary: {
-          name: "Medieval Times Banquet",
+          name: "Medieval Times Banquet (Tikez)",
           dest: "Medieval Times, Lazise",
-          desc: "ארוחת אבירים מסורתית הכוללת עוף צלוי, תפוחי אדמה חמים, מרק ומאפים – הכול נאכל בידיים!"
+          desc: "ארוחת אבירים מסורתית הכוללת עוף צלוי, תפוחי אדמה חמים, מרק ומאפים – הכול נאכל בידיים! (סה״כ 195€)."
         }
       }
     ]
@@ -297,7 +297,8 @@ const DEFAULT_DOCUMENTS = [
   { id: 'movieland-2', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 2', ticketCode: '256612CCD43B8E08', trans: '017JUNAR0069', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
   { id: 'movieland-3', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 3', ticketCode: '934FEA2F66750267', trans: '017JUNAR0071', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
   { id: 'movieland-4', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 4', ticketCode: '52CACC0D5CAE334B', trans: '017JUNAR0072', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
-  { id: 'movieland-5', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 5', ticketCode: '32D6C578DF258ACF', trans: '017JUNAR0073', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' }
+  { id: 'movieland-5', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 5', ticketCode: '32D6C578DF258ACF', trans: '017JUNAR0073', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'medieval-times', folder: '🎬 Movieland', title: 'Medieval Times - כרטיס משפחתי (5 מבוגרים)', ticketCode: 'CVBDK20260922114620', trans: '195.00€', desc: 'מופע אבירים וארוחה (Tikez) - 03.10.2026 בשעה 19:30' }
 ];
 
 const ROAD_TRIVIA_QUESTIONS = Array.from({ length: 1000 }, (_, i) => {
@@ -510,7 +511,6 @@ export default function App() {
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   const [activeSoundAlert, setActiveSoundAlert] = useState(null);
   
-  // מצב אלבום טיול משפחתי
   const [tripPhotos, setTripPhotos] = useState([]);
   const [photoCaptionInput, setPhotoCaptionInput] = useState('');
   const [selectedPhotoViewer, setSelectedPhotoViewer] = useState(null);
@@ -745,7 +745,6 @@ export default function App() {
     }
   }, []);
 
-  // ניהול טריויה
   const [triviaIndex, setTriviaIndex] = useState(() => {
     try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
   });
@@ -1069,7 +1068,6 @@ export default function App() {
     }, 1200);
   };
 
-  // פעולות בקרת משחק חדש / איפוס / התחל / השהה
   const handleResetTrivia = () => {
     const adminPassword = window.prompt("🔒 קוד מנהל לאיפוס מלא של משחק הטרוויה (1967):");
     if (adminPassword && adminPassword.trim() === "1967") {
@@ -1572,8 +1570,8 @@ export default function App() {
             ) : (
               <div style={{ background: isDark ? '#1e293b' : '#f8fafc', padding: '14px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <span style={{ fontSize: '12px', fontWeight: '800', color: textSub }}>קטגוריה: {viewerItem.folder}</span>
-                {viewerItem.ticketCode && <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🔑 קוד כרטיס: {viewerItem.ticketCode}</span>}
-                {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 קוד טרנזקציה: {viewerItem.trans}</span>}
+                {viewerItem.ticketCode && <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🔑 קוד כרטיס/הזמנה: {viewerItem.ticketCode}</span>}
+                {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 סכום/פרטים: {viewerItem.trans}</span>}
                 {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️ פרטים: {viewerItem.desc}</span>}
                 {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>👤 נוסע: {viewerItem.passenger}</span>}
                 {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
