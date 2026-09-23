@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.1 ---
-const APP_VERSION = 'v9.9.1';
+// --- GARDA-MOBILE v9.9.2 ---
+const APP_VERSION = 'v9.9.2';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,14 +37,14 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה وרונה", 
+        name: "נחיתה בנמל התעופה ורונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
         note: "איסוף מזוודות וקבלת הרכב השכור בשדה התעופה.",
         challenge: {
           title: "סלפי משפחתי ראשון באיטליה!",
-          desc: "נחתנו! המשימה שלכם: סלפי משפחתי חגיגי בשדה או מיд עם קבלת הרכב השכור."
+          desc: "נחתנו! המשימה שלכם: סלפי משפחתי חגיגי בשדה או מיד עם קבלת הרכב השכור."
         }
       },
       { 
@@ -55,7 +55,7 @@ const INITIAL_TRIP_DAYS = [
         lng: 10.6908, 
         note: "צ׳ק-אין במלון ומנוחה קצרה לפני היציאה לארוחת ערב.",
         creative: {
-          name: "נהר המינצ'و בפסקיירה",
+          name: "נהר המינצ'ו בפסקיירה",
           dest: "Peschiera del Garda, Italy",
           desc: "עצירה קצרה ומרגיעה ליד גדת הנהר לפתיחת מחברות ציור ותיעוד הנוף הראשון שלכם באיטליה."
         },
@@ -251,10 +251,10 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         challenge: {
           title: "שיא הטיול המשפחתי!",
-          desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
+          desc: "בוחרים יחד בארנה של ורונה את הרגע המצחיק והמרגש ביותר של הטיול."
         },
         culinary: {
           name: "Farcito Verona",
@@ -301,7 +301,6 @@ const DEFAULT_DOCUMENTS = [
   { id: 'medieval-times', folder: '🎬 Movieland', title: 'Medieval Times - כרטיס משפחתי (5 מבוגרים)', ticketCode: 'CVBDK20260922114620', trans: '195.00€', desc: 'מופע אבירים וארוחה (Tikez) - 03.10.2026 בשעה 19:30' }
 ];
 
-// יצירת מערך שאלות טריויה מראש (מונע שימוש בזיכרון מחדש בכל רינדור)
 const ROAD_TRIVIA_QUESTIONS = Array.from({ length: 1000 }, (_, i) => {
   const id = i + 1;
   const banks = [
@@ -931,7 +930,6 @@ export default function App() {
     try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
   };
 
-  // אופטימיזציה למפות באמצעות useMemo כדי למנוע ריצוד מיותר
   const routeMapHTML = useMemo(() => {
     const currentLat = myLocation?.lat || 45.4384;
     const currentLng = myLocation?.lng || 10.6816;
