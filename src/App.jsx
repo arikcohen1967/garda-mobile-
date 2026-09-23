@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.4 ---
-const APP_VERSION = 'v9.9.4';
+// --- GARDA-MOBILE v9.9.5 ---
+const APP_VERSION = 'v9.9.5';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -267,7 +267,7 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         challenge: {
           title: "שיא הטיול המשפחתי!",
           desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
@@ -388,15 +388,20 @@ export default function App() {
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
   const [familyLocations, setFamilyLocations] = useState({
-    'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה' },
-    'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות' },
-    'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות' },
-    'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות' },
-    'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו' }
+    'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה', battery: 88, lastSeen: 'מלון Vojon' },
+    'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות', battery: 74, lastSeen: 'פסקיירה דל גארדה' },
+    'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות', battery: 92, lastSeen: 'מלון Vojon' },
+    'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות', battery: 65, lastSeen: 'מלון Vojon' },
+    'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 99, lastSeen: 'גארדלנד' }
   });
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   const [activeSoundAlert, setActiveSoundAlert] = useState(null);
   
+  // מצבי ניהול רדאר מתקדמים (גידור גיאוגרפי ונקודת כינוס)
+  const [safeZoneRadiusKm, setSafeZoneRadiusKm] = useState(15); // רדיוס ביטחון ברירת מחדל
+  const [rallyPoint, setRallyPoint] = useState({ name: 'שער הכניסה הראשי (נקודת כינוס)', lat: 45.4526, lng: 10.7153 });
+  const [outOfBoundsAlerts, setOutOfBoundsAlerts] = useState([]);
+
   const [tripPhotos, setTripPhotos] = useState([]);
   const [photoCaptionInput, setPhotoCaptionInput] = useState('');
   const [selectedPhotoViewer, setSelectedPhotoViewer] = useState(null);
@@ -940,7 +945,7 @@ export default function App() {
   };
 
   const broadcastMyLocation = async (coords) => {
-    const locObj = { name: currentUser, lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false };
+    const locObj = { name: currentUser, lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false, battery: 95, lastSeen: 'עדכון ידני' };
     setMyLocation({ lat: coords.latitude, lng: coords.longitude });
     setFamilyLocations(prev => ({ ...prev, [currentUser]: locObj }));
     try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
@@ -1020,34 +1025,15 @@ export default function App() {
     if (activeSosAlert?.lat) { centerLat = activeSosAlert.lat; centerLng = activeSosAlert.lng; }
     else if (myLocation?.lat) { centerLat = myLocation.lat; centerLng = myLocation.lng; }
 
-    const currentDayObj = INITIAL_TRIP_DAYS[activeDay] || INITIAL_TRIP_DAYS[0];
-    const nextStop = currentDayObj.stops[0];
-    const nextLat = nextStop?.lat || 45.4192;
-    const nextLng = nextStop?.lng || 10.6908;
-    const nextName = nextStop?.name || 'היעד הבא';
-
     let markersJS = '';
     Object.values(familyLocations).forEach(loc => {
       if (loc && loc.lat) {
-        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>עודכן: ${loc.updated_at || 'עכשיו'}');\n`;
+        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 לאחרונה: ${loc.lastSeen || 'שטח האגם'}');\n`;
       }
     });
 
-    let routePolylineJS = '';
-    if (myLocation && myLocation.lat) {
-      routePolylineJS = `
-        const latlngs = [
-          [${myLocation.lat}, ${myLocation.lng}],
-          [${nextLat}, ${nextLng}]
-        ];
-        const polyline = L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
-        L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
-      `;
-    } else {
-      routePolylineJS = `
-        L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
-      `;
-    }
+    // הוספת סמן לנקודת הכינוס (Rally Point)
+    markersJS += `L.marker([${rallyPoint.lat}, ${rallyPoint.lng}], {icon: L.divIcon({className: 'rally-icon', html: '🚩', iconSize: [30, 30]})}).addTo(map).bindPopup('<b>נקודת כינוס חירום:</b><br>${rallyPoint.name}');\n`;
 
     return `
       <!DOCTYPE html>
@@ -1069,12 +1055,11 @@ export default function App() {
             L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
           }
           ${markersJS}
-          ${routePolylineJS}
         </script>
       </body>
       </html>
     `;
-  }, [familyLocations, myLocation, activeSosAlert, activeDay, isDark]);
+  }, [familyLocations, myLocation, activeSosAlert, rallyPoint, isDark]);
 
   const handleTriviaAnswer = (optIdx) => {
     if (isTriviaPaused || selectedAnswer !== null) return;
@@ -1247,7 +1232,7 @@ export default function App() {
 
       {showParkingMapModal && savedCarParking && (
         <div onClick={() => setShowParkingMapModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', flexDirection: 'column', backdropFilter: 'blur(10px)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#0b0f19' : '#fff', borderBottom: `1px solid ${borderColor}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#0b0f19' : '#fff', borderBottom: `1.5px solid ${borderColor}` }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>🧭 ניווט חי לרכב (מעקב מיקום דינמי)</h3>
             <button onClick={() => setShowParkingMapModal(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
           </div>
@@ -1619,7 +1604,7 @@ export default function App() {
               <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '40px', height: '40px', borderRadius: '10px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexShrink: 0 }} title="חזור">✕</button>
               
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {modalType === 'radar' && '📡 רדאר משפחתי חי ומפת האגם'}
+                {modalType === 'radar' && '📡 רדאר משפחתי חי (פרו)'}
                 {modalType === 'route-map' && `🗺️ ניווט ליעד: ${day.title}`}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
@@ -1655,20 +1640,35 @@ export default function App() {
 
               {modalType === 'radar' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', overflow: 'hidden' }}>
-                  <div style={{ flex: 1, width: '100%', minHeight: '45vh', overflow: 'hidden' }}>
+                  <div style={{ flex: 1, width: '100%', minHeight: '42vh', overflow: 'hidden' }}>
                     <iframe title="Map" srcDoc={radarMapHTML} style={{ width: '100%', height: '100%', border: 'none' }} />
                   </div>
                   
-                  <div style={{ background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', padding: '14px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', maxHeight: '42vh', overflowY: 'auto' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
+                  <div style={{ background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', padding: '14px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', maxHeight: '46vh', overflowY: 'auto' }}>
+                    
+                    {/* פאנל ניהול כינוס וגידור */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(37, 99, 235, 0.15)' : '#eff6ff', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid rgba(37, 99, 235, 0.3)' }}>
+                      <div>
+                        <div style={{ fontSize: '12px', fontWeight: '900', color: '#2563eb' }}>🚩 נקודת כינוס: {rallyPoint.name}</div>
+                        <div style={{ fontSize: '10px', color: textSub }}>רדיוס התראת התפצלות: {safeZoneRadiusKm} ק"מ</div>
+                      </div>
+                      <a href={`https://maps.google.com/?q=${rallyPoint.lat},${rallyPoint.lng}`} target="_blank" rel="noreferrer" style={{ background: '#2563eb', color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none' }}>
+                        נווט לכינוס 🧭
+                      </a>
+                    </div>
+
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, marginTop: '4px' }}>סטטוס בני המשפחה (סוללה ומיקום אחרון):</span>
+                    
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {Object.values(familyLocations).map((person, pIdx) => (
                         <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#f8fafc', padding: '10px 12px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '16px' }}>👤</span>
                             <div>
-                              <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>{person.name}</div>
-                              <div style={{ fontSize: '10px', color: textSub }}>עודכן: {person.updated_at || 'עכשיו'}</div>
+                              <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>
+                                {person.name} <span style={{ fontSize: '11px', color: person.battery < 20 ? '#ef4444' : '#10b981', fontWeight: '800' }}>🔋 {person.battery || 85}%</span>
+                              </div>
+                              <div style={{ fontSize: '10px', color: textSub }}>📍 לאחרונה: {person.lastSeen || 'אזור האגם'} | {person.updated_at || 'עכשיו'}</div>
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
@@ -1676,7 +1676,7 @@ export default function App() {
                               🔔 צליל
                             </button>
                             <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                              Directions 🧭
+                              מעקב 🧭
                             </a>
                           </div>
                         </div>
@@ -1685,7 +1685,7 @@ export default function App() {
 
                     <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                       <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ flex: 1, padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)' }}>📍 עדכן מיקום יום</button>
-                      <button onClick={() => alert('🔄 המיקומים עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן מיקומים</button>
+                      <button onClick={() => alert('🔄 המיקומים ונתוני הסוללה עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן רדאר</button>
                     </div>
                   </div>
                 </div>
