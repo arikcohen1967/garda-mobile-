@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.5 ---
-const APP_VERSION = 'v9.9.5';
+// --- GARDA-MOBILE v9.9.6 ---
+const APP_VERSION = 'v9.9.6';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -267,7 +267,7 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         challenge: {
           title: "שיא הטיול המשפחתי!",
           desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
@@ -397,10 +397,8 @@ export default function App() {
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   const [activeSoundAlert, setActiveSoundAlert] = useState(null);
   
-  // מצבי ניהול רדאר מתקדמים (גידור גיאוגרפי ונקודת כינוס)
-  const [safeZoneRadiusKm, setSafeZoneRadiusKm] = useState(15); // רדיוס ביטחון ברירת מחדל
+  const [safeZoneRadiusKm, setSafeZoneRadiusKm] = useState(15);
   const [rallyPoint, setRallyPoint] = useState({ name: 'שער הכניסה הראשי (נקודת כינוס)', lat: 45.4526, lng: 10.7153 });
-  const [outOfBoundsAlerts, setOutOfBoundsAlerts] = useState([]);
 
   const [tripPhotos, setTripPhotos] = useState([]);
   const [photoCaptionInput, setPhotoCaptionInput] = useState('');
@@ -688,14 +686,14 @@ export default function App() {
   const alarmIntervalRef = useRef(null);
 
   const sendSoundAlert = async (targetName) => {
-    const customMsg = prompt(`שלח הודעה וצליל אל ${targetName}:`, "נא להגיע אל נקודת המפגש!");
+    const customMsg = prompt(`שלח צליל אזעקה והודעה אל ${targetName}:`, "נא ליצור קשר מיד! איפה אתם?");
     if (customMsg === null) return;
 
     playLongChime();
 
     const soundAlertPayload = {
       name: targetName,
-      sound_msg: customMsg || "התראה קולית מהרדאר המשפחתי!",
+      sound_msg: customMsg || "התראה קולית דחופה מהרדאר המשפחתי!",
       updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
       is_sound_alert: true
     };
@@ -704,6 +702,7 @@ export default function App() {
 
     try {
       await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
+      alert(`🔔 צליל התראה חזק נשלח בהצלחה אל ${targetName}!`);
     } catch (e) {}
   };
 
@@ -719,7 +718,7 @@ export default function App() {
       if (!ctx) return;
       if (ctx.state === 'suspended') ctx.resume();
 
-      const notes = [523.25, 659.25, 783.99, 1046.50];
+      const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
       notes.forEach((freq, idx) => {
         setTimeout(() => {
           try {
@@ -728,16 +727,16 @@ export default function App() {
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
-            gain.gain.setValueAtTime(0.4, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+            gain.gain.setValueAtTime(0.6, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
 
             osc.connect(gain);
             gain.connect(ctx.destination);
 
             osc.start();
-            osc.stop(ctx.currentTime + 0.6);
+            osc.stop(ctx.currentTime + 0.5);
           } catch (err) {}
-        }, idx * 200);
+        }, idx * 150);
       });
     } catch (e) {}
   };
@@ -1032,8 +1031,7 @@ export default function App() {
       }
     });
 
-    // הוספת סמן לנקודת הכינוס (Rally Point)
-    markersJS += `L.marker([${rallyPoint.lat}, ${rallyPoint.lng}], {icon: L.divIcon({className: 'rally-icon', html: '🚩', iconSize: [30, 30]})}).addTo(map).bindPopup('<b>נקודת כינוס חירום:</b><br>${rallyPoint.name}');\n`;
+    markersJS += `L.marker([${rallyPoint.lat}, ${rallyPoint.lng}]).addTo(map).bindPopup('<b>נקודת כינוס חירום:</b><br>${rallyPoint.name}');\n`;
 
     return `
       <!DOCTYPE html>
@@ -1208,7 +1206,7 @@ export default function App() {
       {activeSoundAlert && (
         <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '400px', background: '#2563eb', zIndex: 9998, borderRadius: '14px', padding: '18px', textAlign: 'center', color: '#fff', boxShadow: '0 15px 40px rgba(37, 99, 235, 0.4)', boxSizing: 'border-box', border: '2px solid rgba(255,255,255,0.3)' }}>
           <span style={{ fontSize: '32px' }}>🔔</span>
-          <h3 style={{ margin: '6px 0', fontSize: '16px', fontWeight: '900' }}>התראה קולית התקבלה!</h3>
+          <h3 style={{ margin: '6px 0', fontSize: '16px', fontWeight: '900' }}>התראה קולית דחופה!</h3>
           <p style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: '800', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px' }}>
             "{activeSoundAlert.sound_msg}"
           </p>
@@ -1232,7 +1230,7 @@ export default function App() {
 
       {showParkingMapModal && savedCarParking && (
         <div onClick={() => setShowParkingMapModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', flexDirection: 'column', backdropFilter: 'blur(10px)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#0b0f19' : '#fff', borderBottom: `1.5px solid ${borderColor}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#0b0f19' : '#fff', borderBottom: `1px solid ${borderColor}` }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>🧭 ניווט חי לרכב (מעקב מיקום דינמי)</h3>
             <button onClick={() => setShowParkingMapModal(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
           </div>
@@ -1646,7 +1644,6 @@ export default function App() {
                   
                   <div style={{ background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', padding: '14px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', maxHeight: '46vh', overflowY: 'auto' }}>
                     
-                    {/* פאנל ניהול כינוס וגידור */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(37, 99, 235, 0.15)' : '#eff6ff', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid rgba(37, 99, 235, 0.3)' }}>
                       <div>
                         <div style={{ fontSize: '12px', fontWeight: '900', color: '#2563eb' }}>🚩 נקודת כינוס: {rallyPoint.name}</div>
@@ -1657,7 +1654,7 @@ export default function App() {
                       </a>
                     </div>
 
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, marginTop: '4px' }}>סטטוס בני המשפחה (סוללה ומיקום אחרון):</span>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, marginTop: '4px' }}>סטטוס בני המשפחה (סוללה, מיקום אחרון ושליחת צליל חירום):</span>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {Object.values(familyLocations).map((person, pIdx) => (
@@ -1672,8 +1669,8 @@ export default function App() {
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#1e293b' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
-                              🔔 צליל
+                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)' }} title="שלח צליל חזק והודעה למכשיר של בן המשפחה">
+                              🔔 שלח צליל
                             </button>
                             <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
                               מעקב 🧭
