@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.7 ---
-const APP_VERSION = 'v9.9.7';
+// --- GARDA-MOBILE v9.9.8 ---
+const APP_VERSION = 'v9.9.8';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -682,14 +682,13 @@ export default function App() {
   const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
   const [ticketFiles] = useState(DEFAULT_DOCUMENTS);
 
-  const audioCtxRef = useRef(null);
   const alarmIntervalRef = useRef(null);
 
   const sendSoundAlert = async (targetName) => {
     const customMsg = prompt(`שלח צליל אזעקה והודעה אל ${targetName}:`, "נא ליצור קשר מיד! איפה אתם?");
     if (customMsg === null) return;
 
-    startContinuousAlarm();
+    playRobustAlarm();
 
     const soundAlertPayload = {
       name: targetName,
@@ -702,62 +701,50 @@ export default function App() {
 
     try {
       await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
-      alert(`🔔 צליל אזעקה נשלח בהצלחה אל ${targetName}! (ינגן עד 30 שניות או עד לחיצה על אישור)`);
+      alert(`🔔 צליל אזעקה (עד 30 שניות) נשלח אל ${targetName}!`);
     } catch (e) {}
   };
 
-  // מנגנון צליל רציף למשך 30 שניות מלאות או עד כיבוי ידני
-  const startContinuousAlarm = () => {
+  // מנגנון צליל עוצמתי וחזק למשך 30 שניות מלאות (או עד להפסקה ידנית)
+  const playRobustAlarm = () => {
     try {
-      if (!audioCtxRef.current) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) {
-          audioCtxRef.current = new AudioContextClass();
-        }
-      }
-      const ctx = audioCtxRef.current;
-      if (!ctx) return;
-      if (ctx.state === 'suspended') ctx.resume();
-
       if (alarmIntervalRef.current) clearInterval(alarmIntervalRef.current);
 
-      let elapsedSec = 0;
+      let counter = 0;
       alarmIntervalRef.current = setInterval(() => {
-        elapsedSec += 1;
-        // כיבוי אוטומטי לאחר 30 שניות
-        if (elapsedSec >= 30) {
-          stopContinuousAlarm();
+        counter++;
+        if (counter > 30) {
+          stopRobustAlarm();
           return;
         }
 
         try {
-          const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
-          notes.forEach((freq, idx) => {
-            setTimeout(() => {
-              try {
-                if (!audioCtxRef.current) return;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            const ctx = new AudioContextClass();
+            if (ctx.state === 'suspended') ctx.resume();
 
-                gain.gain.setValueAtTime(0.5, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.4);
 
-                osc.connect(gain);
-                gain.connect(ctx.destination);
+            gain.gain.setValueAtTime(0.7, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
 
-                osc.start();
-                osc.stop(ctx.currentTime + 0.3);
-              } catch (err) {}
-            }, idx * 120);
-          });
-        } catch (e) {}
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start();
+            osc.stop(ctx.currentTime + 0.8);
+          }
+        } catch (err) {}
       }, 1000);
     } catch (e) {}
   };
 
-  const stopContinuousAlarm = () => {
+  const stopRobustAlarm = () => {
     if (alarmIntervalRef.current) {
       clearInterval(alarmIntervalRef.current);
       alarmIntervalRef.current = null;
@@ -791,7 +778,7 @@ export default function App() {
           }
           if (payload.new.is_sound_alert && payload.new.name === currentUser) {
             setActiveSoundAlert(payload.new);
-            startContinuousAlarm();
+            playRobustAlarm();
           }
         }
       })
@@ -808,7 +795,7 @@ export default function App() {
       window.removeEventListener('offline', handleOffline);
       supabase.removeChannel(channel);
       stopSirenSound();
-      stopContinuousAlarm();
+      stopRobustAlarm();
     };
   }, [currentUser]);
 
@@ -863,47 +850,12 @@ export default function App() {
 
   const triggerSirenSound = () => {
     try {
-      if (!audioCtxRef.current) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) {
-          audioCtxRef.current = new AudioContextClass();
-        }
-      }
-      const ctx = audioCtxRef.current;
-      if (!ctx) return;
-      if (ctx.state === 'suspended') ctx.resume();
-
-      let freq = 300;
-      if (alarmIntervalRef.current) clearInterval(alarmIntervalRef.current);
-
-      alarmIntervalRef.current = setInterval(() => {
-        try {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-          gain.gain.setValueAtTime(0.1, ctx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 0.4);
-
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-
-          osc.start();
-          osc.stop(ctx.currentTime + 0.4);
-
-          freq += 80;
-          if (freq > 1200) freq = 300;
-        } catch (e) {}
-      }, 500);
+      playRobustAlarm();
     } catch (e) {}
   };
 
   const stopSirenSound = () => {
-    if (alarmIntervalRef.current) {
-      clearInterval(alarmIntervalRef.current);
-      alarmIntervalRef.current = null;
-    }
+    stopRobustAlarm();
   };
 
   const triggerSos = async () => {
@@ -919,7 +871,7 @@ export default function App() {
         is_sos: true
       };
       setActiveSosAlert(sosData);
-      triggerSirenSound();
+      playRobustAlarm();
       try {
         await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
       } catch (e) {}
@@ -927,7 +879,7 @@ export default function App() {
   };
 
   const dismissSos = async () => {
-    stopSirenSound();
+    stopRobustAlarm();
     setActiveSosAlert(null);
     try {
       await supabase.from('family_radar').upsert([{ name: currentUser, is_sos: false }], { onConflict: 'name' });
@@ -1235,7 +1187,7 @@ export default function App() {
             "{activeSoundAlert.sound_msg}"
           </p>
           <span style={{ fontSize: '11px', opacity: 0.85, display: 'block', marginBottom: '12px' }}>נשלח על ידי: {activeSoundAlert.name} ({activeSoundAlert.updated_at})</span>
-          <button onClick={() => { stopContinuousAlarm(); setActiveSoundAlert(null); }} style={{ padding: '8px 22px', background: '#fff', color: '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+          <button onClick={() => { stopRobustAlarm(); setActiveSoundAlert(null); }} style={{ padding: '8px 22px', background: '#fff', color: '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
             הפסק צליל ואישור ✓
           </button>
         </div>
