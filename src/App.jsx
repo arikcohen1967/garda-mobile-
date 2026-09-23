@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.9 ---
-const APP_VERSION = 'v9.9.9';
+// --- GARDA-MOBILE v9.9.10 ---
+const APP_VERSION = 'v9.9.10';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -682,13 +682,13 @@ export default function App() {
   const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
   const [ticketFiles] = useState(DEFAULT_DOCUMENTS);
 
-  const alarmIntervalRef = useRef(null);
+  const chimeIntervalRef = useRef(null);
 
   const sendSoundAlert = async (targetName) => {
     const customMsg = prompt(`שלח התראה נעימה אל ${targetName}:`, "נא ליצור קשר כשאתם יכולים!");
     if (customMsg === null) return;
 
-    playChimeMelody();
+    playExtendedChimeMelody();
 
     const soundAlertPayload = {
       name: targetName,
@@ -701,20 +701,21 @@ export default function App() {
 
     try {
       await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
-      alert(`🔔 צליל התראה נעים נשלח בהצלחה אל ${targetName}!`);
+      alert(`🔔 צליל פעמונים נעים מנגן כעת (למשך 30 שניות מלאות או עד כיבוי) אל ${targetName}!`);
     } catch (e) {}
   };
 
-  // מנגינת פעמונים נעימה (Chimes) המנגנת בלופ למשך 30 שניות מלאות או עד כיבוי ידני
-  const playChimeMelody = () => {
+  // מנגינת פעמונים נעימה המנגנת ברציפות במשך 30 שניות מלאות בדיוק
+  const playExtendedChimeMelody = () => {
     try {
-      if (alarmIntervalRef.current) clearInterval(alarmIntervalRef.current);
+      if (chimeIntervalRef.current) clearInterval(chimeIntervalRef.current);
 
-      let counter = 0;
-      alarmIntervalRef.current = setInterval(() => {
-        counter++;
-        if (counter > 15) { // 15 מחזורים של שנתיים = 30 שניות
-          stopChimeMelody();
+      let cycles = 0;
+      chimeIntervalRef.current = setInterval(() => {
+        cycles++;
+        // 15 מחזורים * 2 שניות = בדיוק 30 שניות
+        if (cycles > 15) {
+          stopExtendedChimeMelody();
           return;
         }
 
@@ -724,37 +725,36 @@ export default function App() {
             const ctx = new AudioContextClass();
             if (ctx.state === 'suspended') ctx.resume();
 
-            // אקורד פעמונים נעים ומרגיע (C Major 9)
             const notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
             notes.forEach((freq, idx) => {
               setTimeout(() => {
                 try {
                   const osc = ctx.createOscillator();
                   const gain = ctx.createGain();
-                  osc.type = 'sine'; // צליל סינוס רך ונעים כמו תיבת נגינה
+                  osc.type = 'sine';
                   osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
-                  gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
+                  gain.gain.setValueAtTime(0.35, ctx.currentTime);
+                  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.4);
 
                   osc.connect(gain);
                   gain.connect(ctx.destination);
 
                   osc.start();
-                  osc.stop(ctx.currentTime + 1.2);
+                  osc.stop(ctx.currentTime + 1.4);
                 } catch (err) {}
               }, idx * 250);
             });
           }
-        } catch (err) {}
+        } catch (e) {}
       }, 2000);
     } catch (e) {}
   };
 
-  const stopChimeMelody = () => {
-    if (alarmIntervalRef.current) {
-      clearInterval(alarmIntervalRef.current);
-      alarmIntervalRef.current = null;
+  const stopExtendedChimeMelody = () => {
+    if (chimeIntervalRef.current) {
+      clearInterval(chimeIntervalRef.current);
+      chimeIntervalRef.current = null;
     }
   };
 
@@ -781,11 +781,11 @@ export default function App() {
           setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
           if (payload.new.is_sos) {
             setActiveSosAlert(payload.new);
-            playChimeMelody();
+            playExtendedChimeMelody();
           }
           if (payload.new.is_sound_alert && payload.new.name === currentUser) {
             setActiveSoundAlert(payload.new);
-            playChimeMelody();
+            playExtendedChimeMelody();
           }
         }
       })
@@ -801,7 +801,7 @@ export default function App() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       supabase.removeChannel(channel);
-      stopChimeMelody();
+      stopExtendedChimeMelody();
     };
   }, [currentUser]);
 
@@ -867,7 +867,7 @@ export default function App() {
         is_sos: true
       };
       setActiveSosAlert(sosData);
-      playChimeMelody();
+      playExtendedChimeMelody();
       try {
         await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
       } catch (e) {}
@@ -875,7 +875,7 @@ export default function App() {
   };
 
   const dismissSos = async () => {
-    stopChimeMelody();
+    stopExtendedChimeMelody();
     setActiveSosAlert(null);
     try {
       await supabase.from('family_radar').upsert([{ name: currentUser, is_sos: false }], { onConflict: 'name' });
@@ -1183,7 +1183,7 @@ export default function App() {
             "{activeSoundAlert.sound_msg}"
           </p>
           <span style={{ fontSize: '11px', opacity: 0.85, display: 'block', marginBottom: '12px' }}>נשלח על ידי: {activeSoundAlert.name} ({activeSoundAlert.updated_at})</span>
-          <button onClick={() => { stopChimeMelody(); setActiveSoundAlert(null); }} style={{ padding: '8px 22px', background: '#fff', color: '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+          <button onClick={() => { stopExtendedChimeMelody(); setActiveSoundAlert(null); }} style={{ padding: '8px 22px', background: '#fff', color: '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
             הפסק צליל ואישור ✓
           </button>
         </div>
