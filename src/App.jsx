@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.8 ---
-const APP_VERSION = 'v9.9.8';
+// --- GARDA-MOBILE v9.9.9 ---
+const APP_VERSION = 'v9.9.9';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -685,14 +685,14 @@ export default function App() {
   const alarmIntervalRef = useRef(null);
 
   const sendSoundAlert = async (targetName) => {
-    const customMsg = prompt(`שלח צליל אזעקה והודעה אל ${targetName}:`, "נא ליצור קשר מיד! איפה אתם?");
+    const customMsg = prompt(`שלח התראה נעימה אל ${targetName}:`, "נא ליצור קשר כשאתם יכולים!");
     if (customMsg === null) return;
 
-    playRobustAlarm();
+    playChimeMelody();
 
     const soundAlertPayload = {
       name: targetName,
-      sound_msg: customMsg || "התראה קולית דחופה מהרדאר המשפחתי!",
+      sound_msg: customMsg || "התראה קולית מהרדאר המשפחתי!",
       updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
       is_sound_alert: true
     };
@@ -701,20 +701,20 @@ export default function App() {
 
     try {
       await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
-      alert(`🔔 צליל אזעקה (עד 30 שניות) נשלח אל ${targetName}!`);
+      alert(`🔔 צליל התראה נעים נשלח בהצלחה אל ${targetName}!`);
     } catch (e) {}
   };
 
-  // מנגנון צליל עוצמתי וחזק למשך 30 שניות מלאות (או עד להפסקה ידנית)
-  const playRobustAlarm = () => {
+  // מנגינת פעמונים נעימה (Chimes) המנגנת בלופ למשך 30 שניות מלאות או עד כיבוי ידני
+  const playChimeMelody = () => {
     try {
       if (alarmIntervalRef.current) clearInterval(alarmIntervalRef.current);
 
       let counter = 0;
       alarmIntervalRef.current = setInterval(() => {
         counter++;
-        if (counter > 30) {
-          stopRobustAlarm();
+        if (counter > 15) { // 15 מחזורים של שנתיים = 30 שניות
+          stopChimeMelody();
           return;
         }
 
@@ -724,27 +724,34 @@ export default function App() {
             const ctx = new AudioContextClass();
             if (ctx.state === 'suspended') ctx.resume();
 
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(880, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.4);
+            // אקורד פעמונים נעים ומרגיע (C Major 9)
+            const notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
+            notes.forEach((freq, idx) => {
+              setTimeout(() => {
+                try {
+                  const osc = ctx.createOscillator();
+                  const gain = ctx.createGain();
+                  osc.type = 'sine'; // צליל סינוס רך ונעים כמו תיבת נגינה
+                  osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
-            gain.gain.setValueAtTime(0.7, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+                  gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
 
-            osc.connect(gain);
-            gain.connect(ctx.destination);
+                  osc.connect(gain);
+                  gain.connect(ctx.destination);
 
-            osc.start();
-            osc.stop(ctx.currentTime + 0.8);
+                  osc.start();
+                  osc.stop(ctx.currentTime + 1.2);
+                } catch (err) {}
+              }, idx * 250);
+            });
           }
         } catch (err) {}
-      }, 1000);
+      }, 2000);
     } catch (e) {}
   };
 
-  const stopRobustAlarm = () => {
+  const stopChimeMelody = () => {
     if (alarmIntervalRef.current) {
       clearInterval(alarmIntervalRef.current);
       alarmIntervalRef.current = null;
@@ -774,11 +781,11 @@ export default function App() {
           setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
           if (payload.new.is_sos) {
             setActiveSosAlert(payload.new);
-            triggerSirenSound();
+            playChimeMelody();
           }
           if (payload.new.is_sound_alert && payload.new.name === currentUser) {
             setActiveSoundAlert(payload.new);
-            playRobustAlarm();
+            playChimeMelody();
           }
         }
       })
@@ -794,8 +801,7 @@ export default function App() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       supabase.removeChannel(channel);
-      stopSirenSound();
-      stopRobustAlarm();
+      stopChimeMelody();
     };
   }, [currentUser]);
 
@@ -848,16 +854,6 @@ export default function App() {
     } catch (e) {}
   };
 
-  const triggerSirenSound = () => {
-    try {
-      playRobustAlarm();
-    } catch (e) {}
-  };
-
-  const stopSirenSound = () => {
-    stopRobustAlarm();
-  };
-
   const triggerSos = async () => {
     if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
     if (!window.confirm('🚨 להפעיל אזעקת חירום SOS לכל בני המשפחה?')) return;
@@ -871,7 +867,7 @@ export default function App() {
         is_sos: true
       };
       setActiveSosAlert(sosData);
-      playRobustAlarm();
+      playChimeMelody();
       try {
         await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
       } catch (e) {}
@@ -879,7 +875,7 @@ export default function App() {
   };
 
   const dismissSos = async () => {
-    stopRobustAlarm();
+    stopChimeMelody();
     setActiveSosAlert(null);
     try {
       await supabase.from('family_radar').upsert([{ name: currentUser, is_sos: false }], { onConflict: 'name' });
@@ -1182,12 +1178,12 @@ export default function App() {
       {activeSoundAlert && (
         <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '400px', background: '#2563eb', zIndex: 9998, borderRadius: '14px', padding: '18px', textAlign: 'center', color: '#fff', boxShadow: '0 15px 40px rgba(37, 99, 235, 0.4)', boxSizing: 'border-box', border: '2px solid rgba(255,255,255,0.3)' }}>
           <span style={{ fontSize: '32px' }}>🔔</span>
-          <h3 style={{ margin: '6px 0', fontSize: '16px', fontWeight: '900' }}>התראה קולית דחופה!</h3>
+          <h3 style={{ margin: '6px 0', fontSize: '16px', fontWeight: '900' }}>התראה נעימה התקבלה!</h3>
           <p style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: '800', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px' }}>
             "{activeSoundAlert.sound_msg}"
           </p>
           <span style={{ fontSize: '11px', opacity: 0.85, display: 'block', marginBottom: '12px' }}>נשלח על ידי: {activeSoundAlert.name} ({activeSoundAlert.updated_at})</span>
-          <button onClick={() => { stopRobustAlarm(); setActiveSoundAlert(null); }} style={{ padding: '8px 22px', background: '#fff', color: '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+          <button onClick={() => { stopChimeMelody(); setActiveSoundAlert(null); }} style={{ padding: '8px 22px', background: '#fff', color: '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
             הפסק צליל ואישור ✓
           </button>
         </div>
@@ -1630,7 +1626,7 @@ export default function App() {
                       </a>
                     </div>
 
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, marginTop: '4px' }}>סטטוס בני המשפחה (סוללה, מיקום אחרון ושליחת צליל חירום):</span>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, marginTop: '4px' }}>סטטוס בני המשפחה (סוללה, מיקום אחרון ושליחת התראה נעימה):</span>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {Object.values(familyLocations).map((person, pIdx) => (
@@ -1645,7 +1641,7 @@ export default function App() {
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)' }} title="שלח צליל חזק והודעה למכשיר של בן המשפחה">
+                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)' }} title="שלח צליל פעמונים נעים למכשיר של בן המשפחה">
                               🔔 שלח צליל
                             </button>
                             <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
