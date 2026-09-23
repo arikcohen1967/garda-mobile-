@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9 ---
-const APP_VERSION = 'v9.9';
+// --- GARDA-MOBILE v9.9.1 ---
+const APP_VERSION = 'v9.9.1';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,14 +37,14 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה ורונה", 
+        name: "נחיתה בנמל התעופה وרונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
         note: "איסוף מזוודות וקבלת הרכב השכור בשדה התעופה.",
         challenge: {
           title: "סלפי משפחתי ראשון באיטליה!",
-          desc: "נחתנו! המשימה שלכם: סלפי משפחתי חגיגי בשדה או מיד עם קבלת הרכב השכור."
+          desc: "נחתנו! המשימה שלכם: סלפי משפחתי חגיגי בשדה או מיд עם קבלת הרכב השכור."
         }
       },
       { 
@@ -55,7 +55,7 @@ const INITIAL_TRIP_DAYS = [
         lng: 10.6908, 
         note: "צ׳ק-אין במלון ומנוחה קצרה לפני היציאה לארוחת ערב.",
         creative: {
-          name: "נהר המינצ'ו בפסקיירה",
+          name: "נהר המינצ'و בפסקיירה",
           dest: "Peschiera del Garda, Italy",
           desc: "עצירה קצרה ומרגיעה ליד גדת הנהר לפתיחת מחברות ציור ותיעוד הנוף הראשון שלכם באיטליה."
         },
@@ -251,10 +251,10 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         challenge: {
           title: "שיא הטיול המשפחתי!",
-          desc: "בוחרים יחד בארנה של ורונה את הרגע המצחיק והמרגש ביותר של הטיול."
+          desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
         },
         culinary: {
           name: "Farcito Verona",
@@ -301,6 +301,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'medieval-times', folder: '🎬 Movieland', title: 'Medieval Times - כרטיס משפחתי (5 מבוגרים)', ticketCode: 'CVBDK20260922114620', trans: '195.00€', desc: 'מופע אבירים וארוחה (Tikez) - 03.10.2026 בשעה 19:30' }
 ];
 
+// יצירת מערך שאלות טריויה מראש (מונע שימוש בזיכרון מחדש בכל רינדור)
 const ROAD_TRIVIA_QUESTIONS = Array.from({ length: 1000 }, (_, i) => {
   const id = i + 1;
   const banks = [
@@ -348,136 +349,6 @@ const calculateDistanceAndDuration = (lat1, lon1, lat2, lon2) => {
   };
 };
 
-const generateRouteMapHTML = (myLoc, targetDayIndex, isDark) => {
-  const currentLat = myLoc?.lat || 45.4384;
-  const currentLng = myLoc?.lng || 10.6816;
-
-  const targetDayObj = INITIAL_TRIP_DAYS[targetDayIndex] || INITIAL_TRIP_DAYS[0];
-  const firstStop = targetDayObj.stops[0];
-  const destLat = firstStop?.lat || 45.4192;
-  const destLng = firstStop?.lng || 10.6908;
-  const destName = firstStop?.name || targetDayObj.title;
-
-  const { dist, duration } = calculateDistanceAndDuration(currentLat, currentLng, destLat, destLng);
-
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-      <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; }
-        #map { width: 100%; height: 100%; }
-        .route-badge {
-          position: absolute;
-          top: 15px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 9999;
-          background: ${isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.95)'};
-          color: ${isDark ? '#f8fafc' : '#0f172a'};
-          padding: 8px 14px;
-          border-radius: 10px;
-          font-weight: 900;
-          font-size: 12px;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-          backdrop-filter: blur(10px);
-          border: 1.5px solid ${isDark ? 'rgba(255,255,255,0.2)' : '#cbd5e1'};
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          direction: rtl;
-        }
-        .route-badge span { color: #2563eb; }
-      </style>
-    </head>
-    <body>
-      <div class="route-badge">
-        <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️ זמן:</span> ${duration}
-      </div>
-      <div id="map"></div>
-      <script>
-        const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
-        L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך (GPS)').openPopup();
-        L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ' + "${destName}");
-
-        const latlngs = [
-          [${currentLat}, ${currentLng}],
-          [${destLat}, ${destLng}]
-        ];
-        L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
-      </script>
-    </body>
-    </html>
-  `;
-};
-
-const generateMapHTML = (familyLocs, myLoc, sosState, activeDayIndex, isDark) => {
-  let centerLat = 45.4384, centerLng = 10.6816;
-  if (sosState?.lat) { centerLat = sosState.lat; centerLng = sosState.lng; }
-  else if (myLoc?.lat) { centerLat = myLoc.lat; centerLng = myLoc.lng; }
-
-  const currentDayObj = INITIAL_TRIP_DAYS[activeDayIndex] || INITIAL_TRIP_DAYS[0];
-  const nextStop = currentDayObj.stops[0];
-  const nextLat = nextStop?.lat || 45.4192;
-  const nextLng = nextStop?.lng || 10.6908;
-  const nextName = nextStop?.name || 'היעד הבא';
-
-  let markersJS = '';
-  Object.values(familyLocs).forEach(loc => {
-    if (loc && loc.lat) {
-      markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>עודכן: ${loc.updated_at || 'עכשיו'}');\n`;
-    }
-  });
-
-  let routePolylineJS = '';
-  if (myLoc && myLoc.lat) {
-    routePolylineJS = `
-      const latlngs = [
-        [${myLoc.lat}, ${myLoc.lng}],
-        [${nextLat}, ${nextLng}]
-      ];
-      const polyline = L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
-      L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
-    `;
-  } else {
-    routePolylineJS = `
-      L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
-    `;
-  }
-
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-      <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; } #map { width: 100%; height: 100%; }</style>
-    </head>
-    <body>
-      <div id="map"></div>
-      <script>
-        const map = L.map('map').setView([${centerLat}, ${centerLng}], 11);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-        const myLocData = ${JSON.stringify(myLoc)};
-        if (myLocData && myLocData.lat) {
-          L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
-        }
-        ${markersJS}
-        ${routePolylineJS}
-      </script>
-    </body>
-    </html>
-  `;
-};
-
 export default function App() {
   const [activeDay, setActiveDay] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -515,6 +386,7 @@ export default function App() {
   const [photoCaptionInput, setPhotoCaptionInput] = useState('');
   const [selectedPhotoViewer, setSelectedPhotoViewer] = useState(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const photoFileInputRef = useRef(null);
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -568,6 +440,7 @@ export default function App() {
         setTripPhotos(prev => [newPhotoRecord, ...prev]);
       } finally {
         setIsUploadingPhoto(false);
+        if (photoFileInputRef.current) photoFileInputRef.current.value = '';
       }
     };
     reader.readAsDataURL(file);
@@ -654,12 +527,17 @@ export default function App() {
   const executeBackupDownload = () => {
     if (adminPassInput.trim() === "1967") {
       try {
-        const fullSourceCode = `// Garda-Mobile ${APP_VERSION} Full Backup Source Code\n// תאריך הפקה: ${new Date().toLocaleString('he-IL')}\n\n` + document.documentElement.outerHTML;
-        const blob = new Blob([fullSourceCode], { type: 'text/javascript;charset=utf-8' });
+        const backupData = JSON.stringify({
+          version: APP_VERSION,
+          date: new Date().toISOString(),
+          carParking: savedCarParking,
+          scores: travelerScores
+        }, null, 2);
+        const blob = new Blob([backupData], { type: 'application/json;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `garda-mobile-${APP_VERSION}-full-backup.js`;
+        link.download = `garda-mobile-${APP_VERSION}-backup.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -688,22 +566,17 @@ export default function App() {
     reader.onload = (event) => {
       try {
         const fileContent = event.target.result;
-        if (!fileContent.includes("Garda-Mobile")) {
-          alert("❌ קובץ לא חוקי או שאינו קובץ גיבוי של Garda-Mobile!");
+        const parsedData = JSON.parse(fileContent);
+        if (!parsedData || !parsedData.version) {
+          alert("❌ קובץ לא חוקי או שאינו קובץ גיבוי תקין של Garda-Mobile!");
           return;
         }
 
-        if (window.confirm("⚠️ אזהרה: שחזור מערכת יחליף את המצב הנוכחי בקובץ הגיבוי שנבחר מהקבצים. להמשיך?")) {
-          const blob = new Blob([fileContent], { type: 'text/html;charset=utf-8' });
-          const restoreUrl = URL.createObjectURL(blob);
-          const newWin = window.open(restoreUrl, '_blank');
-          if (!newWin) {
-            document.open();
-            document.write(fileContent);
-            document.close();
-          } else {
-            alert("✅ הגיבוי נטען ונפתח בהצלחה מהקבצים!");
-          }
+        if (window.confirm("⚠️ אזהרה: שחזור מערכת יעדכן את הנתונים הנוכחיים מתוך קובץ הגיבוי שנבחר. להמשיך?")) {
+          if (parsedData.carParking) setSavedCarParking(parsedData.carParking);
+          if (parsedData.scores) setTravelerScores(parsedData.scores);
+          alert("✅ הגיבוי שוחזר בהצלחה!");
+          setBackupModalOpen(false);
         }
       } catch (err) {
         alert("❌ שגיאה בקריאת קובץ הגיבוי.");
@@ -817,9 +690,13 @@ export default function App() {
   const playLongChime = () => {
     try {
       if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtxRef.current = new AudioContextClass();
+        }
       }
       const ctx = audioCtxRef.current;
+      if (!ctx) return;
       if (ctx.state === 'suspended') ctx.resume();
 
       const notes = [523.25, 659.25, 783.99, 1046.50];
@@ -944,9 +821,13 @@ export default function App() {
   const triggerSirenSound = () => {
     try {
       if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtxRef.current = new AudioContextClass();
+        }
       }
       const ctx = audioCtxRef.current;
+      if (!ctx) return;
       if (ctx.state === 'suspended') ctx.resume();
 
       let freq = 300;
@@ -1050,6 +931,137 @@ export default function App() {
     try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
   };
 
+  // אופטימיזציה למפות באמצעות useMemo כדי למנוע ריצוד מיותר
+  const routeMapHTML = useMemo(() => {
+    const currentLat = myLocation?.lat || 45.4384;
+    const currentLng = myLocation?.lng || 10.6816;
+
+    const targetDayObj = INITIAL_TRIP_DAYS[activeDay] || INITIAL_TRIP_DAYS[0];
+    const firstStop = targetDayObj.stops[0];
+    const destLat = firstStop?.lat || 45.4192;
+    const destLng = firstStop?.lng || 10.6908;
+    const destName = firstStop?.name || targetDayObj.title;
+
+    const { dist, duration } = calculateDistanceAndDuration(currentLat, currentLng, destLat, destLng);
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <style>
+          body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; }
+          #map { width: 100%; height: 100%; }
+          .route-badge {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background: ${isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.95)'};
+            color: ${isDark ? '#f8fafc' : '#0f172a'};
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid ${isDark ? 'rgba(255,255,255,0.2)' : '#cbd5e1'};
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            direction: rtl;
+          }
+          .route-badge span { color: #2563eb; }
+        </style>
+      </head>
+      <body>
+        <div class="route-badge">
+          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️ זמן:</span> ${duration}
+        </div>
+        <div id="map"></div>
+        <script>
+          const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+          L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך (GPS)').openPopup();
+          L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ' + "${destName}");
+
+          const latlngs = [
+            [${currentLat}, ${currentLng}],
+            [${destLat}, ${destLng}]
+          ];
+          L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
+        </script>
+      </body>
+      </html>
+    `;
+  }, [myLocation, activeDay, isDark]);
+
+  const radarMapHTML = useMemo(() => {
+    let centerLat = 45.4384, centerLng = 10.6816;
+    if (activeSosAlert?.lat) { centerLat = activeSosAlert.lat; centerLng = activeSosAlert.lng; }
+    else if (myLocation?.lat) { centerLat = myLocation.lat; centerLng = myLocation.lng; }
+
+    const currentDayObj = INITIAL_TRIP_DAYS[activeDay] || INITIAL_TRIP_DAYS[0];
+    const nextStop = currentDayObj.stops[0];
+    const nextLat = nextStop?.lat || 45.4192;
+    const nextLng = nextStop?.lng || 10.6908;
+    const nextName = nextStop?.name || 'היעד הבא';
+
+    let markersJS = '';
+    Object.values(familyLocations).forEach(loc => {
+      if (loc && loc.lat) {
+        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>עודכן: ${loc.updated_at || 'עכשיו'}');\n`;
+      }
+    });
+
+    let routePolylineJS = '';
+    if (myLocation && myLocation.lat) {
+      routePolylineJS = `
+        const latlngs = [
+          [${myLocation.lat}, ${myLocation.lng}],
+          [${nextLat}, ${nextLng}]
+        ];
+        const polyline = L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
+        L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
+      `;
+    } else {
+      routePolylineJS = `
+        L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
+      `;
+    }
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; } #map { width: 100%; height: 100%; }</style>
+      </head>
+      <body>
+        <div id="map"></div>
+        <script>
+          const map = L.map('map').setView([${centerLat}, ${centerLng}], 11);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+          const myLocData = ${JSON.stringify(myLocation)};
+          if (myLocData && myLocData.lat) {
+            L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
+          }
+          ${markersJS}
+          ${routePolylineJS}
+        </script>
+      </body>
+      </html>
+    `;
+  }, [familyLocations, myLocation, activeSosAlert, activeDay, isDark]);
+
   const handleTriviaAnswer = (optIdx) => {
     if (isTriviaPaused || selectedAnswer !== null) return;
     setSelectedAnswer(optIdx);
@@ -1121,7 +1133,7 @@ export default function App() {
             {backupSuccessMsg ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1.5px solid #10b981', padding: '16px', borderRadius: '14px', fontWeight: '900', fontSize: '14px', lineHeight: '1.4' }}>
-                  💾 גיבוי מלא של האפליקציה הורד בהצלחה ונשמר בתיקיית ההורדות/קבצים!
+                  💾 קובץ הגיבוי הורד בהצלחה ונשמר במכשיר!
                 </div>
                 <button 
                   onClick={() => setBackupSuccessMsg(false)} 
@@ -1133,7 +1145,7 @@ export default function App() {
             ) : (
               <>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'right' }}>
-                  <label style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>1. יצירת גיבוי חדש ושמירה ב"קבצים":</label>
+                  <label style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>1. יצירת גיבוי חדש ושמירה:</label>
                   <input 
                     type="password" 
                     placeholder="הזן קוד מנהל ליצירת גיבוי (1967)" 
@@ -1152,7 +1164,7 @@ export default function App() {
                 <hr style={{ width: '100%', border: `0.5px solid ${borderColor}`, margin: '4px 0' }} />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'right' }}>
-                  <label style={{ fontSize: '12px', fontWeight: '900', color: '#ef4444' }}>2. מצב דיסאסטר - שחזור מ"קבצים":</label>
+                  <label style={{ fontSize: '12px', fontWeight: '900', color: '#ef4444' }}>2. שחזור נתונים מקובץ:</label>
                   <input 
                     type="password" 
                     placeholder="הזן קוד מנהל לשחזור (1967)" 
@@ -1164,7 +1176,7 @@ export default function App() {
                     type="file" 
                     ref={fileInputRef} 
                     onChange={handleFileUploadRestore} 
-                    accept=".js,.html,.txt" 
+                    accept=".json,.txt" 
                     style={{ display: 'none' }} 
                     id="restore-file-input" 
                   />
@@ -1178,7 +1190,7 @@ export default function App() {
                     }} 
                     style={{ width: '100%', padding: '12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}
                   >
-                    בחר קובץ גיבוי מ"קבצים" ושחזר 📂
+                    בחר קובץ גיבוי ושחזר 📂
                   </button>
                 </div>
 
@@ -1623,14 +1635,14 @@ export default function App() {
               
               {modalType === 'route-map' && (
                 <div style={{ flex: 1, width: '100%', height: '100%' }}>
-                  <iframe title="Route Map" srcDoc={generateRouteMapHTML(myLocation, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
+                  <iframe title="Route Map" srcDoc={routeMapHTML} style={{ width: '100%', height: '100%', border: 'none' }} />
                 </div>
               )}
 
               {modalType === 'radar' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', overflow: 'hidden' }}>
                   <div style={{ flex: 1, width: '100%', minHeight: '45vh', overflow: 'hidden' }}>
-                    <iframe title="Map" srcDoc={generateMapHTML(familyLocations, myLocation, activeSosAlert, activeDay, isDark)} style={{ width: '100%', height: '100%', border: 'none' }} />
+                    <iframe title="Map" srcDoc={radarMapHTML} style={{ width: '100%', height: '100%', border: 'none' }} />
                   </div>
                   
                   <div style={{ background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', padding: '14px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', maxHeight: '42vh', overflowY: 'auto' }}>
@@ -1749,6 +1761,7 @@ export default function App() {
                     <input 
                       type="file" 
                       accept="image/*" 
+                      ref={photoFileInputRef}
                       id="trip-photo-file-input" 
                       style={{ display: 'none' }} 
                       onChange={handleUploadPhotoFile} 
