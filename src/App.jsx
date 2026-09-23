@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.2 ---
-const APP_VERSION = 'v9.9.2';
+// --- GARDA-MOBILE v9.9.4 ---
+const APP_VERSION = 'v9.9.4';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה ורונה", 
+        name: "נחיתה בנמל התעופה وרונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -208,37 +208,53 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-05", label: "שני · 05/10", title: "X Rafting + Borghetto", icon: "🚣",
+    date: "2026-10-05", label: "שני · 05/10", title: "לימונה + אגם טנו + ריבה/בארונה", icon: "🍋",
     stops: [
       { 
-        time: "09:00", 
-        name: "שיט אקסטרים ב-X Rafting", 
-        dest: "X Rafting, Italy", 
-        lat: 45.5512, 
-        lng: 10.8523, 
-        note: "חוויית ראפטינג רטובה ומגבשת בנהר האדיג'ה.",
+        time: "08:30", 
+        name: "לימונה סול גארדה והטיילת (Limone sul Garda)", 
+        dest: "Limone sul Garda Parking, Italy", 
+        lat: 45.8143, 
+        lng: 10.7932, 
+        note: "ירידה לצד המערבי של האגם, חנייה מסודרת וסיור מרגיע בטיילת הציורית התלויה ובסמטאות עצי הלימון.",
         challenge: {
-          title: "סלפי מים בראפטינג!",
-          desc: "תמונה משפחתית רטובה ומחייכת עם חגורות ההצלה והמשוטים."
+          title: "תמונת לימון משפחתית!",
+          desc: "מצאו פרי לימון אמיתי או סממן לימוני והצטלמו איתו בחיוך ענק."
         }
       },
       { 
-        time: "12:30", 
-        name: "Borghetto sul Mincio – כפר הטחנות", 
-        dest: "Borghetto sul Mincio", 
-        lat: 45.3524, 
-        lng: 10.6972, 
-        note: "אחד הכפרים היפים ביותר באיטליה – טחנות מים עתיקות וגשרי עץ.",
+        time: "11:30", 
+        name: "אגם טנו – פיקניק ושחייה (Lake Tenno)", 
+        dest: "Lago di Tenno, Italy", 
+        lat: 45.9221, 
+        lng: 10.8405, 
+        note: "עלייה קצרה להר לאגם טנו בעל המים בצבע טורקיז מרהיב – זמן למנוחה, פיקניק וטבילה מרעננת.",
         creative: {
-          name: "טחנות המים בבורגטו",
-          dest: "Borghetto sul Mincio",
-          desc: "בניית סירות עץ ועלים קטנות ושילוחן בזרם השקט של נהר המינצ'ו ליד הטחנות."
-        },
-        culinary: {
-          name: "Ristorante Alla Borsa (Valeggio)",
-          dest: "Valeggio sul Mincio, Italy",
-          desc: "טעימת 'קשר האהבה' (Nodo d'Amore) – הטורטליני המפורסם והדקיק ביותר בעולם במסעדה אותנטית."
+          name: "חופי טורקיז בטנו",
+          dest: "Lago di Tenno",
+          desc: "איסוף אבנים חלקות ומיוחדות משפת האגם והכנת מגדל אבנים משפחתי למזכרת."
         }
+      },
+      { 
+        time: "14:30", 
+        name: "ריבה דל גארדה או מפלי בארונה (Varone Waterfall)", 
+        dest: "Cascata del Varone, Riva del Garda", 
+        lat: 45.9085, 
+        lng: 10.8442, 
+        note: "ביקור בריבה דל גארדה הצפונית או כניסה למפלי בארונה המרהיבים הזורמים בתוך נקיק סלע פנימי.",
+        culinary: {
+          name: "Gelateria Flora (Riva del Garda)",
+          dest: "Riva del Garda, Italy",
+          desc: "גלידה איטלקית מעולה מול הנוף הפתוח של צפון האגם."
+        }
+      },
+      { 
+        time: "17:00", 
+        name: "נסיעה חזרה דרך מלצ'זינה (דרך המזרח)", 
+        dest: "Malcesine, Italy", 
+        lat: 45.7678, 
+        lng: 10.8119, 
+        note: "נסיעה חזרה דרומה דרך הגדה המזרחית של האגם ועצירה קצרה במלצ'זינה לקראת השקיעה."
       }
     ]
   },
@@ -251,10 +267,10 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         challenge: {
           title: "שיא הטיול המשפחתי!",
-          desc: "בוחרים יחד בארנה של ורונה את הרגע המצחיק והמרגש ביותר של הטיול."
+          desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
         },
         culinary: {
           name: "Farcito Verona",
