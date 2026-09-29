@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.15 ---
-const APP_VERSION = 'v9.9.15';
+// --- GARDA-MOBILE v9.9.16-FinalVRFix ---
+const APP_VERSION = 'v9.9.16-FinalVRFix';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -259,19 +259,27 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-06", label: "שלישי · 06/10", title: "ורונה + חזרה לישראל", icon: "❤️",
+    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR وרונה + חזרה לישראל", icon: "❤️",
     stops: [
       { 
-        time: "09:00", 
-        name: "סיור בעיר העתיקה בוורונה", 
+        time: "08:30", 
+        name: "רכישת משקפי VR בורונה (מדריך רכישה מלא ו-Tax Free)", 
+        dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", 
+        lat: 45.4093, 
+        lng: 10.9632, 
+        note: "מדריך מקוצר ושימושי לרכישת משקפי Meta Quest בורונה:\n\n1. השוואת דגמים ומחירי יעד:\n- Meta Quest 3S (128GB): ~€330–€350 (נטו לאחר Tax Free: ~€290–€310) | המומלץ ביותר לילדים ונוער.\n- Meta Quest 3S (256GB): ~€470 (נטו: ~€410–€415) | למשחקים כבדים.\n- Meta Quest 3 (512GB): ~€570–€620 (נטו: ~€500–€545) | דגם הדגל עם עדשות Pancake.\n\n2. חנויות מומלצות:\n- MediaWorld (קניון Adigeo, Viale delle Nazioni): חנות ענק עם הסיכוי הגבוה ביותר למלאי זמין על המדף.\n- Unieuro (סניף מרכז Via Cappello 34 או סניף פרברי Via Preare 42).\n\n3. צ'ק-ליסט Tax Free:\n- בקשו בעת הקנייה טופס החזר מס (Modulo Tax Free) והציגו דרכון.\n- אל תפתחו את האריזה עד לאישור המכס בשדה (Dogana).\n- החתימו את הטופס בשדה התעופה (בעמדת המכס או בקיוסקים הדיגיטליים) טרם קבלת הזיכוי.",
+        challenge: {
+          title: "משימת Tax Free!",
+          desc: "וידוא קבלת קבלה מקורית וטופס החזר מס עבור המשקפיים."
+        }
+      },
+      { 
+        time: "11:00", 
+        name: "סיור בעיר העתיקה בוורונה ואוכל", 
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
         note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
-        challenge: {
-          title: "שיא הטיול המשפחתי!",
-          desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
-        },
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
@@ -280,11 +288,11 @@ const INITIAL_TRIP_DAYS = [
       },
       { 
         time: "18:30", 
-        name: "שדה התעופה وרונה וחזרה הביתה", 
+        name: "שדה התעופה وרונה – מכס וחזרה הביתה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
-        note: "החזרת הרכב השכור, צ'ק-אין וטיסה ישירה חזרה לישראל.",
+        note: "מעבר במכס (Dogana) עם קופסת המשקפיים להחתמת ה-Tax Free, החזרת הרכב וטיסה ישירה לישראל.",
         creative: {
           name: "גלוית פרידה מאיטליה",
           dest: "Verona, Italy",
@@ -301,7 +309,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
   { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
-  { id: 'flight-harel', folder: '✈️️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
+  { id: 'flight-harel', folder: '✈ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
   { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
@@ -1333,7 +1341,7 @@ export default function App() {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <span>{isDark ? '🌙 כהה' : '☀️️ בהיר'}</span>
+            <span>{isDark ? '🌙 כהה' : '☀ בהיר'}</span>
           </button>
           <div style={{ flex: 1.2 }}>
             <select 
@@ -1471,7 +1479,7 @@ export default function App() {
                     <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
                     <span style={{ fontSize: '11px', fontWeight: '900', color: textColor, background: isDark ? '#222222' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: `1px solid ${borderColor}` }}>{stop.time}</span>
                   </div>
-                  <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45' }}>{stop.note}</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45', whiteSpace: 'pre-line' }}>{stop.note}</p>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -1555,7 +1563,7 @@ export default function App() {
                 <span style={{ fontSize: '12px', fontWeight: '800', color: textSub }}>קטגוריה: {viewerItem.folder}</span>
                 {viewerItem.ticketCode && <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🔑 קוד כרטיס/הזמנה: {viewerItem.ticketCode}</span>}
                 {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 סכום/פרטים: {viewerItem.trans}</span>}
-                {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️ פרטים: {viewerItem.desc}</span>}
+                {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️️ פרטים: {viewerItem.desc}</span>}
                 {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>👤 נוסע: {viewerItem.passenger}</span>}
                 {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
               </div>
