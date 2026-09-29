@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.14-FullComplete ---
-const APP_VERSION = 'v9.9.14-FullComplete';
+// --- GARDA-MOBILE v9.9.12-SupabaseCheck ---
+const APP_VERSION = 'v9.9.12-SupabaseCheck';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -19,67 +19,358 @@ const WAZE_SVG = (
   </svg>
 );
 
+const MAPS_SVG = (
+  <svg viewBox="0 0 512 512" width="13" height="13" xmlns="http://www.w3.org/2000/svg">
+    <rect width="512" height="512" rx="90" fill="currentColor"/>
+    <path d="M120 392l80-160 160-80-80 160z" fill="#fff"/>
+    <path d="M200 232l152-72-72 152-80-80z" fill="#aaa"/>
+    <circle cx="260" cy="260" r="50" fill="#fff"/>
+    <polygon points="260,225 240,290 260,275 280,290" fill="#000"/>
+  </svg>
+);
+
 const HOTEL_ADDRESS = "Bio Agriturismo Vojon, Ponti sul Mincio, Italy";
 
 const INITIAL_TRIP_DAYS = [
   {
     date: "2026-09-30", label: "רביעי · 30/09", title: "נחיתה והגעה למלון", icon: "✈️",
     stops: [
-      { time: "16:00", name: "נחיתה בנמל התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף מזוודות וקבלת הרכב השכור בשדה התעופה." },
-      { time: "18:00", name: "נסיעה למלון והתארגנות", dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין במלון ומנוחה קצרה לפני היציאה לארוחת ערב." }
+      { 
+        time: "16:00", 
+        name: "נחיתה בנמל התעופה ורונה", 
+        dest: "Verona Villafranca Airport", 
+        lat: 45.3957, 
+        lng: 10.8885, 
+        note: "איסוף מזוודות וקבלת הרכב השכור בשדה התעופה.",
+        challenge: {
+          title: "סלפי משפחתי ראשון באיטליה!",
+          desc: "נחתנו! המשימה שלכם: סלפי משפחתי חגיגי בשדה או מיד עם קבלת הרכב השכור."
+        }
+      },
+      { 
+        time: "18:00", 
+        name: "נסיעה למלון והתארגנות", 
+        dest: "Bio Agriturismo Vojon, Ponti sul Mincio, Italy", 
+        lat: 45.4192, 
+        lng: 10.6908, 
+        note: "צ׳ק-אין במלון ומנוחה קצרה לפני היציאה לארוחת ערב.",
+        creative: {
+          name: "נהר המינצ'ו בפסקיירה",
+          dest: "Peschiera del Garda, Italy",
+          desc: "עצירה קצרה ומרגיעה ליד גדת הנהר לפתיחת מחברות ציור ותיעוד הנוף הראשון שלכם באיטליה."
+        },
+        culinary: {
+          name: "Pizzeria Trattoria al Ponte (פסקיירה)",
+          dest: "Peschiera del Garda, Italy",
+          desc: "פיצות נפוליטניות מעולות ופסטה קלאסית בפיצריה משפחתית, ולקינוח גלידה איטלקית אמיתית (Gelateria Popolare)."
+        }
+      }
     ]
   },
   {
     date: "2026-10-01", label: "חמישי · 01/10", title: "Gardaland – יום פארק מלא", icon: "🎢",
     stops: [
-      { time: "08:30", name: "יציאה מהמלון לגארדלנד", dest: "Gardaland Resort, Castelnuovo del Garda", lat: 45.4526, lng: 10.7153, note: "הגעה מוקדמת לפני פתיחת השערים!" },
-      { time: "13:00", name: "אקשן ומתקנים בגארדלנד", dest: "Gardaland Resort", lat: 45.4526, lng: 10.7153, note: "בילוי בכל מתקני הפארק והופעות חיות." }
+      { 
+        time: "08:30", 
+        name: "יציאה מהמלון לגארדלנד", 
+        dest: "Gardaland Resort, Castelnuovo del Garda", 
+        lat: 45.4526, 
+        lng: 10.7153, 
+        note: "הגעה מוקדמת לפני פתיחת השערים כדי לתפוס את הרכבות הראשונות!",
+        creative: {
+          name: "סדנת סיכות האמיצים",
+          dest: "Gardaland Resort",
+          desc: "הכנת סיכת 'אמיצים בגארדלנד' מקרטון קשיח וטושים מהתיק המשפחתי לפני שנכנסים לרכבות."
+        }
+      },
+      { 
+        time: "13:00", 
+        name: "אקשן ומתקנים בגארדלנד", 
+        dest: "Gardaland Resort", 
+        lat: 45.4526, 
+        lng: 10.7153, 
+        note: "בילוי בכל מתקני הפארק, הופעות חיות וארוחת צהריים מהירה.",
+        challenge: {
+          title: "שלושת המתקנים הכי אקסטרימיים!",
+          desc: "צלמו תמונה צועקים על אחד המתקנים וספרו מי צעק הכי חזק."
+        },
+        culinary: {
+          name: "Roadhouse Restaurant (פסקיירה)",
+          dest: "Peschiera del Garda, Italy",
+          desc: "המבורגרים עסיסיים וסטייקים מעולים על האש להתאוששות לאחר יום הבילוי האינטנסיבי בפארק."
+        }
+      }
     ]
   },
   {
     date: "2026-10-02", label: "שישי · 02/10", title: "מונטה באלדו + סירמיונה", icon: "🚠",
     stops: [
-      { time: "08:30", name: "רכבל מונטה באלדו (מלצ׳סינה)", dest: "Funivia Malcesine-Monte Baldo", lat: 45.7797, lng: 10.8105, note: "עלייה ברכבל המסתובב אל פסגת ההר." },
-      { time: "13:00", name: "סירמיונה וחצי האי", dest: "Sirmione, Italy", lat: 45.4925, lng: 10.6053, note: "שיטוט בסמטאות עיירת ימי הביניים וטירת סקאליג'רו." }
+      { 
+        time: "08:30", 
+        name: "רכבל מונטה באלדו (מלצ׳סינה)", 
+        dest: "Funivia Malcesine-Monte Baldo", 
+        lat: 45.7797, 
+        lng: 10.8105, 
+        note: "עלייה ברכבל המסתובב אל פסגת ההר המושלג בגובה 1,800 מטר.",
+        challenge: {
+          title: "תמונת פנורמה משפחתית מפסגת הרכבל!",
+          desc: "תצפית מרהיבה על כל אגם גארדה מלמעלה – לא לשכוח ללבוש שכבה חמה."
+        },
+        creative: {
+          name: "פסגת מונטה באלדו",
+          dest: "Funivia Malcesine-Monte Baldo",
+          desc: "ציור הנוף הנשקף מלמעלה כמפת הרפתקנים על רקע העננים והאגם."
+        }
+      },
+      { 
+        time: "13:00", 
+        name: "סירמיונה וחצי האי", 
+        dest: "Sirmione, Italy", 
+        lat: 45.4925, 
+        lng: 10.6053, 
+        note: "שיטוט בסמטאות עיירת ימי הביניים, טירת סקאליג'רו וטיילת האגם הקסומה.",
+        culinary: {
+          name: "Trattoria La Marsa & Gelateria Iguana",
+          dest: "Sirmione, Italy",
+          desc: "פסטה טורטליני מדהימה הצופה לאגם, ולאחר מכן גלידריית בוטיק עם עשרות טעמים ייחודיים בסמטאות."
+        }
+      }
     ]
   },
   {
     date: "2026-10-03", label: "שבת · 03/10", title: "Movieland + Medieval Times", icon: "🎬",
     stops: [
-      { time: "09:00", name: "Movieland The Hollywood Park", dest: "Movieland The Hollywood Park, Lazise", lat: 45.4745, lng: 10.7291, note: "יום הרפתקאות ופעלולים הוליוודיים." },
-      { time: "19:30", name: "Medieval Times – מופע האבירים והמשתה", dest: "Medieval Times, Lazise", lat: 45.4745, lng: 10.7291, note: "טורניר אבירים וארוחה מלכותית." }
+      { 
+        time: "09:00", 
+        name: "Movieland The Hollywood Park", 
+        dest: "Movieland The Hollywood Park, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "יום הרפתקאות, אפקטים מיוחדים, צוללות ופעלולים הוליוודיים.",
+        challenge: {
+          title: "פוסטר קולנועי משפחתי!",
+          desc: "צלמו סלפי משפחתי בפוזה דרמטית ליד אחת מתפאורות הסרטים בפארק."
+        }
+      },
+      { 
+        time: "19:30", 
+        name: "Medieval Times – מופע האבירים והמשתה (הזמנה CVBDK20260922114620)", 
+        dest: "Medieval Times, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "טורניר אבירים סוער עם סוסים וארוחת ערב מלכותית (5 מבוגרים) ללא סכו״ם!",
+        creative: {
+          name: "סדנת כתרים אביריים",
+          dest: "Medieval Times, Lazise",
+          desc: "הכנת כתרים מקושטים מנייר כסף ודפים צבעוניים לפני תחילת המופע."
+        },
+        culinary: {
+          name: "Medieval Times Banquet (Tikez)",
+          dest: "Medieval Times, Lazise",
+          desc: "ארוחת אבירים מסורתית הכוללת עוף צלוי, תפוחי אדמה חמים, מרק ומאפים – הכול נאכל בידיים! (סה״כ 195€)."
+        }
+      }
     ]
   },
   {
     date: "2026-10-04", label: "ראשון · 04/10", title: "ונציה – עיר המים", icon: "🛶",
     stops: [
-      { time: "07:30", name: "יציאה וחניה בוונציה (Tronchetto)", dest: "Venezia Tronchetto Parking", lat: 45.4384, lng: 12.3167, note: "חניה בחניון טרונקטו ומעבר במרכז." },
-      { time: "09:30", name: "כיכר סן מרקו וסמטאות ונציה", dest: "St. Mark's Square, Venice", lat: 45.4343, lng: 12.3388, note: "הלב הפועם של ונציה וגשר האנחות." }
+      { 
+        time: "07:30", 
+        name: "יציאה וחניה בוונציה (Tronchetto)", 
+        dest: "Venezia Tronchetto Parking", 
+        lat: 45.4384, 
+        lng: 12.3167, 
+        note: "חניה נוחה בחניון טרונקטו ומעבר בסירת ואפורטו (או מונית מים) לכיוון המרכז."
+      },
+      { 
+        time: "09:30", 
+        name: "כיכר סן מרקו וסמטאות ונציה", 
+        dest: "St. Mark's Square, Venice", 
+        lat: 45.4343, 
+        lng: 12.3388, 
+        note: "הלב הפועם של ונציה – הבזיליקה, גשר האנחות ושיטוט בגשרים הקטנים.",
+        challenge: {
+          title: "הגשר הנסתר בסמטה!",
+          desc: "מצאו גשר אבן קטן ומיוחד מחוץ למסלול הראשי והעמוס והצטלמו עליו."
+        },
+        creative: {
+          name: "גשר הציורים בוונציה",
+          dest: "Venice, Italy",
+          desc: "עצירה קצרה על גשר שקט לציור מהיר של גונדולה חולפת מתחת לתעלה."
+        },
+        culinary: {
+          name: "Suso Gelatoteca & Pizza al Taglio",
+          dest: "St. Mark's Square, Venice",
+          desc: "משולשי פיצה דקים וטריים בסמטאות, ולקינוח גלידת סוסו (Suso) המפורסמת ביותר בוונציה."
+        }
+      }
     ]
   },
   {
-    date: "2026-10-05", label: "שני · 05/10", title: "לימונה + אגם טנו + ריבה", icon: "🍋",
+    date: "2026-10-05", label: "שני · 05/10", title: "לימונה + אגם טנו + ריבה/בארונה", icon: "🍋",
     stops: [
-      { time: "08:30", name: "לימונה סול גארדה והטיילת", dest: "Limone sul Garda Parking, Italy", lat: 45.8143, lng: 10.7932, note: "סיור בטיילת התלויה ובסמטאות הלימון." },
-      { time: "11:30", name: "אגם טנו – פיקניק ושחייה", dest: "Lago di Tenno, Italy", lat: 45.9221, lng: 10.8405, note: "מים בצבע טורקיז וטבילה מרעננת." }
+      { 
+        time: "08:30", 
+        name: "לימונה סול גארדה והטיילת (Limone sul Garda)", 
+        dest: "Limone sul Garda Parking, Italy", 
+        lat: 45.8143, 
+        lng: 10.7932, 
+        note: "ירידה לצד המערבי של האגם, חנייה מסודרת וסיור מרגיע בטיילת הציורית התלויה ובסמטאות עצי הלימון.",
+        challenge: {
+          title: "תמונת לימון משפחתית!",
+          desc: "מצאו פרי לימון אמיתי או סממן לימוני והצטלמו איתו בחיוך ענק."
+        }
+      },
+      { 
+        time: "11:30", 
+        name: "אגם טנו – פיקניק ושחייה (Lake Tenno)", 
+        dest: "Lago di Tenno, Italy", 
+        lat: 45.9221, 
+        lng: 10.8405, 
+        note: "עלייה קצרה להר לאגם טנו בעל המים בצבע טורקיז מרהיב – זמן למנוחה, פיקניק וטבילה מרעננת.",
+        creative: {
+          name: "חופי טורקיז בטנו",
+          dest: "Lago di Tenno",
+          desc: "איסוף אבנים חלקות ומיוחדות משפת האגם והכנת מגדל אבנים משפחתי למזכרת."
+        }
+      },
+      { 
+        time: "14:30", 
+        name: "ריבה דל גארדה או מפלי בארונה (Varone Waterfall)", 
+        dest: "Cascata del Varone, Riva del Garda", 
+        lat: 45.9085, 
+        lng: 10.8442, 
+        note: "ביקור בריבה דל גארדה הצפונית או כניסה למפלי בארונה המרהיבים הזורמים בתוך נקיק סלע פנימי.",
+        culinary: {
+          name: "Gelateria Flora (Riva del Garda)",
+          dest: "Riva del Garda, Italy",
+          desc: "גלידה איטלקית מעולה מול הנוף הפתוח של צפון האגם."
+        }
+      },
+      { 
+        time: "17:00", 
+        name: "נסיעה חזרה דרך מלצ'זינה (דרך המזרח)", 
+        dest: "Malcesine, Italy", 
+        lat: 45.7678, 
+        lng: 10.8119, 
+        note: "נסיעה חזרה דרומה דרך הגדה המזרחית של האגם ועצירה קצרה במלצ'זינה לקראת השקיעה."
+      }
     ]
   },
   {
-    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR وרונה + חזרה", icon: "❤️",
+    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR ורונה + חזרה לישראל", icon: "❤️",
     stops: [
-      { time: "08:30", name: "רכישת משקפי VR وרונה", dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", lat: 45.4093, lng: 10.9632, note: "רכישת Meta Quest והחתמת Tax Free." },
-      { time: "18:30", name: "שדה התעופה وרונה – מכס וחזרה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "החזרת הרכב וטיסה ישירה לישראל." }
+      { 
+        time: "08:30", 
+        name: "רכישת משקפי VR בורונה (מדריך רכישה מלא ו-Tax Free)", 
+        dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", 
+        lat: 45.4093, 
+        lng: 10.9632, 
+        note: "מדריך מקוצר ושימושי לרכישת משקפי Meta Quest בורונה:\n\n1. השוואת דגמים ומחירי יעד:\n- Meta Quest 3S (128GB): ~€330–€350 (נטו לאחר Tax Free: ~€290–€310) | המומלץ ביותר לילדים ונוער.\n- Meta Quest 3S (256GB): ~€470 (נטו: ~€410–€415) | למשחקים כבדים.\n- Meta Quest 3 (512GB): ~€570–€620 (נטו: ~€500–€545) | דגם הדגל עם עדשות Pancake.\n\n2. חנויות מומלצות:\n- MediaWorld (קניון Adigeo, Viale delle Nazioni): חנות ענק עם הסיכוי הגבוה ביותר למלאי זמין על המדף.\n- Unieuro (סניף מרכז Via Cappello 34 או סניף פרברי Via Preare 42).\n\n3. צ'ק-ליסט Tax Free:\n- בקשו בעת הקנייה טופס החזר מס (Modulo Tax Free) והציגו דרכון.\n- אל תפתחו את האריזה עד לאישור המכס בשדה (Dogana).\n- החתימו את הטופס בשדה התעופה (בעמדת המכס או בקיוסקים הדיגיטליים) טרם קבלת הזיכוי.",
+        challenge: {
+          title: "משימת Tax Free!",
+          desc: "וידוא קבלת קבלה מקורית וטופס החזר מס עבור המשקפיים."
+        }
+      },
+      { 
+        time: "11:00", 
+        name: "סיור בעיר העתיקה בוורונה ואוכל", 
+        dest: "Piazza Cittadella, Verona", 
+        lat: 45.4384, 
+        lng: 10.9916, 
+        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        culinary: {
+          name: "Farcito Verona",
+          dest: "Verona, Italy",
+          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
+        }
+      },
+      { 
+        time: "18:30", 
+        name: "שדה התעופה وרונה – מכס וחזרה הביתה", 
+        dest: "Verona Villafranca Airport", 
+        lat: 45.3957, 
+        lng: 10.8885, 
+        note: "מעבר במכס (Dogana) עם קופסת המשקפיים להחתמת ה-Tax Free, החזרת הרכב וטיסה ישירה לישראל.",
+        creative: {
+          name: "גלוית פרידה מאיטליה",
+          dest: "Verona, Italy",
+          desc: "כתיבת גלוית סיכום משפחתית וציור קטן למזכרת במחברת הטיול לפני העלייה למטוס."
+        }
+      }
     ]
   }
 ];
 
 const TICKET_DEFAULT_FOLDERS = ['✈️ טיסות ורכב', '🏡 מלון', '🎢 Gardaland', '🎬 Movieland', '🚤 ונציה'];
 const DEFAULT_DOCUMENTS = [
-  { id: 'flight-arik', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)' },
-  { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon' }
+  { id: 'flight-arik', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)', isLink: false, url: '#', passenger: 'COHEN/ARIK MR', ticketNo: '8180011314102' },
+  { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
+  { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
+  { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
+  { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
+  { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
+  { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
+  { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'gardaland-2', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 2 (Serial 601)', ticketCode: 'VKN1P01Y901ME4T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'gardaland-3', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 3 (Serial 606)', ticketCode: 'TKN1P01Y901MUTT', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'gardaland-4', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 4 (Serial 607)', ticketCode: 'VKN1P01Y901MY6T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'gardaland-5', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 5 (Serial 608)', ticketCode: 'CKN1P01Y901N2IT', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'movieland-1', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 1', ticketCode: 'EA35DB7A2EA540D5', trans: '017JUNAR0070', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'movieland-2', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 2', ticketCode: '256612CCD43B8E08', trans: '017JUNAR0069', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'movieland-3', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 3', ticketCode: '934FEA2F66750267', trans: '017JUNAR0071', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'movieland-4', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 4', ticketCode: '52CACC0D5CAE334B', trans: '017JUNAR0072', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'movieland-5', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 5', ticketCode: '32D6C578DF258ACF', trans: '017JUNAR0073', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'medieval-times', folder: '🎬 Movieland', title: 'Medieval Times - כרטיס משפחתי (5 מבוגרים)', ticketCode: 'CVBDK20260922114620', trans: '195.00€', desc: 'מופע אבירים וארוחה (Tikez) - 03.10.2026 בשעה 19:30' }
 ];
 
+const ROAD_TRIVIA_QUESTIONS = Array.from({ length: 1000 }, (_, i) => {
+  const id = i + 1;
+  const banks = [
+    { q: `שאלה #${id}: כמה שיניים יש לאדם מבוגר בדרך כלל (כולל שיני בינה)?`, options: ["28", "32", "36", "24"], correct: 1 },
+    { q: `שאלה #${id}: באיזו מדינה באירופה נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+    { q: `שאלה #${id}: איזה בעל חיים ימי נחשב למהיר ביותר באוקיינוס?`, options: ["כריש לבן", "דג מפרש", "דולפין", "לווייתן כחול"], correct: 1 },
+    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פירנצה"], correct: 2 },
+    { q: `שאלה #${id}: כמה רגליים יש לעכביש?`, options: ["6", "8", "10", "12"], correct: 1 },
+    { q: `שאלה #${id}: באיזו יבשת נמצאת מדבר סהרה?`, options: ["אסיה", "אפריקה", "אוסטרליה", "דרום אמריקה"], correct: 1 },
+    { q: `שאלה #${id}: מהו ההר הגבוה ביותר בעולם?`, options: ["מונט בלאן", "קילימנג'רו", "אוורסט", "המלצ'ינה"], correct: 2 },
+    { q: `שאלה #${id}: איזה יסוד כימי מסומן באותיות Au?`, options: ["כסף", "זהב", "נחושת", "ברזל"], correct: 1 },
+    { q: `שאלה #${id}: באיזו עיר באיטליה נמצאת הארנה הרומית המפורסמת שבה מופיעים אופרות?`, options: ["מילאנו", "ורונה", "נאפולי", "טורינו"], correct: 1 },
+    { q: `שאלה #${id}: מי צייר את המונה ליזה?`, options: ["לאונרדו דה וינצ'י", "מיכלאנג'לו", "פבלו פיקאסו", "ואן גוך"], correct: 0 }
+  ];
+  return banks[i % banks.length];
+});
+
 const TRAVELERS_LIST = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
+
+const calculateDistanceAndDuration = (lat1, lon1, lat2, lon2) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return { dist: '---', duration: '---' };
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distKm = R * c;
+  
+  const hours = distKm / 70;
+  const mins = Math.round(hours * 60);
+  
+  let durationStr = `${mins} דק'`;
+  if (mins >= 60) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    durationStr = `${h} שע' ${m > 0 ? `${m} דק'` : ''}`;
+  }
+
+  return {
+    dist: `${distKm.toFixed(1)} ק"מ`,
+    duration: durationStr
+  };
+};
 
 export default function App() {
   const [activeDay, setActiveDay] = useState(0);
@@ -102,87 +393,417 @@ export default function App() {
     try { localStorage.setItem('garda-theme-mode', themeMode); } catch (e) {}
   }, [themeMode]);
 
-  // רדאר משפחתי חי מול Supabase
-  const [familyLocations, setFamilyLocations] = useState({
-    'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'עכשיו', battery: 90, lastSeen: 'מלון Vojon' },
-    'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'עכשיו', battery: 85, lastSeen: 'פסקיירה' },
-    'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'עכשיו', battery: 92, lastSeen: 'מלון Vojon' },
-    'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'עכשיו', battery: 88, lastSeen: 'מלון Vojon' },
-    'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 95, lastSeen: 'גארדלנד' }
-  });
+  // בדיקת חיבור ל-Supabase בעת טעינת האפליקציה
+  useEffect(() => {
+    const checkSupabaseConnection = async () => {
+      try {
+        const { data, error } = await supabase.from('family_trip_photos').select('id').limit(1);
+        if (error) {
+          console.error("❌ שגיאה בחיבור ל-Supabase (family_trip_photos):", error.message);
+        } else {
+          console.log("✅ חיבור ל-Supabase הצליח! הנתונים נטענים ותקינים.", data);
+        }
+      } catch (err) {
+        console.error("❌ תקלת תקשורת מול Supabase:", err);
+      }
+    };
+    checkSupabaseConnection();
+  }, []);
 
+  const [viewerItem, setViewerItem] = useState(null);
+  const [myLocation, setMyLocation] = useState(null);
+  const [familyLocations, setFamilyLocations] = useState({
+    'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה', battery: 88, lastSeen: 'מלון Vojon' },
+    'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות', battery: 74, lastSeen: 'פסקיירה דל גארדה' },
+    'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות', battery: 92, lastSeen: 'מלון Vojon' },
+    'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות', battery: 65, lastSeen: 'מלון Vojon' },
+    'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 99, lastSeen: 'גארדלנד' }
+  });
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   const [activeSoundAlert, setActiveSoundAlert] = useState(null);
-  const [rallyPoint] = useState({ name: 'שער הכניסה הראשי (נקודת כינוס)', lat: 45.4526, lng: 10.7153 });
-  const [myLocation, setMyLocation] = useState(null);
+  
+  const [safeZoneRadiusKm, setSafeZoneRadiusKm] = useState(15);
+  const [rallyPoint, setRallyPoint] = useState({ name: 'שער הכניסה הראשי (נקודת כינוס)', lat: 45.4526, lng: 10.7153 });
 
-  // אלבום תמונות
   const [tripPhotos, setTripPhotos] = useState([]);
   const [photoCaptionInput, setPhotoCaptionInput] = useState('');
+  const [selectedPhotoViewer, setSelectedPhotoViewer] = useState(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const photoFileInputRef = useRef(null);
 
-  // שמירת רכב
-  const [savedCarParking, setSavedCarParking] = useState(() => {
-    try { const saved = localStorage.getItem('garda-car-parking'); return saved ? JSON.parse(saved) : null; } catch (e) { return null; }
-  });
-  const [carNoteInput, setCarNoteInput] = useState('');
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const { data, error } = await supabase.from('family_trip_photos').select('*').order('created_at', { ascending: false });
+        if (error) console.error("Supabase fetch error:", error);
+        if (data) setTripPhotos(data);
+      } catch (e) { console.error(e); }
+    };
+    fetchPhotos();
 
-  // טיימר משפחתי
+    const photoChannel = supabase.channel('family_trip_photos_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_trip_photos' }, payload => {
+        if (payload.eventType === 'INSERT') {
+          setTripPhotos(prev => [payload.new, ...prev]);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(photoChannel);
+    };
+  }, []);
+
+  const handleUploadPhotoFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64Data = event.target.result;
+      const newPhotoRecord = {
+        uploader: currentUser,
+        caption: photoCaptionInput || 'תמונה מהטיול האיטלקי 📸',
+        image_url: base64Data,
+        created_at: new Date().toISOString(),
+        time_str: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        date_str: new Date().toLocaleDateString('he-IL')
+      };
+
+      try {
+        const { data, error } = await supabase.from('family_trip_photos').insert([newPhotoRecord]).select();
+        if (error) {
+          console.error("Supabase insert error:", error);
+          setTripPhotos(prev => [newPhotoRecord, ...prev]);
+        } else if (data && data[0]) {
+          setTripPhotos(prev => [data[0], ...prev]);
+        }
+        setPhotoCaptionInput('');
+        alert('✨ התמונה הועלתה בהצלחה לאלבום המרכזי וזמינה לכולם!');
+      } catch (err) {
+        console.error("Upload error:", err);
+        setTripPhotos(prev => [newPhotoRecord, ...prev]);
+      } finally {
+        setIsUploadingPhoto(false);
+        if (photoFileInputRef.current) photoFileInputRef.current.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const [sharedTimer, setSharedTimer] = useState(null);
   const [timerRemainingSec, setTimerRemainingSec] = useState(0);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
 
+  const [savedCarParking, setSavedCarParking] = useState(() => {
+    try {
+      const saved = localStorage.getItem('garda-car-parking');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) { return null; }
+  });
+  const [carNoteInput, setCarNoteInput] = useState('');
+  const [carDistanceToWalk, setCarDistanceToWalk] = useState('0 ק"מ');
+  
+  const [showParkingMapModal, setShowParkingMapModal] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (savedCarParking) {
+        localStorage.setItem('garda-car-parking', JSON.stringify(savedCarParking));
+      } else {
+        localStorage.removeItem('garda-car-parking');
+      }
+    } catch (e) {}
+  }, [savedCarParking]);
+
+  useEffect(() => {
+    if (!savedCarParking || !myLocation || typeof myLocation.lat !== 'number' || typeof myLocation.lng !== 'number') return;
+    try {
+      const { dist } = calculateDistanceAndDuration(myLocation.lat, myLocation.lng, savedCarParking.lat, savedCarParking.lng);
+      setCarDistanceToWalk(dist);
+    } catch (err) {
+      setCarDistanceToWalk('---');
+    }
+  }, [myLocation, savedCarParking]);
+
+  const saveCarLocationNow = () => {
+    if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
+    navigator.geolocation.getCurrentPosition(pos => {
+      const newCarLoc = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        note: carNoteInput || 'חניה ללא הערה',
+        time: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        date: new Date().toLocaleDateString('he-IL')
+      };
+      setSavedCarParking(newCarLoc);
+      setCarNoteInput('');
+      setModalType(null);
+      alert('🔴 כפתור אדום ננעץ! מיקום הרכב נשמר בהצלחה.');
+    }, () => {
+      alert('❌ לא ניתן לקבוע את מיקום ה-GPS. בדוק את הרשאות המיקום.');
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+  };
+
+  const clearCarLocation = () => {
+    if (window.confirm('למחוק את מיקום הרכב השמור?')) {
+      setSavedCarParking(null);
+    }
+  };
+
+  const [aroundMeQuery, setAroundMeQuery] = useState('');
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  
+  const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
+
+  const [backupModalOpen, setBackupModalOpen] = useState(false);
+  const [adminPassInput, setAdminPassInput] = useState('');
+  const [backupSuccessMsg, setBackupSuccessMsg] = useState(false);
+  const [restorePassInput, setRestorePassInput] = useState('');
+  const fileInputRef = useRef(null);
+
+  const handleProtectedBackup = () => {
+    setAdminPassInput('');
+    setRestorePassInput('');
+    setBackupSuccessMsg(false);
+    setBackupModalOpen(true);
+  };
+
+  const executeBackupDownload = () => {
+    if (adminPassInput.trim() === "1967") {
+      try {
+        const backupData = JSON.stringify({
+          version: APP_VERSION,
+          date: new Date().toISOString(),
+          carParking: savedCarParking,
+          scores: travelerScores
+        }, null, 2);
+        const blob = new Blob([backupData], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `garda-mobile-${APP_VERSION}-backup.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        setBackupSuccessMsg(true);
+      } catch (err) {
+        alert("❌ שגיאה בהורדת קובץ הגיבוי.");
+      }
+    } else {
+      alert("❌ סיסמה שגויה!");
+    }
+  };
+
+  const handleFileUploadRestore = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (restorePassInput.trim() !== "1967") {
+      alert("❌ נא להזין קוד מנהל תקין (1967) לפני העלאת קובץ השחזור!");
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const fileContent = event.target.result;
+        const parsedData = JSON.parse(fileContent);
+        if (!parsedData || !parsedData.version) {
+          alert("❌ קובץ לא חוקי או שאינו קובץ גיבוי תקין של Garda-Mobile!");
+          return;
+        }
+
+        if (window.confirm("⚠️ אזהרה: שחזור מערכת יעדכן את הנתונים הנוכחיים מתוך קובץ הגיבוי שנבחר. להמשיך?")) {
+          if (parsedData.carParking) setSavedCarParking(parsedData.carParking);
+          if (parsedData.scores) setTravelerScores(parsedData.scores);
+          alert("✅ הגיבוי שוחזר בהצלחה!");
+          setBackupModalOpen(false);
+        }
+      } catch (err) {
+        alert("❌ שגיאה בקריאת קובץ הגיבוי.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            setMyLocation({ lat, lng: lon });
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+            const data = await res.json();
+            if (data && data.current_weather) {
+              const tempVal = Math.round(data.current_weather.temperature);
+              const code = data.current_weather.weathercode;
+              let condIcon = '☀️ שמש';
+              if (code >= 1 && code <= 3) condIcon = '🌤️ מעונן';
+              else if (code >= 51 && code <= 67) condIcon = '🌧️ גשם';
+              else if (code >= 71 && code <= 77) condIcon = '❄️ שלג';
+              else if (code >= 95) condIcon = '⛈️ סערה';
+
+              setCurrentWeather({ temp: `${tempVal}°C`, condition: condIcon });
+            }
+          } catch (e) {
+            setCurrentWeather({ temp: '24°C', condition: '☀️ שמש' });
+          }
+        },
+        () => {
+          setCurrentWeather({ temp: '25°C', condition: '☀️ שמש נעימה' });
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+  }, []);
+
+  const [triviaIndex, setTriviaIndex] = useState(() => {
+    try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
+  });
+  const [travelerIndex, setTravelerIndex] = useState(() => {
+    try { const saved = localStorage.getItem('garda-traveler-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
+  });
+  const [travelerScores, setTravelerScores] = useState(() => {
+    try { const saved = localStorage.getItem('garda-traveler-scores'); return saved ? JSON.parse(saved) : { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; } catch (e) { return { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; }
+  });
+  
+  const [isTriviaPaused, setIsTriviaPaused] = useState(() => {
+    try { const saved = localStorage.getItem('garda-trivia-paused'); return saved ? JSON.parse(saved) : true; } catch (e) { return true; }
+  });
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [questionTimeLeft, setQuestionTimeLeft] = useState(45);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('garda-trivia-index', triviaIndex);
+      localStorage.setItem('garda-traveler-index', travelerIndex);
+      localStorage.setItem('garda-traveler-scores', JSON.stringify(travelerScores));
+      localStorage.setItem('garda-trivia-paused', JSON.stringify(isTriviaPaused));
+    } catch (e) {}
+  }, [triviaIndex, travelerIndex, travelerScores, isTriviaPaused]);
+
+  useEffect(() => {
+    if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
+
+    if (questionTimeLeft <= 0) {
+      setQuestionTimeLeft(45);
+      setTriviaIndex(prev => (prev + 1) % ROAD_TRIVIA_QUESTIONS.length);
+      setTravelerIndex(prev => (prev + 1) % TRAVELERS_LIST.length);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setQuestionTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [modalType, isTriviaPaused, questionTimeLeft, selectedAnswer]);
+
+  const [folders] = useState(TICKET_DEFAULT_FOLDERS);
+  const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
+  const [ticketFiles] = useState(DEFAULT_DOCUMENTS);
+
   const chimeIntervalRef = useRef(null);
+
+  const sendSoundAlert = async (targetName) => {
+    const customMsg = prompt(`שלח התראה נעימה אל ${targetName}:`, "נא ליצור קשר כשאתם יכולים!");
+    if (customMsg === null) return;
+
+    playExtendedChimeMelody();
+
+    const soundAlertPayload = {
+      name: targetName,
+      sound_msg: customMsg || "התראה קולית מהרדאר המשפחתי!",
+      updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+      is_sound_alert: true
+    };
+
+    setActiveSoundAlert(soundAlertPayload);
+
+    try {
+      await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
+      alert(`🔔 צליל פעמונים נעים מנגן כעת (למשך 30 שניות מלאות או עד כיבוי) אל ${targetName}!`);
+    } catch (e) { console.error(e); }
+  };
 
   const playExtendedChimeMelody = () => {
     try {
       if (chimeIntervalRef.current) clearInterval(chimeIntervalRef.current);
+
       let cycles = 0;
       chimeIntervalRef.current = setInterval(() => {
         cycles++;
-        if (cycles > 10) {
-          if (chimeIntervalRef.current) clearInterval(chimeIntervalRef.current);
+        if (cycles > 15) {
+          stopExtendedChimeMelody();
           return;
         }
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) {
-          const ctx = new AudioContextClass();
-          if (ctx.state === 'suspended') ctx.resume();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-          gain.gain.setValueAtTime(0.2, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 0.8);
-        }
-      }, 1000);
+
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            const ctx = new AudioContextClass();
+            if (ctx.state === 'suspended') ctx.resume();
+
+            const notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
+            notes.forEach((freq, idx) => {
+              setTimeout(() => {
+                try {
+                  const osc = ctx.createOscillator();
+                  const gain = ctx.createGain();
+                  osc.type = 'sine';
+                  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+                  gain.gain.setValueAtTime(0.35, ctx.currentTime);
+                  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.4);
+
+                  osc.connect(gain);
+                  gain.connect(ctx.destination);
+
+                  osc.start();
+                  osc.stop(ctx.currentTime + 1.4);
+                } catch (err) {}
+              }, idx * 250);
+            });
+          }
+        } catch (e) {}
+      }, 2000);
     } catch (e) {}
   };
 
-  // סנכרון Supabase לרדאר ולתמונות
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { data: radarData } = await supabase.from('family_radar').select('*');
-        if (radarData && radarData.length > 0) {
-          const locMap = {};
-          radarData.forEach(item => { locMap[item.name] = item; });
-          setFamilyLocations(prev => ({ ...prev, ...locMap }));
-        }
+  const stopExtendedChimeMelody = () => {
+    if (chimeIntervalRef.current) {
+      clearInterval(chimeIntervalRef.current);
+      chimeIntervalRef.current = null;
+    }
+  };
 
-        const { data: photosData } = await supabase.from('family_trip_photos').select('*').order('created_at', { ascending: false });
-        if (photosData) setTripPhotos(photosData);
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    const fetchInitialTimer = async () => {
+      try {
+        const { data } = await supabase.from('family_timers').select('*').eq('id', 1).single();
+        if (data) {
+          setSharedTimer(data);
+          setIsTimerPaused(data.is_paused);
+        }
       } catch (e) {}
     };
-    fetchData();
+    fetchInitialTimer();
 
-    const channel = supabase.channel('garda_realtime_channel')
+    const channel = supabase.channel('family_trip_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
-        if (payload.new && payload.new.name) {
+        if (payload.new) {
           setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
           if (payload.new.is_sos) {
             setActiveSosAlert(payload.new);
@@ -194,67 +815,75 @@ export default function App() {
           }
         }
       })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'family_trip_photos' }, payload => {
-        if (payload.new) setTripPhotos(prev => [payload.new, ...prev]);
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
+        if (payload.new) {
+          setSharedTimer(payload.new);
+          setIsTimerPaused(payload.new.is_paused);
+        }
       })
       .subscribe();
 
     return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
       supabase.removeChannel(channel);
-      if (chimeIntervalRef.current) clearInterval(chimeIntervalRef.current);
+      stopExtendedChimeMelody();
     };
   }, [currentUser]);
 
-  const updateAndBroadcastMyLoc = async () => {
-    if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
-    navigator.geolocation.getCurrentPosition(async pos => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      const timeStr = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-      
-      const myRecord = {
-        name: currentUser,
-        lat: lat,
-        lng: lng,
-        updated_at: timeStr,
-        battery: 92,
-        lastSeen: 'בדרכים באיטליה',
-        is_sos: false,
-        is_sound_alert: false
-      };
-
-      setMyLocation({ lat, lng });
-      setFamilyLocations(prev => ({ ...prev, [currentUser]: myRecord }));
-
-      try {
-        await supabase.from('family_radar').upsert([myRecord], { onConflict: 'name' });
-        alert("📍 המיקום שלך עודכן בהצלחה ומשודר לכולם!");
-      } catch (err) {
-        alert("תקלת תקשורת בעדכון מיקום.");
+  useEffect(() => {
+    if (!sharedTimer || !sharedTimer.end_time || isTimerPaused) return;
+    const interval = setInterval(() => {
+      const diff = Math.max(0, Math.floor((sharedTimer.end_time - Date.now()) / 1000));
+      setTimerRemainingSec(diff);
+      if (diff === 0) {
+        alert(`⏱️ הזמן נגמר עבור: ${sharedTimer.title}!`);
+        setSharedTimer(null);
+        clearInterval(interval);
       }
-    }, () => {
-      alert("❌ לא ניתן לקבוע את מיקום ה-GPS.");
-    }, { enableHighAccuracy: true });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sharedTimer, isTimerPaused]);
+
+  const startSharedTimer = async (mins) => {
+    const duration = Number(mins) || 10;
+    const endTime = Date.now() + duration * 60 * 1000;
+    const timerPayload = { id: 1, title: 'טיימר משפחתי מרכזי', end_time: endTime, duration: duration, is_paused: false };
+    
+    setSharedTimer(timerPayload);
+    setTimerRemainingSec(duration * 60);
+    setIsTimerPaused(false);
+    setModalType(null);
+
+    try {
+      await supabase.from('family_timers').upsert([timerPayload], { onConflict: 'id' });
+    } catch (e) {}
   };
 
-  const sendSoundAlert = async (targetName) => {
-    const customMsg = prompt(`שלח התראה ל-${targetName}:`, "נא ליצור קשר כשאתם יכולים!");
-    if (customMsg === null) return;
-    const alertPayload = {
-      name: targetName,
-      sound_msg: customMsg,
-      updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
-      is_sound_alert: true
-    };
+  const toggleSharedTimerPause = async () => {
+    const nextPaused = !isTimerPaused;
+    setIsTimerPaused(nextPaused);
+    if (sharedTimer) {
+      const updated = { ...sharedTimer, is_paused: nextPaused };
+      setSharedTimer(updated);
+      try {
+        await supabase.from('family_timers').upsert([updated], { onConflict: 'id' });
+      } catch (e) {}
+    }
+  };
+
+  const clearSharedTimer = async () => {
+    setSharedTimer(null);
+    setIsTimerPaused(false);
     try {
-      await supabase.from('family_radar').upsert([alertPayload], { onConflict: 'name' });
-      alert(`🔔 התראה נשלחה בהצלחה אל ${targetName}!`);
+      await supabase.from('family_timers').delete().eq('id', 1);
     } catch (e) {}
   };
 
   const triggerSos = async () => {
-    if (!navigator.geolocation) return alert('GPS אינו נתמך');
+    if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
     if (!window.confirm('🚨 להפעיל אזעקת חירום SOS לכל בני המשפחה?')) return;
+
     navigator.geolocation.getCurrentPosition(async pos => {
       const sosData = {
         name: currentUser,
@@ -268,83 +897,136 @@ export default function App() {
       try {
         await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
       } catch (e) {}
-    }, () => {}, { enableHighAccuracy: true });
+    }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
   };
 
   const dismissSos = async () => {
+    stopExtendedChimeMelody();
     setActiveSosAlert(null);
     try {
       await supabase.from('family_radar').upsert([{ name: currentUser, is_sos: false }], { onConflict: 'name' });
     } catch (e) {}
   };
 
-  // שמירת רכב
-  const saveCarLocationNow = () => {
-    if (!navigator.geolocation) return alert('GPS אינו נתמך');
-    navigator.geolocation.getCurrentPosition(pos => {
-      const newCar = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        note: carNoteInput || 'חניה ללא הערה',
-        time: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
-      };
-      setSavedCarParking(newCar);
-      try { localStorage.setItem('garda-car-parking', JSON.stringify(newCar)); } catch (e) {}
-      setCarNoteInput('');
-      setModalType(null);
-      alert('🔴 מיקום הרכב נשמר בהצלחה!');
-    }, () => {}, { enableHighAccuracy: true });
-  };
-
-  // העלאת תמונה לאלבום
-  const handleUploadPhotoFile = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64Data = event.target.result;
-      const newPhoto = {
-        uploader: currentUser,
-        caption: photoCaptionInput || 'תמונה מהטיול 📸',
-        image_url: base64Data,
-        created_at: new Date().toISOString()
-      };
-      try {
-        const { data } = await supabase.from('family_trip_photos').insert([newPhoto]).select();
-        if (data && data[0]) setTripPhotos(prev => [data[0], ...prev]);
-        else setTripPhotos(prev => [newPhoto, ...prev]);
-        setPhotoCaptionInput('');
-        alert('✨ התמונה הועלתה בהצלחה לאלבום!');
-      } catch (err) {
-        setTripPhotos(prev => [newPhoto, ...prev]);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
   const isDark = themeMode === 'dark';
+  
   const bgMain = isDark ? '#000000' : '#ffffff';
   const cardBg = isDark ? '#111111' : '#ffffff';
   const textColor = isDark ? '#ffffff' : '#0f172a';
   const textSub = isDark ? '#a3a3a3' : '#64748b';
   const borderColor = isDark ? '#333333' : '#cbd5e1';
+  const accentGradient = isDark ? '#ffffff' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
 
+  const itineraryStopCardStyle = {
+    background: isDark ? '#111111' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+    borderRadius: '16px',
+    padding: '18px',
+    border: `1px solid ${borderColor}`,
+    borderRight: isDark ? '3.5px solid #ffffff' : '3.5px solid #475569',
+    boxShadow: isDark ? 'none' : '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '14px',
+    boxSizing: 'border-box'
+  };
+
+  const headerBg = isDark ? '#000000' : 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)';
   const day = INITIAL_TRIP_DAYS[activeDay];
 
+  const formatClock = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
+  const broadcastMyLocation = async (coords) => {
+    const locObj = { name: currentUser, lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false, battery: 95, lastSeen: 'עדכון ידני' };
+    setMyLocation({ lat: coords.latitude, lng: coords.longitude });
+    setFamilyLocations(prev => ({ ...prev, [currentUser]: locObj }));
+    try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
+  };
+
+  const routeMapHTML = useMemo(() => {
+    const currentLat = myLocation?.lat || 45.4384;
+    const currentLng = myLocation?.lng || 10.6816;
+
+    const targetDayObj = INITIAL_TRIP_DAYS[activeDay] || INITIAL_TRIP_DAYS[0];
+    const firstStop = targetDayObj.stops[0];
+    const destLat = firstStop?.lat || 45.4192;
+    const destLng = firstStop?.lng || 10.6908;
+    const destName = firstStop?.name || targetDayObj.title;
+
+    const { dist, duration } = calculateDistanceAndDuration(currentLat, currentLng, destLat, destLng);
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <style>
+          body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#000000' : '#ffffff'}; }
+          #map { width: 100%; height: 100%; }
+          .route-badge {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background: ${isDark ? '#111111' : 'rgba(255, 255, 255, 0.95)'};
+            color: ${isDark ? '#ffffff' : '#0f172a'};
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid ${isDark ? '#333333' : '#cbd5e1'};
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            direction: rtl;
+          }
+          .route-badge span { color: ${isDark ? '#ffffff' : '#2563eb'}; }
+        </style>
+      </head>
+      <body>
+        <div class="route-badge">
+          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️ זמן:</span> ${duration}
+        </div>
+        <div id="map"></div>
+        <script>
+          const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+          L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך (GPS)').openPopup();
+          L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ' + "${destName}");
+
+          const latlngs = [
+            [${currentLat}, ${currentLng}],
+            [${destLat}, ${destLng}]
+          ];
+          L.polyline(latlngs, {color: '${isDark ? '#ffffff' : '#ef4444'}', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
+        </script>
+      </body>
+      </html>
+    `;
+  }, [myLocation, activeDay, isDark]);
+
   const radarMapHTML = useMemo(() => {
-    let centerLat = myLocation?.lat || 45.4384;
-    let centerLng = myLocation?.lng || 10.6816;
+    let centerLat = 45.4384, centerLng = 10.6816;
     if (activeSosAlert?.lat) { centerLat = activeSosAlert.lat; centerLng = activeSosAlert.lng; }
+    else if (myLocation?.lat) { centerLat = myLocation.lat; centerLng = myLocation.lng; }
 
     let markersJS = '';
     Object.values(familyLocations).forEach(loc => {
-      if (loc && loc.lat && loc.lng) {
-        markersJS += `
-          L.marker([${loc.lat}, ${loc.lng}]).addTo(map)
-            .bindPopup('<div style="direction:rtl; text-align:right;"><b>👤 ${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 ${loc.lastSeen || 'שטח האגם'}<br>🕒 עודכן: ${loc.updated_at || ''}<br><br><a href="https://www.waze.com/ul?q=${loc.lat},${loc.lng}&navigate=yes" target="_blank" style="background:#38bdf8; color:#0f172a; padding:4px 8px; border-radius:6px; text-decoration:none; font-weight:bold; display:inline-block; margin-top:4px;">נווט בוויז 🚗</a></div>');
-        `;
+      if (loc && loc.lat) {
+        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 לאחרונה: ${loc.lastSeen || 'שטח האגם'}');\n`;
       }
     });
+
     markersJS += `L.marker([${rallyPoint.lat}, ${rallyPoint.lng}]).addTo(map).bindPopup('<b>נקודת כינוס חירום:</b><br>${rallyPoint.name}');\n`;
 
     return `
@@ -355,13 +1037,17 @@ export default function App() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: ${isDark ? '#000' : '#fff'}; } #map { width: 100%; height: 100%; }</style>
+        <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#000000' : '#ffffff'}; } #map { width: 100%; height: 100%; }</style>
       </head>
       <body>
         <div id="map"></div>
         <script>
           const map = L.map('map').setView([${centerLat}, ${centerLng}], 11);
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+          const myLocData = ${JSON.stringify(myLocation)};
+          if (myLocData && myLocData.lat) {
+            L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
+          }
           ${markersJS}
         </script>
       </body>
@@ -370,45 +1056,118 @@ export default function App() {
   }, [familyLocations, myLocation, activeSosAlert, rallyPoint, isDark]);
 
   return (
-    <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box' }}>
+    <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
       {activeSosAlert && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '45vh', background: 'rgba(239, 68, 68, 0.95)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', color: '#fff', borderBottomLeftRadius: '24px', borderBottomRightRadius: '24px' }}>
-          <span style={{ fontSize: '40px', marginBottom: '8px' }}>🚨</span>
-          <h2 style={{ fontSize: '20px', fontWeight: '900', margin: '0 0 6px' }}>התרעת חירום SOS פעילה!</h2>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '50vh', background: isDark ? '#111111' : 'rgba(239, 68, 68, 0.95)', borderBottom: isDark ? '2px solid #ffffff' : 'none', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', color: '#fff', borderBottomLeftRadius: '28px', borderBottomRightRadius: '28px', boxShadow: '0 15px 40px rgba(0,0,0,0.6)', boxSizing: 'border-box' }}>
+          <span style={{ fontSize: '44px', marginBottom: '8px' }}>🚨</span>
+          <h2 style={{ fontSize: '22px', fontWeight: '900', margin: '0 0 6px' }}>התרעת חירום SOS פעילה!</h2>
           <p style={{ fontSize: '15px', fontWeight: '800', marginBottom: '10px' }}>משתמש/ת: {activeSosAlert.name} זקוק/ה לעזרה מיידית!</p>
-          <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '300px' }}>
-            <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: '#fff', color: '#ef4444', borderRadius: '10px', fontWeight: '900', textDecoration: 'none', textAlign: 'center' }}>נווט 🗺</a>
-            <button onClick={dismissSos} style={{ flex: 1, padding: '10px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer' }}>בטל אזעקה ✓</button>
+          <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px' }}>
+            <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '12px', background: '#fff', color: '#ef4444', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center' }}>
+              נווט למיקום 🗺
+            </a>
+            <button onClick={dismissSos} style={{ flex: 1, padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '13px' }}>
+              בטל אזעקה ✓
+            </button>
           </div>
         </div>
       )}
 
-      <header style={{ background: isDark ? '#000' : '#f1f5f9', borderBottom: `2px solid ${borderColor}`, padding: '16px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {backupModalOpen && (
+        <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center', position: 'relative' }}>
+            <button onClick={() => setBackupModalOpen(false)} style={{ position: 'absolute', top: '16px', left: '16px', background: isDark ? '#222222' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+            <span style={{ fontSize: '32px', marginTop: '10px' }}>🛡️</span>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>ניהול גיבוי ושחזור (גרסה {APP_VERSION})</h3>
+            
+            {backupSuccessMsg ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ background: isDark ? '#222222' : 'rgba(16, 185, 129, 0.15)', color: isDark ? '#ffffff' : '#10b981', border: `1.5px solid ${borderColor}`, padding: '16px', borderRadius: '14px', fontWeight: '900', fontSize: '14px', lineHeight: '1.4' }}>
+                  💾 קובץ הגיבוי הורד בהצלחה ונשמר במכשיר!
+                </div>
+                <button onClick={() => setBackupSuccessMsg(false)} style={{ width: '100%', padding: '12px', background: isDark ? '#ffffff' : '#0f172a', color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+                  חזור לתפריט גיבוי ➔
+                </button>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'right' }}>
+                  <label style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>1. יצירת גיבוי חדש ושמירה:</label>
+                  <input type="password" placeholder="הזן קוד מנהל ליצירת גיבוי (1967)" value={adminPassInput} onChange={e => setAdminPassInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#000000' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} />
+                  <button onClick={executeBackupDownload} style={{ width: '100%', padding: '12px', background: isDark ? '#ffffff' : '#2563eb', color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+                    הורד קובץ גיבוי לטלפון 💾
+                  </button>
+                </div>
+                <hr style={{ width: '100%', border: `0.5px solid ${borderColor}`, margin: '4px 0' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'right' }}>
+                  <label style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>2. שחזור נתונים מקובץ:</label>
+                  <input type="password" placeholder="הזן קוד מנהל לשחזור (1967)" value={restorePassInput} onChange={e => setRestorePassInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#000000' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} />
+                  <input type="file" ref={fileInputRef} onChange={handleFileUploadRestore} accept=".json,.txt" style={{ display: 'none' }} id="restore-file-input" />
+                  <button onClick={() => {
+                    if (restorePassInput.trim() !== "1967") { alert("❌ חובה להזין קוד מנהל (1967)!"); return; }
+                    fileInputRef.current.click();
+                  }} style={{ width: '100%', padding: '12px', background: isDark ? '#333333' : '#ef4444', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+                    בחר קובץ גיבוי ושחזר 📂
+                  </button>
+                </div>
+                <button onClick={() => setBackupModalOpen(false)} style={{ width: '100%', padding: '10px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '13px' }}>
+                  סגור ✕
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      <header style={{ background: headerBg, backdropFilter: 'blur(20px)', borderBottom: `2px solid ${isDark ? '#333333' : '#cbd5e1'}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: '8px' }}>
-          <button onClick={() => setSidebarOpen(true)} style={{ background: cardBg, color: textColor, border: `1.5px solid ${borderColor}`, height: '40px', padding: '0 14px', borderRadius: '10px', fontWeight: '900' }}>•••</button>
-          <div style={{ background: cardBg, border: `1.5px solid ${borderColor}`, color: textColor, fontSize: '13px', fontWeight: '900', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px' }}>🛡️ garda-mobile ({APP_VERSION})</div>
-          <button onClick={() => setModalType('radar')} style={{ background: '#2563eb', color: '#fff', border: 'none', height: '40px', padding: '0 12px', borderRadius: '10px', fontWeight: '900', cursor: 'pointer' }}>📡 רדאר חי</button>
+          <button onClick={() => setSidebarOpen(true)} style={{ background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, height: '42px', padding: '0 16px', borderRadius: '10px', fontSize: '18px', fontWeight: '900', cursor: 'pointer', letterSpacing: '2px' }}>•••</button>
+          <button onClick={handleProtectedBackup} style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, color: textColor, fontSize: '13px', fontWeight: '900', cursor: 'pointer', height: '42px', padding: '0 16px', borderRadius: '10px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><span>🛡️</span> garda-mobile</button>
+          <div style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, height: '42px', padding: '0 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '11px', fontWeight: '900', color: textColor }}>{isOnline ? 'Online' : 'Offline'}</span>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#22c55e' : '#737373', display: 'inline-block' }}></span>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.3fr 1.2fr', gap: '8px', alignItems: 'center' }}>
+          <button onClick={triggerSos} style={{ height: '36px', padding: '0 10px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}><span>🚨</span> SOS חירום</button>
+          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ height: '36px', padding: '0 10px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, textDecoration: 'none', border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>{WAZE_SVG} למלון Vojon</a>
+          <button onClick={() => alert(`מזג אוויר: ${currentWeather.condition}, ${currentWeather.temp}`)} style={{ height: '36px', padding: '0 10px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '800', fontSize: '11px', cursor: 'pointer' }}>{currentWeather.temp}</button>
         </div>
       </header>
 
+      {sharedTimer && (
+        <div style={{ background: isDark ? '#111111' : '#f59e0b', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px' }}>
+          <span onClick={() => setModalType('timer')} style={{ cursor: 'pointer' }}>⏱️ טיימר משפחתי: {formatClock(timerRemainingSec)}</span>
+          <button onClick={clearSharedTimer} style={{ background: 'rgba(0,0,0,0.3)', border: 'none', color: '#fff', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer' }}>סגור</button>
+        </div>
+      )}
+
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500 }} />}
       
-      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '300px', background: bgMain, zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.3s ease', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box', borderLeft: `1px solid ${borderColor}`, overflowY: 'auto' }}>
+      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? '#000000' : '#ffffff', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s ease', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>תפריט ניהול</h3>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: cardBg, border: `1.5px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer' }}>✕</button>
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: textColor }}>תפריט מהיר</h3>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, color: textColor, width: '34px', height: '34px', borderRadius: '8px', cursor: 'pointer' }}>✕</button>
         </div>
+
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px', borderRadius: '10px', background: cardBg, color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', cursor: 'pointer' }}>{isDark ? '🌙 כהה' : '☀️️ בהיר'}</button>
-          <select value={currentUser} onChange={e => setCurrentUser(e.target.value)} style={{ flex: 1.2, padding: '10px', borderRadius: '10px', background: cardBg, color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold' }}>
+          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', cursor: 'pointer' }}>{isDark ? '🌙 כהה' : '☀️ בהיר'}</button>
+          <select value={currentUser} onChange={e => setCurrentUser(e.target.value)} style={{ flex: 1.2, padding: '10px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold' }}>
             {TRAVELERS_LIST.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
-        <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={rectMenuCardStyle(isDark)}><span>📡 רדאר משפחתי חי (כולם על המפה)</span></button>
+
+        <button onClick={() => { setSidebarOpen(false); setModalType(null); }} style={rectMenuCardStyle(isDark)}><span>מסלול ימי הטיול</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={rectMenuCardStyle(isDark)}><span>רדאר משפחתי חי</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={rectMenuCardStyle(isDark)}><span>⏱️ טיימר משפחתי</span></button>
         <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={rectMenuCardStyle(isDark)}><span>🚗 שמירת מיקום רכב חכם</span></button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('trip-album'); }} style={rectMenuCardStyle(isDark)}><span>📸 אלבום טיול משפחתי</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={rectMenuCardStyle(isDark)}><span>📍 סביבי (Around Me)</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('trip-album'); }} style={rectMenuCardStyle(isDark)}><span>📸 אלבום טיול למשפחת כהן</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={rectMenuCardStyle(isDark)}><span>🧠 טריויה חכמה לדרך</span></button>
         <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={rectMenuCardStyle(isDark)}><span>🎟️ ארנק כרטיסים ומסמכים</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={rectMenuCardStyle(isDark)}><span>🆘 מספרי חירום ושגרירות</span></button>
       </aside>
 
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto' }}>
@@ -416,7 +1175,7 @@ export default function App() {
           {INITIAL_TRIP_DAYS.map((d, i) => {
             const isActive = activeDay === i;
             return (
-              <button key={i} onClick={() => setActiveDay(i)} style={{ padding: '10px 16px', borderRadius: '10px', background: isActive ? '#2563eb' : cardBg, color: isActive ? '#fff' : textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              <button key={i} onClick={() => setActiveDay(i)} style={{ padding: '10px 18px', borderRadius: '10px', background: isActive ? '#2563eb' : cardBg, color: isActive ? '#fff' : textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 {d.label}
               </button>
             );
@@ -424,18 +1183,20 @@ export default function App() {
         </div>
 
         <div style={{ marginTop: '16px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '900' }}>{day.title} 📍</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '12px' }}>
+          <h2 style={{ fontSize: '22px', fontWeight: '900', color: textColor, cursor: 'pointer' }} onClick={() => setModalType('route-map')}>{day.title} 📍</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', marginTop: '14px' }}>
             {day.stops.map((stop, sIdx) => (
-              <div key={sIdx} style={{ background: cardBg, borderRadius: '14px', padding: '16px', border: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900' }}>{stop.name}</h4>
-                  <span style={{ fontSize: '11px', fontWeight: '900', background: isDark ? '#222' : '#f1f5f9', padding: '3px 8px', borderRadius: '6px' }}>{stop.time}</span>
+              <div key={sIdx} style={itineraryStopCardStyle}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900' }}>{stop.name}</h4>
+                    <span style={{ fontSize: '11px', fontWeight: '900', background: cardBg, padding: '4px 10px', borderRadius: '8px', border: `1.5px solid ${borderColor}` }}>{stop.time}</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '13px', color: textSub, whiteSpace: 'pre-line' }}>{stop.note}</p>
                 </div>
-                <p style={{ margin: 0, fontSize: '13px', color: textSub }}>{stop.note}</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: cardBg, color: textColor, padding: '8px', borderRadius: '8px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: `1.5px solid ${borderColor}` }}>Apple Maps</a>
-                  <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '8px', borderRadius: '8px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>Waze 🚗</a>
+                  <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: cardBg, color: textColor, padding: '10px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: `1.5px solid ${borderColor}` }}>Maps</a>
+                  <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>Waze</a>
                 </div>
               </div>
             ))}
@@ -445,71 +1206,31 @@ export default function App() {
 
       {modalType && (
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: `1.5px solid ${borderColor}` }}>
-              <button onClick={() => setModalType(null)} style={{ background: cardBg, border: `1.5px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+          <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: `1.5px solid ${borderColor}`, background: bgMain }}>
+              <button onClick={() => setModalType(null)} style={{ background: cardBg, border: `1.5px solid ${borderColor}`, color: textColor, width: '40px', height: '40px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900' }}>{modalType === 'radar' ? '📡 רדאר משפחתי חי' : modalType}</h2>
-              <div style={{ width: '36px' }} />
+              <div style={{ width: '40px' }} />
             </div>
 
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              {modalType === 'route-map' && <iframe title="Route" srcDoc={routeMapHTML} style={{ width: '100%', height: '100%', border: 'none' }} />}
               {modalType === 'radar' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-                  <div style={{ flex: 1, minHeight: '50vh' }}>
+                  <div style={{ flex: 1, minHeight: '45vh' }}>
                     <iframe title="RadarMap" srcDoc={radarMapHTML} style={{ width: '100%', height: '100%', border: 'none' }} />
                   </div>
-                  <div style={{ padding: '16px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '40vh', overflowY: 'auto' }}>
+                  <div style={{ padding: '16px', borderTop: `1.5px solid ${borderColor}`, background: bgMain, display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '45vh', overflowY: 'auto' }}>
                     {Object.values(familyLocations).map((person, pIdx) => (
-                      <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: cardBg, padding: '10px 12px', borderRadius: '10px', border: `1.5px solid ${borderColor}` }}>
+                      <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: cardBg, padding: '10px 12px', borderRadius: '12px', border: `1.5px solid ${borderColor}` }}>
                         <div>
                           <div style={{ fontSize: '13px', fontWeight: '900' }}>{person.name} 🔋 {person.battery || 85}%</div>
                           <div style={{ fontSize: '10px', color: textSub }}>📍 {person.lastSeen || 'שטח האגם'} | {person.updated_at}</div>
                         </div>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          <button onClick={() => sendSoundAlert(person.name)} style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '6px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>צליל 🔔</button>
-                          <a href={`https://www.waze.com/ul?q=${person.lat},${person.lng}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '900', textDecoration: 'none' }}>נווט 🚗</a>
-                        </div>
+                        <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: '#2563eb', color: '#fff', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none' }}>נווט 🧭</a>
                       </div>
                     ))}
-                    <button onClick={updateAndBroadcastMyLoc} style={{ padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', marginTop: '6px' }}>📍 עדכן את המיקום שלי עכשיו לכולם</button>
-                  </div>
-                </div>
-              )}
-
-              {modalType === 'parking' && (
-                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '400px', margin: '0 auto', width: '100%' }}>
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>🚗 שמירת מיקום רכב חכם</h3>
-                  {savedCarParking ? (
-                    <div style={{ background: cardBg, padding: '14px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <div style={{ fontWeight: '900' }}>🔴 רכב חונה ב: {savedCarParking.time}</div>
-                      <div style={{ fontSize: '12px', color: textSub }}>הערה: {savedCarParking.note}</div>
-                      <a href={`https://www.waze.com/ul?q=${savedCarParking.lat},${savedCarParking.lng}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '10px', borderRadius: '8px', textAlign: 'center', fontWeight: '900', textDecoration: 'none' }}>נווט לרכב בוויז 🚗</a>
-                      <button onClick={() => setSavedCarParking(null)} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px', fontWeight: '900', cursor: 'pointer' }}>מחק חניה שמורה</button>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <input type="text" placeholder="הערה לחניה (למשל: קומה 2, ליד עמוד 14)" value={carNoteInput} onChange={e => setCarNoteInput(e.target.value)} style={{ padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: cardBg, color: textColor }} />
-                      <button onClick={saveCarLocationNow} style={{ padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer' }}>שמור מיקום חניה נוכחי 🔴</button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {modalType === 'trip-album' && (
-                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', flex: 1, overflowY: 'auto', maxWidth: '500px', margin: '0 auto', width: '100%' }}>
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>📸 אלבום טיול משפחתי</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: cardBg, padding: '14px', borderRadius: '12px', border: `1.5px solid ${borderColor}` }}>
-                    <input type="text" placeholder="כיתוב לתמונה..." value={photoCaptionInput} onChange={e => setPhotoCaptionInput(e.target.value)} style={{ padding: '10px', borderRadius: '8px', border: `1.5px solid ${borderColor}`, background: bgMain, color: textColor }} />
-                    <input type="file" ref={photoFileInputRef} onChange={handleUploadPhotoFile} accept="image/*" style={{ display: 'none' }} id="trip-photo-upload" />
-                    <button onClick={() => photoFileInputRef.current.click()} style={{ padding: '12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer' }}>העלה תמונה חדשה 📤</button>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-                    {tripPhotos.map((photo, pIdx) => (
-                      <div key={pIdx} style={{ background: cardBg, borderRadius: '10px', overflow: 'hidden', border: `1.5px solid ${borderColor}` }}>
-                        <img src={photo.image_url} alt="Trip" style={{ width: '100%', height: '120px', objectFit: 'cover' }} />
-                        <div style={{ padding: '8px', fontSize: '11px', fontWeight: 'bold' }}>{photo.uploader}: {photo.caption}</div>
-                      </div>
-                    ))}
+                    <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer' }}>📍 עדכן מיקום יזום שלי</button>
                   </div>
                 </div>
               )}
@@ -535,5 +1256,18 @@ const rectMenuCardStyle = (isDark) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   width: '100%',
+  boxSizing: 'border-box'
+});
+
+const emergencyBtnStyle = (isDark) => ({
+  padding: '14px',
+  borderRadius: '10px',
+  background: isDark ? '#111111' : '#fee2e2',
+  color: isDark ? '#ffffff' : '#ef4444',
+  fontWeight: '800',
+  fontSize: '13px',
+  textAlign: 'center',
+  textDecoration: 'none',
+  border: `1.5px solid ${isDark ? '#333333' : '#fecaca'}`,
   boxSizing: 'border-box'
 });
