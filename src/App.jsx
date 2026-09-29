@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.16-FinalVRFix ---
-const APP_VERSION = 'v9.9.16-FinalVRFix';
+// --- GARDA-MOBILE v9.9.17-SpellingFix ---
+const APP_VERSION = 'v9.9.17-SpellingFix';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה وרונה", 
+        name: "נחיתה בנמל התעופה ורונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -259,7 +259,7 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR وרונה + חזרה לישראל", icon: "❤️",
+    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR ורונה + חזרה לישראל", icon: "❤️",
     stops: [
       { 
         time: "08:30", 
@@ -279,7 +279,7 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
@@ -309,7 +309,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
   { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
-  { id: 'flight-harel', folder: '✈ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
+  { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
   { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
@@ -1563,7 +1563,7 @@ export default function App() {
                 <span style={{ fontSize: '12px', fontWeight: '800', color: textSub }}>קטגוריה: {viewerItem.folder}</span>
                 {viewerItem.ticketCode && <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🔑 קוד כרטיס/הזמנה: {viewerItem.ticketCode}</span>}
                 {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 סכום/פרטים: {viewerItem.trans}</span>}
-                {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️️ פרטים: {viewerItem.desc}</span>}
+                {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️ פרטים: {viewerItem.desc}</span>}
                 {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>👤 נוסע: {viewerItem.passenger}</span>}
                 {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
               </div>
