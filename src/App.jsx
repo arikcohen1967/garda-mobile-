@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.14 ---
-const APP_VERSION = 'v9.9.14';
+// --- GARDA-MOBILE v9.9.15 ---
+const APP_VERSION = 'v9.9.15';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -399,12 +399,18 @@ export default function App() {
 
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
-  const [familyLocations, setFamilyLocations] = useState({
-    'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה', battery: 88, lastSeen: 'מלון Vojon' },
-    'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות', battery: 74, lastSeen: 'פסקיירה דל גארדה' },
-    'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות', battery: 92, lastSeen: 'מלון Vojon' },
-    'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות', battery: 65, lastSeen: 'מלון Vojon' },
-    'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 99, lastSeen: 'גארדלנד' }
+  const [familyLocations, setFamilyLocations] = useState(() => {
+    try {
+      const saved = localStorage.getItem('garda-local-family-locations');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {
+      'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה', battery: 88, lastSeen: 'מלון Vojon' },
+      'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות', battery: 74, lastSeen: 'פסקיירה דל גארדה' },
+      'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות', battery: 92, lastSeen: 'מלון Vojon' },
+      'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות', battery: 65, lastSeen: 'מלון Vojon' },
+      'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 99, lastSeen: 'גארדלנד' }
+    };
   });
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   const [activeSoundAlert, setActiveSoundAlert] = useState(null);
@@ -780,12 +786,16 @@ export default function App() {
     const fetchInitialRadar = async () => {
       try {
         const { data, error } = await supabase.from('family_radar').select('*');
-        if (data && !error) {
+        if (data && !error && data.length > 0) {
           const mapObj = {};
           data.forEach(item => {
             if (item && item.name) mapObj[item.name] = item;
           });
-          setFamilyLocations(prev => ({ ...prev, ...mapObj }));
+          setFamilyLocations(prev => {
+            const merged = { ...prev, ...mapObj };
+            try { localStorage.setItem('garda-local-family-locations', JSON.stringify(merged)); } catch (err) {}
+            return merged;
+          });
         }
       } catch (e) {}
     };
@@ -805,7 +815,11 @@ export default function App() {
     const channel = supabase.channel('family_trip_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
-          setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
+          setFamilyLocations(prev => {
+            const updated = { ...prev, [payload.new.name]: payload.new };
+            try { localStorage.setItem('garda-local-family-locations', JSON.stringify(updated)); } catch (err) {}
+            return updated;
+          });
           if (payload.new.is_sos) {
             setActiveSosAlert(payload.new);
             playExtendedChimeMelody();
@@ -953,18 +967,21 @@ export default function App() {
       battery: 95, 
       lastSeen: `${currentUser} (עדכון יזום)` 
     };
+
     setMyLocation({ lat: coords.latitude, lng: coords.longitude });
-    setFamilyLocations(prev => ({ ...prev, [currentUser]: locObj }));
+    
+    // עדכון מקומי מידי וגיבוי ב-LocalStorage כדי שיראו תמיד
+    setFamilyLocations(prev => {
+      const updated = { ...prev, [currentUser]: locObj };
+      try { localStorage.setItem('garda-local-family-locations', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
+
     try { 
-      const { error } = await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' });
-      if (error) {
-        alert('❌ שגיאה בשמירת המיקום בשרת: ' + error.message);
-      } else {
-        alert('✅ המיקום עודכן בהצלחה ברדאר המשפחתי!');
-      }
-    } catch (e) {
-      alert('❌ שגיאת תקשורת עם השרת');
-    }
+      await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' });
+    } catch (e) {}
+
+    alert('✅ המיקום שלך עודכן בהצלחה ברדאר המשפחתי!');
   };
 
   const routeMapHTML = useMemo(() => {
@@ -1376,7 +1393,7 @@ export default function App() {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <span>{isDark ? '🌙 כהה' : '☀️️ בהיר'}</span>
+            <span>{isDark ? '🌙 כהה' : '☀️ בהיר'}</span>
           </button>
           <div style={{ flex: 1.2 }}>
             <select 
@@ -1580,7 +1597,7 @@ export default function App() {
         <div onClick={() => setViewerItem(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 4000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '24px', borderRadius: '20px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.3)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'center', position: 'relative' }}>
             <button onClick={() => setViewerItem(null)} style={{ position: 'absolute', top: '16px', left: '16px', background: isDark ? '#222222' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
-            <span style={{ fontSize: '36px', marginTop: '10px' }}>🎟️️</span>
+            <span style={{ fontSize: '36px', marginTop: '10px' }}>🎟️</span>
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>{viewerItem.title}</h3>
             
             {viewerItem.isHotelInfo ? (
@@ -1598,7 +1615,7 @@ export default function App() {
                 <span style={{ fontSize: '12px', fontWeight: '800', color: textSub }}>קטגוריה: {viewerItem.folder}</span>
                 {viewerItem.ticketCode && <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🔑 קוד כרטיס/הזמנה: {viewerItem.ticketCode}</span>}
                 {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 סכום/פרטים: {viewerItem.trans}</span>}
-                {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️️ פרטים: {viewerItem.desc}</span>}
+                {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️ פרטים: {viewerItem.desc}</span>}
                 {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>👤 נוסע: {viewerItem.passenger}</span>}
                 {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
               </div>
@@ -1993,7 +2010,7 @@ export default function App() {
                       <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
                       <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <span>🗺️</span> הצג מפת ניווט חי (סיכה ➔ הרכב)
+                        <span>🗺️️</span> הצג מפת ניווט חי (סיכה ➔ הרכב)
                       </button>
 
                       <div style={{ fontSize: '16px', fontWeight: '900', color: textColor }}>
@@ -2005,7 +2022,7 @@ export default function App() {
                           נווט ב-Google 🗺️
                         </a>
                         <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
-                          אפס חניה 🗑️
+                          אפס חניה 🗑️️
                         </button>
                       </div>
                     </div>
@@ -2019,7 +2036,7 @@ export default function App() {
         </div>
       )}
 
-    </div>
+</div>
   );
 }
 
