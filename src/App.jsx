@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.11 ---
-const APP_VERSION = 'v9.9.11';
+// --- GARDA-MOBILE v9.9.12 ---
+const APP_VERSION = 'v9.9.12';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -228,7 +228,7 @@ const INITIAL_TRIP_DAYS = [
         dest: "Lago di Tenno, Italy", 
         lat: 45.9221, 
         lng: 10.8405, 
-        note: "עלייה קצרה להר לאגם טנו בעל המים בצבע טורקיז מרהיב – זמן למנוחה, פיקניק וטבילה מרעננת.",
+        note: "עלייה קצרה להר לנו טנו בעל המים בצבע טורקיז מרהיב – זמן למנוחה, פיקניק וטבילה מרעננת.",
         creative: {
           name: "חופי טורקיז בטנו",
           dest: "Lago di Tenno",
@@ -259,11 +259,23 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-06", label: "שלישי · 06/10", title: "ורונה + חזרה לישראל", icon: "❤️",
+    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR בורונה + חזרה לישראל", icon: "❤️",
     stops: [
       { 
-        time: "09:00", 
-        name: "סיור בעיר העתיקה בוורונה", 
+        time: "08:30", 
+        name: "יציאה מהמלון לרכישת משקפי VR (MediaWorld)", 
+        dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", 
+        lat: 45.4093, 
+        lng: 10.9632, 
+        note: "נסיעה ישירה מהמלון לחנות הענק MediaWorld בקניון Adigeo בדרום וורונה. רכישת Meta Quest 3/3S, הצגת דרכון ובקשת טופס Tax Free (Modulo Tax Free).",
+        challenge: {
+          title: "משימת Tax Free!",
+          desc: "וידוא קבלת קבלה מקורית וטופס החזר מס (Global Blue / Planet) עבור המשקפיים."
+        }
+      },
+      { 
+        time: "11:00", 
+        name: "סיור בעיר העתיקה בוורונה ואוכל", 
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
@@ -280,11 +292,11 @@ const INITIAL_TRIP_DAYS = [
       },
       { 
         time: "18:30", 
-        name: "שדה התעופה وרונה וחזרה הביתה", 
+        name: "שדה התעופה وרונה – מכס וחזרה הביתה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
-        note: "החזרת הרכב השכור, צ'ק-אין וטיסה ישירה חזרה לישראל.",
+        note: "הגעה לשדה, מעבר בעמדת המכס (Dogana) עם קופסת המשקפיים הסגורה להחתמת טופסי ה-Tax Free, החזרת הרכב השכור, צ'ק-אין וטיסה ישירה חזרה לישראל.",
         creative: {
           name: "גלוית פרידה מאיטליה",
           dest: "Verona, Italy",
@@ -302,7 +314,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
   { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
   { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
-  { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
+  { id: 'aig-insurance', folder: '✈️️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
   { id: 'gardaland-2', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 2 (Serial 601)', ticketCode: 'VKN1P01Y901ME4T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
@@ -885,7 +897,6 @@ export default function App() {
 
   const isDark = themeMode === 'dark';
   
-  // הגדרת משתני צבע תואמים לשחור-לבן מוחלט במצב כהה
   const bgMain = isDark ? '#000000' : '#ffffff';
   const cardBg = isDark ? '#111111' : '#ffffff';
   const textColor = isDark ? '#ffffff' : '#0f172a';
@@ -1793,7 +1804,7 @@ export default function App() {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
                   {isTriviaPaused && (
                     <div style={{ background: isDark ? '#111111' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
-                      ⏸️ המשחק מושהה (לחץ על כפתור "התחל" למעלה כדי להפעיל את השעון)
+                      ⏸️️ המשחק מושהה (לחץ על כפתור "התחל" למעלה כדי להפעיל את השעון)
                     </div>
                   )}
 
