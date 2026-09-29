@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.21 (Supabase Radar Live Fix) ---
-const APP_VERSION = 'v9.9.21';
+// --- GARDA-MOBILE v9.9.22 ---
+const APP_VERSION = 'v9.9.22';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -310,7 +310,7 @@ const INITIAL_TRIP_DAYS = [
 const TICKET_DEFAULT_FOLDERS = ['✈️ טיסות ורכב', '🏡 מלון', '🎢 Gardaland', '🎬 Movieland', '🚤 ונציה'];
 const DEFAULT_DOCUMENTS = [
   { id: 'flight-arik', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)', isLink: false, url: '#', passenger: 'COHEN/ARIK MR', ticketNo: '8180011314102' },
-  { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
+  { id: 'flight-amit', folder: '✈️️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
   { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
   { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
@@ -642,7 +642,7 @@ export default function App() {
               setCurrentWeather({ temp: `${tempVal}°C`, condition: condIcon });
             }
           } catch (e) {
-            setCurrentWeather({ temp: '24°C', condition: '☀️️ שמש' });
+            setCurrentWeather({ temp: '24°C', condition: '☀️ שמש' });
           }
         },
         () => {
@@ -1038,7 +1038,7 @@ export default function App() {
       </head>
       <body>
         <div class="route-badge">
-          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️️ זמן:</span> ${duration}
+          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️ זמן:</span> ${duration}
         </div>
         <div id="map"></div>
         <script>
@@ -1191,11 +1191,13 @@ export default function App() {
         </div>
 
         <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={rectMenuCardStyle(isDark)}><span>רדאר משפחתי חי (Supabase)</span></button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={rectMenuCardStyle(isDark)}><span>טיימר משפחתי</span></button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={rectMenuCardStyle(isDark)}><span>שמירת מיקום רכב</span></button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('trip-album'); }} style={rectMenuCardStyle(isDark)}><span>📸 אלבום טיול משפחתי</span></button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={rectMenuCardStyle(isDark)}><span>טריויה לדרך</span></button>
-        <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={rectMenuCardStyle(isDark)}><span>ארנק כרטיסים ומסמכים</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={rectMenuCardStyle(isDark)}><span>⏱️ טיימר משפחתי</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={rectMenuCardStyle(isDark)}><span>🚗 שמירת מיקום רכב חכם</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={rectMenuCardStyle(isDark)}><span>📍 סביבי (Around Me)</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('trip-album'); }} style={rectMenuCardStyle(isDark)}><span>📸 אלבום טיול למשפחת כהן</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={rectMenuCardStyle(isDark)}><span>🧠 טריויה חכמה לדרך</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={rectMenuCardStyle(isDark)}><span>🎟️️ ארנק כרטיסים ומסמכים</span></button>
+        <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={rectMenuCardStyle(isDark)}><span>🆘 מספרי חירום ושגרירות</span></button>
       </aside>
 
       <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto' }}>
@@ -1257,7 +1259,7 @@ export default function App() {
                         </div>
                         <div style={{ display: 'flex', gap: '6px' }}>
                           <button onClick={() => sendSoundAlert(person.name)} style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>🔔 צליל</button>
-                          <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: '#2563eb', color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none' }}>נווט 🧭</a>
+                          <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: '#2563eb', color: '#fff', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none' }}>נווט 🧭</a>
                         </div>
                       </div>
                     ))}
