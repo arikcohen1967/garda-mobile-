@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.18 ---
-const APP_VERSION = 'v9.9.18';
+// --- GARDA-MOBILE v9.9.19 ---
+const APP_VERSION = 'v9.9.19';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה ורונה", 
+        name: "נחיתה בנמל התעופה وרונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -267,7 +267,7 @@ const INITIAL_TRIP_DAYS = [
         dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", 
         lat: 45.4093, 
         lng: 10.9632, 
-        note: "נסיעה ישירה מהמלון לחנות הענק MediaWorld בקניון Adigeo בדרום ורונה. רכישת Meta Quest 3/3S, הצגת דרכון ובקשת טופס Tax Free (Modulo Tax Free).",
+        note: "נסיעה ישירה מהמלון לחנות הענק MediaWorld בקניון Adigeo בדרום وרונה. רכישת Meta Quest 3/3S, הצגת דרכון ובקשת טופס Tax Free (Modulo Tax Free).",
         challenge: {
           title: "משימת Tax Free!",
           desc: "וידוא קבלת קבלה מקורית וטופס החזר מס (Global Blue / Planet) עבור המשקפיים."
@@ -287,7 +287,7 @@ const INITIAL_TRIP_DAYS = [
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
-          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב ורונה לפני הנסיעה לשדה."
+          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
         }
       },
       { 
@@ -312,7 +312,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-arik', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)', isLink: false, url: '#', passenger: 'COHEN/ARIK MR', ticketNo: '8180011314102' },
   { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
-  { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
+  { id: 'flight-lian', folder: '✈️️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
   { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
   { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
@@ -400,7 +400,7 @@ export default function App() {
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
   
-  // ניהול מובטח של כלל בני המשפחה גם דרך זיכרון מקומי משותף (localStorage)
+  // טעינה וניהול מובטח של כל המשפחה יחד
   const [familyLocations, setFamilyLocations] = useState(() => {
     const defaultFamily = {
       'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה', battery: 88, lastSeen: 'מלון Vojon' },
@@ -646,7 +646,7 @@ export default function App() {
               const code = data.current_weather.weathercode;
               let condIcon = '☀️ שמש';
               if (code >= 1 && code <= 3) condIcon = '🌤️ מעונן';
-              else if (code >= 51 && code <= 67) condIcon = '🌧️ גשם';
+              else if (code >= 51 && code <= 67) condIcon = '🌧️️ גשם';
               else if (code >= 71 && code <= 77) condIcon = '❄️ שלג';
               else if (code >= 95) condIcon = '⛈️ סערה';
 
@@ -712,87 +712,102 @@ export default function App() {
 
   const chimeIntervalRef = useRef(null);
 
-  const sendSoundAlert = async (targetName) => {
-    const customMsg = prompt(`שלח התראה נעימה אל ${targetName}:`, "נא ליצור קשר כשאתם יכולים!");
-    if (customMsg === null) return;
-
-    playExtendedChimeMelody();
-
-    const soundAlertPayload = {
-      name: targetName,
-      sound_msg: customMsg || "התראה קולית מהרדאר המשפחתי!",
-      updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
-      is_sound_alert: true
-    };
-
-    setActiveSoundAlert(soundAlertPayload);
-
-    try {
-      await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
-      alert(`🔔 צליל פעמונים נעים מנגן כעת (למשך 30 שניות מלאות או עד כיבוי) אל ${targetName}!`);
-    } catch (e) { console.error(e); }
-  };
-
-  const playExtendedChimeMelody = () => {
+  // מנגנון צליל התראה מתוקן: מתנגן למשך 6 שניות מלאות ומדויקות עם עוצמה גבוהה
+  const playLoudAlertMelody = () => {
     try {
       if (chimeIntervalRef.current) clearInterval(chimeIntervalRef.current);
 
-      let cycles = 0;
-      chimeIntervalRef.current = setInterval(() => {
-        cycles++;
-        if (cycles > 15) {
-          stopExtendedChimeMelody();
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+
+      let count = 0;
+      const playSequence = () => {
+        if (count >= 3) {
+          clearInterval(chimeIntervalRef.current);
+          chimeIntervalRef.current = null;
           return;
         }
+        count++;
 
-        try {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            const ctx = new AudioContextClass();
-            if (ctx.state === 'suspended') ctx.resume();
+        const notes = [659.25, 783.99, 987.77, 1318.51]; // צלילים גבוהים ובולטים
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            try {
+              if (ctx.state === 'suspended') ctx.resume();
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = 'square'; // גל מרובע נשמע חזק וחד יותר בפלאפונים
+              osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
-            const notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
-            notes.forEach((freq, idx) => {
-              setTimeout(() => {
-                try {
-                  const osc = ctx.createOscillator();
-                  const gain = ctx.createGain();
-                  osc.type = 'sine';
-                  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+              gain.gain.setValueAtTime(0.6, ctx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
 
-                  gain.gain.setValueAtTime(0.35, ctx.currentTime);
-                  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.4);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
 
-                  osc.connect(gain);
-                  gain.connect(ctx.destination);
+              osc.start();
+              osc.stop(ctx.currentTime + 0.5);
+            } catch (err) {}
+          }, idx * 180);
+        });
+      };
 
-                  osc.start();
-                  osc.stop(ctx.currentTime + 1.4);
-                } catch (err) {}
-              }, idx * 250);
-            });
-          }
-        } catch (e) {}
-      }, 2000);
+      playSequence();
+      chimeIntervalRef.current = setInterval(playSequence, 2000);
     } catch (e) {}
   };
 
-  const stopExtendedChimeMelody = () => {
+  const stopLoudAlertMelody = () => {
     if (chimeIntervalRef.current) {
       clearInterval(chimeIntervalRef.current);
       chimeIntervalRef.current = null;
     }
   };
 
-  // סנכרון כפול: משיכה מול Supabase ומול LocalStorage המשפחתי כדי להבטיח שכולם תמיד מופיעים
+  const sendSoundAlert = async (targetName) => {
+    const customMsg = prompt(`שלח הודעה וצלצול אל ${targetName}:`, "נא ליצור קשר מיידית עם אריק!");
+    if (customMsg === null) return;
+
+    playLoudAlertMelody();
+
+    const soundAlertPayload = {
+      name: targetName,
+      sound_msg: customMsg || "נא ליצור קשר דחוף!",
+      updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+      is_sound_alert: true
+    };
+
+    setActiveSoundAlert(soundAlertPayload);
+
+    // שמירה מקומית ושליחה לשרת כדי לוודא שזה מקפיץ אצלו
+    try {
+      localStorage.setItem('garda-active-sound-alert', JSON.stringify(soundAlertPayload));
+      await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
+      alert(`🔔 נשלח צליל והודעה אל ${targetName}!`);
+    } catch (e) {
+      alert(`🔔 נשלח צליל והודעה מקומית אל ${targetName}!`);
+    }
+  };
+
+  // סנכרון רדאר כפול: גם מול Supabase וגם מול LocalStorage משותף (פוללינג כל 3 שניות לשקט נפשי במקרי חירום)
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    const syncAllLocations = async () => {
-      // 1. נסה למשוך מ-Supabase
+    const syncEverything = async () => {
+      // בדיקה מקומית משותפת
+      try {
+        const localSaved = localStorage.getItem('garda-family-radar-all');
+        if (localSaved) {
+          const parsed = JSON.parse(localSaved);
+          setFamilyLocations(prev => ({ ...prev, ...parsed }));
+        }
+      } catch (e) {}
+
+      // בדיקה מול Supabase
       try {
         const { data, error } = await supabase.from('family_radar').select('*');
         if (data && !error && data.length > 0) {
@@ -801,38 +816,21 @@ export default function App() {
             data.forEach(item => {
               if (item && item.name && item.lat) {
                 updated[item.name] = item;
+                if (item.is_sound_alert && item.name === currentUser) {
+                  setActiveSoundAlert(item);
+                  playLoudAlertMelody();
+                }
               }
             });
             try { localStorage.setItem('garda-family-radar-all', JSON.stringify(updated)); } catch (err) {}
             return updated;
           });
-          return;
-        }
-      } catch (e) {}
-
-      // 2. גיבוי: טעינה מ-LocalStorage המשותף אם השרת לא החזיר נתונים
-      try {
-        const saved = localStorage.getItem('garda-family-radar-all');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          setFamilyLocations(prev => ({ ...prev, ...parsed }));
         }
       } catch (e) {}
     };
 
-    syncAllLocations();
-    const pollInterval = setInterval(syncAllLocations, 5000); // בדיקה כל 5 שניות
-
-    const fetchInitialTimer = async () => {
-      try {
-        const { data } = await supabase.from('family_timers').select('*').eq('id', 1).single();
-        if (data) {
-          setSharedTimer(data);
-          setIsTimerPaused(data.is_paused);
-        }
-      } catch (e) {}
-    };
-    fetchInitialTimer();
+    syncEverything();
+    const syncInterval = setInterval(syncEverything, 3000);
 
     const channel = supabase.channel('family_trip_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
@@ -844,18 +842,12 @@ export default function App() {
           });
           if (payload.new.is_sos) {
             setActiveSosAlert(payload.new);
-            playExtendedChimeMelody();
+            playLoudAlertMelody();
           }
           if (payload.new.is_sound_alert && payload.new.name === currentUser) {
             setActiveSoundAlert(payload.new);
-            playExtendedChimeMelody();
+            playLoudAlertMelody();
           }
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
-        if (payload.new) {
-          setSharedTimer(payload.new);
-          setIsTimerPaused(payload.new.is_paused);
         }
       })
       .subscribe();
@@ -864,8 +856,8 @@ export default function App() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       supabase.removeChannel(channel);
-      clearInterval(pollInterval);
-      stopExtendedChimeMelody();
+      clearInterval(syncInterval);
+      stopLoudAlertMelody();
     };
   }, [currentUser]);
 
@@ -931,7 +923,7 @@ export default function App() {
         is_sos: true
       };
       setActiveSosAlert(sosData);
-      playExtendedChimeMelody();
+      playLoudAlertMelody();
       try {
         await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
       } catch (e) {}
@@ -939,7 +931,7 @@ export default function App() {
   };
 
   const dismissSos = async () => {
-    stopExtendedChimeMelody();
+    stopLoudAlertMelody();
     setActiveSosAlert(null);
     try {
       await supabase.from('family_radar').upsert([{ name: currentUser, is_sos: false }], { onConflict: 'name' });
@@ -993,7 +985,7 @@ export default function App() {
 
     setMyLocation({ lat: coords.latitude, lng: coords.longitude });
     
-    // מעדכן את כל המפה המקומית ושומר בזיכרון המשותף למניעת איבוד משתמשים
+    // שמירה כפולה גם מקומית וגם בשרת
     setFamilyLocations(prev => {
       const updated = { ...prev, [currentUser]: locObj };
       try { localStorage.setItem('garda-family-radar-all', JSON.stringify(updated)); } catch (e) {}
@@ -1164,7 +1156,7 @@ export default function App() {
           <p style={{ fontSize: '12px', opacity: 0.9, marginBottom: '16px' }}>זמן עדכון: {activeSosAlert.updated_at}</p>
           <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px' }}>
             <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '12px', background: isDark ? '#ffffff' : '#fff', color: isDark ? '#000000' : '#ef4444', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-              נווט למיקום 🗺️
+              נווט למיקום 🗺️️
             </a>
             <button onClick={dismissSos} style={{ flex: 1, padding: '12px', background: isDark ? '#333333' : '#0f172a', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
               בטל אזעקה ✓
@@ -1259,13 +1251,13 @@ export default function App() {
       {activeSoundAlert && (
         <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '400px', background: isDark ? '#111111' : '#2563eb', zIndex: 9998, borderRadius: '14px', padding: '18px', textAlign: 'center', color: '#fff', boxShadow: '0 15px 40px rgba(0, 0, 0, 0.4)', boxSizing: 'border-box', border: `2px solid ${isDark ? '#ffffff' : 'rgba(255,255,255,0.3)'}` }}>
           <span style={{ fontSize: '32px' }}>🔔</span>
-          <h3 style={{ margin: '6px 0', fontSize: '16px', fontWeight: '900' }}>התראה נעימה התקבלה!</h3>
-          <p style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: '800', background: isDark ? '#222222' : 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px' }}>
+          <h3 style={{ margin: '6px 0', fontSize: '16px', fontWeight: '900' }}>התרעה והודעה דחופה!</h3>
+          <p style={{ margin: '0 0 10px', fontSize: '15px', fontWeight: '900', background: isDark ? '#222222' : 'rgba(0,0,0,0.25)', padding: '14px', borderRadius: '10px', color: '#fff' }}>
             "{activeSoundAlert.sound_msg}"
           </p>
-          <span style={{ fontSize: '11px', opacity: 0.85, display: 'block', marginBottom: '12px' }}>נשלח על ידי: {activeSoundAlert.name} ({activeSoundAlert.updated_at})</span>
-          <button onClick={() => { stopExtendedChimeMelody(); setActiveSoundAlert(null); }} style={{ padding: '8px 22px', background: isDark ? '#ffffff' : '#fff', color: isDark ? '#000000' : '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
-            הפסק צליל ואישור ✓
+          <span style={{ fontSize: '12px', opacity: 0.9, display: 'block', marginBottom: '14px' }}>נשלח מאת: {activeSoundAlert.name} ({activeSoundAlert.updated_at})</span>
+          <button onClick={() => { stopLoudAlertMelody(); setActiveSoundAlert(null); }} style={{ padding: '10px 24px', background: isDark ? '#ffffff' : '#fff', color: isDark ? '#000000' : '#2563eb', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+            הבנתי, יצרתי קשר ✓
           </button>
         </div>
       )}
@@ -1392,7 +1384,7 @@ export default function App() {
           </span>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button onClick={toggleSharedTimerPause} style={{ background: isDark ? '#333333' : 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
-              {isTimerPaused ? '▶️ המשך' : '⏸️ עצור'}
+              {isTimerPaused ? '▶️️ המשך' : '⏸️ עצור'}
             </button>
             <button onClick={clearSharedTimer} style={{ background: isDark ? '#222222' : 'rgba(0,0,0,0.3)', border: 'none', color: '#fff', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
               ✕ סגור
@@ -1412,7 +1404,7 @@ export default function App() {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <span>{isDark ? '🌙 כהה' : '☀️ בהיר'}</span>
+            <span>{isDark ? '🌙 כהה' : '☀️️ בהיר'}</span>
           </button>
           <div style={{ flex: 1.2 }}>
             <select 
@@ -1656,7 +1648,7 @@ export default function App() {
               
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי (פרו)'}
-                {modalType === 'route-map' && `🗺️️ ניווט ליעד: ${day.title}`}
+                {modalType === 'route-map' && `🗺️ ניווט ליעד: ${day.title}`}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 Car Finder Pro - שמירת מיקום רכב'}
@@ -1672,7 +1664,7 @@ export default function App() {
                     ▶️ התחל
                   </button>
                   <button onClick={handlePauseTrivia} style={{ background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
-                    ⏸️️ השהה
+                    ⏸️ השהה
                   </button>
                   <button onClick={handleResetTrivia} style={{ background: isDark ? '#222222' : '#ef4444', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
                     🔄 איפוס
@@ -2029,7 +2021,7 @@ export default function App() {
                       <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
                       <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <span>🗺️</span> הצג מפת ניווט חי (סיכה ➔ הרכב)
+                        <span>🗺️️</span> הצג מפת ניווט חי (סיכה ➔ הרכב)
                       </button>
 
                       <div style={{ fontSize: '16px', fontWeight: '900', color: textColor }}>
