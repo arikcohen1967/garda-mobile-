@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.15 ---
-const APP_VERSION = 'v9.9.15';
+// --- GARDA-MOBILE v9.9.16 ---
+const APP_VERSION = 'v9.9.16';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה ורונה", 
+        name: "נחיתה בנמל התעופה وרונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -282,17 +282,17 @@ const INITIAL_TRIP_DAYS = [
         note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         challenge: {
           title: "שיא הטיול המשפחתי!",
-          desc: "בוחרים יחד בארנה של ורונה את הרגע המצחיק והמרגש ביותר של הטיול."
+          desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
         },
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
-          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב ורונה לפני הנסיעה לשדה."
+          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
         }
       },
       { 
         time: "18:30", 
-        name: "שדה התעופה ורונה – מכס וחזרה הביתה", 
+        name: "שדה התעופה وרונה – מכס וחזרה הביתה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -399,19 +399,25 @@ export default function App() {
 
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
+  
   const [familyLocations, setFamilyLocations] = useState(() => {
-    try {
-      const saved = localStorage.getItem('garda-local-family-locations');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return {
+    const defaults = {
       'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה', battery: 88, lastSeen: 'מלון Vojon' },
       'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות', battery: 74, lastSeen: 'פסקיירה דל גארדה' },
       'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות', battery: 92, lastSeen: 'מלון Vojon' },
       'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות', battery: 65, lastSeen: 'מלון Vojon' },
       'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 99, lastSeen: 'גארדלנד' }
     };
+    try {
+      const saved = localStorage.getItem('garda-local-family-locations');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return { ...defaults, ...parsed };
+      }
+    } catch (e) {}
+    return defaults;
   });
+
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   const [activeSoundAlert, setActiveSoundAlert] = useState(null);
   
@@ -639,7 +645,7 @@ export default function App() {
               const code = data.current_weather.weathercode;
               let condIcon = '☀️ שמש';
               if (code >= 1 && code <= 3) condIcon = '🌤️ מעונן';
-              else if (code >= 51 && code <= 67) condIcon = '🌧️ גשם';
+              else if (code >= 51 && code <= 67) condIcon = '🌧️️ גשם';
               else if (code >= 71 && code <= 77) condIcon = '❄️ שלג';
               else if (code >= 95) condIcon = '⛈️ סערה';
 
@@ -970,7 +976,6 @@ export default function App() {
 
     setMyLocation({ lat: coords.latitude, lng: coords.longitude });
     
-    // עדכון מקומי מידי וגיבוי ב-LocalStorage כדי שיראו תמיד
     setFamilyLocations(prev => {
       const updated = { ...prev, [currentUser]: locObj };
       try { localStorage.setItem('garda-local-family-locations', JSON.stringify(updated)); } catch (e) {}
@@ -2010,7 +2015,7 @@ export default function App() {
                       <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
                       <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <span>🗺️️</span> הצג מפת ניווט חי (סיכה ➔ הרכב)
+                        <span>🗺️</span> הצג מפת ניווט חי (סיכה ➔ הרכב)
                       </button>
 
                       <div style={{ fontSize: '16px', fontWeight: '900', color: textColor }}>
@@ -2022,7 +2027,7 @@ export default function App() {
                           נווט ב-Google 🗺️
                         </a>
                         <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
-                          אפס חניה 🗑️️
+                          אפס חניה 🗑️
                         </button>
                       </div>
                     </div>
@@ -2036,7 +2041,7 @@ export default function App() {
         </div>
       )}
 
-</div>
+    </div>
   );
 }
 
