@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.11 ---
-const APP_VERSION = 'v9.9.11';
+// --- GARDA-MOBILE v9.9.12-VRFixed ---
+const APP_VERSION = 'v9.9.12-VRFixed';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה وרונה", 
+        name: "נחיתה בנמל התעופה ורונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -259,19 +259,27 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-06", label: "שלישי · 06/10", title: "ורונה + חזרה לישראל", icon: "❤️",
+    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR ורונה + חזרה לישראל", icon: "❤️",
     stops: [
       { 
-        time: "09:00", 
-        name: "סיור בעיר העתיקה בוורונה", 
+        time: "08:30", 
+        name: "רכישת משקפי VR בורונה (מדריך רכישה מלא ו-Tax Free)", 
+        dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", 
+        lat: 45.4093, 
+        lng: 10.9632, 
+        note: "מדריך מקוצר ושימושי לרכישת משקפי Meta Quest בורונה:\n\n1. השוואת דגמים ומחירי יעד:\n- Meta Quest 3S (128GB): ~€330–€350 (נטו לאחר Tax Free: ~€290–€310) | המומלץ ביותר לילדים ונוער.\n- Meta Quest 3S (256GB): ~€470 (נטו: ~€410–€415) | למשחקים כבדים.\n- Meta Quest 3 (512GB): ~€570–€620 (נטו: ~€500–€545) | דגם הדגל עם עדשות Pancake.\n\n2. חנויות מומלצות:\n- MediaWorld (קניון Adigeo, Viale delle Nazioni): חנות ענק עם הסיכוי הגבוה ביותר למלאי זמין על המדף.\n- Unieuro (סניף מרכז Via Cappello 34 או סניף פרברי Via Preare 42).\n\n3. צ'ק-ליסט Tax Free:\n- בקשו בעת הקנייה טופס החזר מס (Modulo Tax Free) והציגו דרכון.\n- אל תפתחו את האריזה עד לאישור המכס בשדה (Dogana).\n- החתימו את הטופס בשדה התעופה (בעמדת המכס או בקיוסקים הדיגיטליים) טרם קבלת הזיכוי.",
+        challenge: {
+          title: "משימת Tax Free!",
+          desc: "וידוא קבלת קבלה מקורית וטופס החזר מס עבור המשקפיים."
+        }
+      },
+      { 
+        time: "11:00", 
+        name: "סיור בעיר העתיקה בוורונה ואוכל", 
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
         note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
-        challenge: {
-          title: "שיא הטיול המשפחתי!",
-          desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
-        },
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
@@ -280,11 +288,11 @@ const INITIAL_TRIP_DAYS = [
       },
       { 
         time: "18:30", 
-        name: "שדה התעופה وרונה וחזרה הביתה", 
+        name: "שדה התעופה وרונה – מכס וחזרה הביתה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
-        note: "החזרת הרכב השכור, צ'ק-אין וטיסה ישירה חזרה לישראל.",
+        note: "מעבר במכס (Dogana) עם קופסת המשקפיים להחתמת ה-Tax Free, החזרת הרכב וטיסה ישירה לישראל.",
         creative: {
           name: "גלוית פרידה מאיטליה",
           dest: "Verona, Italy",
@@ -885,7 +893,6 @@ export default function App() {
 
   const isDark = themeMode === 'dark';
   
-  // הגדרת משתני צבע תואמים לשחור-לבן מוחלט במצב כהה
   const bgMain = isDark ? '#000000' : '#ffffff';
   const cardBg = isDark ? '#111111' : '#ffffff';
   const textColor = isDark ? '#ffffff' : '#0f172a';
@@ -975,7 +982,7 @@ export default function App() {
       </head>
       <body>
         <div class="route-badge">
-          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️ זמן:</span> ${duration}
+          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️️ זמן:</span> ${duration}
         </div>
         <div id="map"></div>
         <script>
@@ -1474,7 +1481,7 @@ export default function App() {
                     <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
                     <span style={{ fontSize: '11px', fontWeight: '900', color: textColor, background: isDark ? '#222222' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: `1px solid ${borderColor}` }}>{stop.time}</span>
                   </div>
-                  <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45' }}>{stop.note}</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45', whiteSpace: 'pre-line' }}>{stop.note}</p>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -1793,7 +1800,7 @@ export default function App() {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
                   {isTriviaPaused && (
                     <div style={{ background: isDark ? '#111111' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
-                      ⏸️ המשחק מושהה (לחץ על כפתור "התחל" למעלה כדי להפעיל את השעון)
+                      ⏸️️ המשחק מושהה (לחץ על כפתור "התחל" למעלה כדי להפעיל את השעון)
                     </div>
                   )}
 
