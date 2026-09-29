@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה وרונה", 
+        name: "נחיתה בנמל התעופה ורונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -259,15 +259,15 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR وרונה + חזרה לישראל", icon: "❤️",
+    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR ורונה + חזרה לישראל", icon: "❤️",
     stops: [
       { 
         time: "08:30", 
-        name: "רכישת משקפי VR בקניון Adigeo (MediaWorld)", 
+        name: "רכישת משקפי VR בורונה (מדריך רכישה מלא ו-Tax Free)", 
         dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", 
         lat: 45.4093, 
         lng: 10.9632, 
-        note: "נסיעה ישירה למדיה וורלד בקניון אדיג'או לרכישת Meta Quest, הצגת דרכון והוצאת טופס Tax Free.",
+        note: "מדריך מקוצר ושימושי לרכישת משקפי Meta Quest בורונה:\n\n1. השוואת דגמים ומחירי יעד:\n- Meta Quest 3S (128GB): ~€330–€350 (נטו לאחר Tax Free: ~€290–€310) | המומלץ ביותר לילדים ונוער.\n- Meta Quest 3S (256GB): ~€470 (נטו: ~€410–€415) | למשחקים כבדים.\n- Meta Quest 3 (512GB): ~€570–€620 (נטו: ~€500–€545) | דגם הדגל עם עדשות Pancake.\n\n2. חנויות מומלצות:\n- MediaWorld (קניון Adigeo, Viale delle Nazioni): חנות ענק עם הסיכוי הגבוה ביותר למלאי זמין על המדף.\n- Unieuro (סניף מרכז Via Cappello 34 או סניף פרברי Via Preare 42).\n\n3. צ'ק-ליסט Tax Free:\n- בקשו בעת הקנייה טופס החזר מס (Modulo Tax Free) והציגו דרכון.\n- אל תפתחו את האריזה עד לאישור המכס בשדה (Dogana).\n- החתימו את הטופס בשדה התעופה (בעמדת המכס או בקיוסקים הדיגיטליים) טרם קבלת הזיכוי.",
         challenge: {
           title: "משימת Tax Free!",
           desc: "וידוא קבלת קבלה מקורית וטופס החזר מס עבור המשקפיים."
@@ -279,16 +279,16 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
-          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
+          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב ורונה לפני הנסיעה לשדה."
         }
       },
       { 
         time: "18:30", 
-        name: "שדה התעופה وרונה – מכס וחזרה הביתה", 
+        name: "שדה התעופה ורונה – מכס וחזרה הביתה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -308,8 +308,8 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-arik', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)', isLink: false, url: '#', passenger: 'COHEN/ARIK MR', ticketNo: '8180011314102' },
   { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
-  { id: 'flight-lian', folder: '✈️️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
-  { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
+  { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
+  { id: 'flight-harel', folder: '✈️️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
   { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
@@ -629,14 +629,14 @@ export default function App() {
               const code = data.current_weather.weathercode;
               let condIcon = '☀️ שמש';
               if (code >= 1 && code <= 3) condIcon = '🌤️ מעונן';
-              else if (code >= 51 && code <= 67) condIcon = '🌧️ גשם';
+              else if (code >= 51 && code <= 67) condIcon = '🌧️️ גשם';
               else if (code >= 71 && code <= 77) condIcon = '❄️ שלג';
               else if (code >= 95) condIcon = '⛈️ סערה';
 
               setCurrentWeather({ temp: `${tempVal}°C`, condition: condIcon });
             }
           } catch (e) {
-            setCurrentWeather({ temp: '24°C', condition: '☀️ שמש' });
+            setCurrentWeather({ temp: '24°C', condition: '☀️️ שמש' });
           }
         },
         () => {
@@ -982,7 +982,7 @@ export default function App() {
         <div id="map"></div>
         <script>
           const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}@{x}@{y}.png'.replace(/@/g, '/'), { maxZoom: 19 }).addTo(map);
 
           L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך (GPS)').openPopup();
           L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ' + "${destName}");
@@ -1026,7 +1026,7 @@ export default function App() {
         <div id="map"></div>
         <script>
           const map = L.map('map').setView([${centerLat}, ${centerLng}], 11);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}@{x}@{y}.png'.replace(/@/g, '/'), { maxZoom: 19 }).addTo(map);
           const myLocData = ${JSON.stringify(myLocation)};
           if (myLocData && myLocData.lat) {
             L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
@@ -1048,7 +1048,7 @@ export default function App() {
           <p style={{ fontSize: '15px', fontWeight: '800', marginBottom: '10px' }}>משתמש/ת: {activeSosAlert.name} זקוק/ה לעזרה מיידית!</p>
           <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px' }}>
             <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '12px', background: '#fff', color: '#ef4444', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center' }}>
-              נווט למיקום 🗺️️
+              נווט למיקום 🗺
             </a>
             <button onClick={dismissSos} style={{ flex: 1, padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '13px' }}>
               בטל אזעקה ✓
@@ -1175,7 +1175,7 @@ export default function App() {
                     <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900' }}>{stop.name}</h4>
                     <span style={{ fontSize: '11px', fontWeight: '900', background: cardBg, padding: '4px 10px', borderRadius: '8px', border: `1.5px solid ${borderColor}` }}>{stop.time}</span>
                   </div>
-                  <p style={{ margin: 0, fontSize: '13px', color: textSub }}>{stop.note}</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: textSub, whiteSpace: 'pre-line' }}>{stop.note}</p>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: cardBg, color: textColor, padding: '10px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: `1.5px solid ${borderColor}` }}>Maps</a>
