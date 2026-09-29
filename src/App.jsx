@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.11 ---
-const APP_VERSION = 'v9.9.11';
+// --- GARDA-MOBILE v9.9.24-VRFixed ---
+const APP_VERSION = 'v9.9.24-VRFixed';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -259,11 +259,23 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-06", label: "שלישי · 06/10", title: "ורונה + חזרה לישראל", icon: "❤️",
+    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR ורונה + חזרה לישראל", icon: "❤️",
     stops: [
       { 
-        time: "09:00", 
-        name: "סיור בעיר העתיקה בוורונה", 
+        time: "08:30", 
+        name: "יציאה מהמלון לרכישת משקפי VR (MediaWorld)", 
+        dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", 
+        lat: 45.4093, 
+        lng: 10.9632, 
+        note: "נסיעה ישירה מהמלון לחנות הענק MediaWorld בקניון Adigeo בדרום وרונה. רכישת Meta Quest 3/3S, הצגת דרכון ובקשת טופס Tax Free (Modulo Tax Free).",
+        challenge: {
+          title: "משימת Tax Free!",
+          desc: "וידוא קבלת קבלה מקורית וטופס החזר מס (Global Blue / Planet) עבור המשקפיים."
+        }
+      },
+      { 
+        time: "11:00", 
+        name: "סיור בעיר העתיקה בוורונה ואוכל", 
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
@@ -280,11 +292,11 @@ const INITIAL_TRIP_DAYS = [
       },
       { 
         time: "18:30", 
-        name: "שדה התעופה وרונה וחזרה הביתה", 
+        name: "שדה התעופה وרונה – מכס וחזרה הביתה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
-        note: "החזרת הרכב השכור, צ'ק-אין וטיסה ישירה חזרה לישראל.",
+        note: "הגעה לשדה, מעבר בעמדת המכס (Dogana) עם קופסת המשקפיים הסגורה להחתמת טופסי ה-Tax Free, החזרת הרכב השכור, צ'ק-אין וטיסה ישירה חזרה לישראל.",
         creative: {
           name: "גלוית פרידה מאיטליה",
           dest: "Verona, Italy",
@@ -685,398 +697,6 @@ export default function App() {
   const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
   const [ticketFiles] = useState(DEFAULT_DOCUMENTS);
 
-  const chimeIntervalRef = useRef(null);
-
-  const sendSoundAlert = async (targetName) => {
-    const customMsg = prompt(`שלח התראה נעימה אל ${targetName}:`, "נא ליצור קשר כשאתם יכולים!");
-    if (customMsg === null) return;
-
-    playExtendedChimeMelody();
-
-    const soundAlertPayload = {
-      name: targetName,
-      sound_msg: customMsg || "התראה קולית מהרדאר המשפחתי!",
-      updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
-      is_sound_alert: true
-    };
-
-    setActiveSoundAlert(soundAlertPayload);
-
-    try {
-      await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
-      alert(`🔔 צליל פעמונים נעים מנגן כעת (למשך 30 שניות מלאות או עד כיבוי) אל ${targetName}!`);
-    } catch (e) { console.error(e); }
-  };
-
-  const playExtendedChimeMelody = () => {
-    try {
-      if (chimeIntervalRef.current) clearInterval(chimeIntervalRef.current);
-
-      let cycles = 0;
-      chimeIntervalRef.current = setInterval(() => {
-        cycles++;
-        if (cycles > 15) {
-          stopExtendedChimeMelody();
-          return;
-        }
-
-        try {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            const ctx = new AudioContextClass();
-            if (ctx.state === 'suspended') ctx.resume();
-
-            const notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
-            notes.forEach((freq, idx) => {
-              setTimeout(() => {
-                try {
-                  const osc = ctx.createOscillator();
-                  const gain = ctx.createGain();
-                  osc.type = 'sine';
-                  osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-                  gain.gain.setValueAtTime(0.35, ctx.currentTime);
-                  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.4);
-
-                  osc.connect(gain);
-                  gain.connect(ctx.destination);
-
-                  osc.start();
-                  osc.stop(ctx.currentTime + 1.4);
-                } catch (err) {}
-              }, idx * 250);
-            });
-          }
-        } catch (e) {}
-      }, 2000);
-    } catch (e) {}
-  };
-
-  const stopExtendedChimeMelody = () => {
-    if (chimeIntervalRef.current) {
-      clearInterval(chimeIntervalRef.current);
-      chimeIntervalRef.current = null;
-    }
-  };
-
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    const fetchInitialTimer = async () => {
-      try {
-        const { data } = await supabase.from('family_timers').select('*').eq('id', 1).single();
-        if (data) {
-          setSharedTimer(data);
-          setIsTimerPaused(data.is_paused);
-        }
-      } catch (e) {}
-    };
-    fetchInitialTimer();
-
-    const channel = supabase.channel('family_trip_channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
-        if (payload.new) {
-          setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
-          if (payload.new.is_sos) {
-            setActiveSosAlert(payload.new);
-            playExtendedChimeMelody();
-          }
-          if (payload.new.is_sound_alert && payload.new.name === currentUser) {
-            setActiveSoundAlert(payload.new);
-            playExtendedChimeMelody();
-          }
-        }
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
-        if (payload.new) {
-          setSharedTimer(payload.new);
-          setIsTimerPaused(payload.new.is_paused);
-        }
-      })
-      .subscribe();
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      supabase.removeChannel(channel);
-      stopExtendedChimeMelody();
-    };
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (!sharedTimer || !sharedTimer.end_time || isTimerPaused) return;
-    const interval = setInterval(() => {
-      const diff = Math.max(0, Math.floor((sharedTimer.end_time - Date.now()) / 1000));
-      setTimerRemainingSec(diff);
-      if (diff === 0) {
-        alert(`⏱️ הזמן נגמר עבור: ${sharedTimer.title}!`);
-        setSharedTimer(null);
-        clearInterval(interval);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [sharedTimer, isTimerPaused]);
-
-  const startSharedTimer = async (mins) => {
-    const duration = Number(mins) || 10;
-    const endTime = Date.now() + duration * 60 * 1000;
-    const timerPayload = { id: 1, title: 'טיימר משפחתי מרכזי', end_time: endTime, duration: duration, is_paused: false };
-    
-    setSharedTimer(timerPayload);
-    setTimerRemainingSec(duration * 60);
-    setIsTimerPaused(false);
-    setModalType(null);
-
-    try {
-      await supabase.from('family_timers').upsert([timerPayload], { onConflict: 'id' });
-    } catch (e) {}
-  };
-
-  const toggleSharedTimerPause = async () => {
-    const nextPaused = !isTimerPaused;
-    setIsTimerPaused(nextPaused);
-    if (sharedTimer) {
-      const updated = { ...sharedTimer, is_paused: nextPaused };
-      setSharedTimer(updated);
-      try {
-        await supabase.from('family_timers').upsert([updated], { onConflict: 'id' });
-      } catch (e) {}
-    }
-  };
-
-  const clearSharedTimer = async () => {
-    setSharedTimer(null);
-    setIsTimerPaused(false);
-    try {
-      await supabase.from('family_timers').delete().eq('id', 1);
-    } catch (e) {}
-  };
-
-  const triggerSos = async () => {
-    if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
-    if (!window.confirm('🚨 להפעיל אזעקת חירום SOS לכל בני המשפחה?')) return;
-
-    navigator.geolocation.getCurrentPosition(async pos => {
-      const sosData = {
-        name: currentUser,
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
-        is_sos: true
-      };
-      setActiveSosAlert(sosData);
-      playExtendedChimeMelody();
-      try {
-        await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
-      } catch (e) {}
-    }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
-  };
-
-  const dismissSos = async () => {
-    stopExtendedChimeMelody();
-    setActiveSosAlert(null);
-    try {
-      await supabase.from('family_radar').upsert([{ name: currentUser, is_sos: false }], { onConflict: 'name' });
-    } catch (e) {}
-  };
-
-  const isDark = themeMode === 'dark';
-  
-  // הגדרת משתני צבע תואמים לשחור-לבן מוחלט במצב כהה
-  const bgMain = isDark ? '#000000' : '#ffffff';
-  const cardBg = isDark ? '#111111' : '#ffffff';
-  const textColor = isDark ? '#ffffff' : '#0f172a';
-  const textSub = isDark ? '#a3a3a3' : '#64748b';
-  const borderColor = isDark ? '#333333' : '#cbd5e1';
-  const accentGradient = isDark ? '#ffffff' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
-  const accentColor = isDark ? '#ffffff' : '#2563eb';
-  const accentBg = isDark ? '#1a1a1a' : '#eff6ff';
-
-  const itineraryStopCardStyle = {
-    background: isDark ? '#111111' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-    borderRadius: '16px',
-    padding: '18px',
-    border: `1px solid ${borderColor}`,
-    borderRight: isDark ? '3.5px solid #ffffff' : '3.5px solid #475569',
-    boxShadow: isDark ? 'none' : '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '14px',
-    boxSizing: 'border-box'
-  };
-
-  const headerBg = isDark 
-    ? '#000000' 
-    : 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)';
-
-  const day = INITIAL_TRIP_DAYS[activeDay];
-
-  const formatClock = (sec) => {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  };
-
-  const broadcastMyLocation = async (coords) => {
-    const locObj = { name: currentUser, lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false, battery: 95, lastSeen: 'עדכון ידני' };
-    setMyLocation({ lat: coords.latitude, lng: coords.longitude });
-    setFamilyLocations(prev => ({ ...prev, [currentUser]: locObj }));
-    try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
-  };
-
-  const routeMapHTML = useMemo(() => {
-    const currentLat = myLocation?.lat || 45.4384;
-    const currentLng = myLocation?.lng || 10.6816;
-
-    const targetDayObj = INITIAL_TRIP_DAYS[activeDay] || INITIAL_TRIP_DAYS[0];
-    const firstStop = targetDayObj.stops[0];
-    const destLat = firstStop?.lat || 45.4192;
-    const destLng = firstStop?.lng || 10.6908;
-    const destName = firstStop?.name || targetDayObj.title;
-
-    const { dist, duration } = calculateDistanceAndDuration(currentLat, currentLng, destLat, destLng);
-
-    return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <style>
-          body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#000000' : '#ffffff'}; }
-          #map { width: 100%; height: 100%; }
-          .route-badge {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            background: ${isDark ? '#111111' : 'rgba(255, 255, 255, 0.95)'};
-            color: ${isDark ? '#ffffff' : '#0f172a'};
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-weight: 900;
-            font-size: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-            backdrop-filter: blur(10px);
-            border: 1.5px solid ${isDark ? '#333333' : '#cbd5e1'};
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            direction: rtl;
-          }
-          .route-badge span { color: ${isDark ? '#ffffff' : '#2563eb'}; }
-        </style>
-      </head>
-      <body>
-        <div class="route-badge">
-          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️ זמן:</span> ${duration}
-        </div>
-        <div id="map"></div>
-        <script>
-          const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
-          L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך (GPS)').openPopup();
-          L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ' + "${destName}");
-
-          const latlngs = [
-            [${currentLat}, ${currentLng}],
-            [${destLat}, ${destLng}]
-          ];
-          L.polyline(latlngs, {color: '${isDark ? '#ffffff' : '#ef4444'}', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
-        </script>
-      </body>
-      </html>
-    `;
-  }, [myLocation, activeDay, isDark]);
-
-  const radarMapHTML = useMemo(() => {
-    let centerLat = 45.4384, centerLng = 10.6816;
-    if (activeSosAlert?.lat) { centerLat = activeSosAlert.lat; centerLng = activeSosAlert.lng; }
-    else if (myLocation?.lat) { centerLat = myLocation.lat; centerLng = myLocation.lng; }
-
-    let markersJS = '';
-    Object.values(familyLocations).forEach(loc => {
-      if (loc && loc.lat) {
-        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 לאחרונה: ${loc.lastSeen || 'שטח האגם'}');\n`;
-      }
-    });
-
-    markersJS += `L.marker([${rallyPoint.lat}, ${rallyPoint.lng}]).addTo(map).bindPopup('<b>נקודת כינוס חירום:</b><br>${rallyPoint.name}');\n`;
-
-    return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#000000' : '#ffffff'}; } #map { width: 100%; height: 100%; }</style>
-      </head>
-      <body>
-        <div id="map"></div>
-        <script>
-          const map = L.map('map').setView([${centerLat}, ${centerLng}], 11);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-          const myLocData = ${JSON.stringify(myLocation)};
-          if (myLocData && myLocData.lat) {
-            L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
-          }
-          ${markersJS}
-        </script>
-      </body>
-      </html>
-    `;
-  }, [familyLocations, myLocation, activeSosAlert, rallyPoint, isDark]);
-
-  const handleTriviaAnswer = (optIdx) => {
-    if (isTriviaPaused || selectedAnswer !== null) return;
-    setSelectedAnswer(optIdx);
-    const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
-    const currentTraveler = TRAVELERS_LIST[travelerIndex];
-    
-    if (optIdx === currentQ.correct) {
-      setTravelerScores(prev => ({ ...prev, [currentTraveler]: (prev[currentTraveler] || 0) + 10 }));
-    }
-    
-    setTimeout(() => {
-      setSelectedAnswer(null);
-      setQuestionTimeLeft(45);
-      setTriviaIndex(prev => (prev + 1) % ROAD_TRIVIA_QUESTIONS.length);
-      setTravelerIndex(prev => (prev + 1) % TRAVELERS_LIST.length);
-    }, 1200);
-  };
-
-  const handleResetTrivia = () => {
-    const adminPassword = window.prompt("🔒 קוד מנהל לאיפוס מלא של משחק הטרוויה (1967):");
-    if (adminPassword && adminPassword.trim() === "1967") {
-      setTriviaIndex(0);
-      setTravelerIndex(0);
-      setTravelerScores({ 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 });
-      setIsTriviaPaused(true);
-      setSelectedAnswer(null);
-      setQuestionTimeLeft(45);
-      alert("🔄 משחק הטרוויה אופס לחלוטין למשחק חדש לגמרי!");
-    } else if (adminPassword !== null) {
-      alert("❌ סיסמה שגויה!");
-    }
-  };
-
-  const handleStartTrivia = () => {
-    setIsTriviaPaused(false);
-  };
-
-  const handlePauseTrivia = () => {
-    setIsTriviaPaused(true);
-  };
-
   return (
     <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
@@ -1312,7 +932,7 @@ export default function App() {
       {sharedTimer && (
         <div style={{ background: isDark ? '#111111' : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', borderBottom: isDark ? '1px solid #333333' : 'none', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px' }}>
           <span onClick={() => setModalType('timer')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            ⏱️ טיימר משפחתי {isTimerPaused ? '(מושהה)' : 'פועל'}: <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{formatClock(timerRemainingSec)}</span>
+            ⏱️️ טיימר משפחתי {isTimerPaused ? '(מושהה)' : 'פועל'}: <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{formatClock(timerRemainingSec)}</span>
           </span>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button onClick={toggleSharedTimerPause} style={{ background: isDark ? '#333333' : 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
@@ -1631,7 +1251,7 @@ export default function App() {
                       </a>
                     </div>
 
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, marginTop: '4px' }}>סטטוס בני המשפחה (סוללה, מיקום אחרון ושליחת התראה נעימה):</span>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, marginTop: '4px' }}>סטטוס בני המשפחה:</span>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {Object.values(familyLocations).map((person, pIdx) => (
@@ -1642,11 +1262,11 @@ export default function App() {
                               <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>
                                 {person.name} <span style={{ fontSize: '11px', color: person.battery < 20 ? (isDark ? '#ffffff' : '#ef4444') : textSub, fontWeight: '800' }}>🔋 {person.battery || 85}%</span>
                               </div>
-                              <div style={{ fontSize: '10px', color: textSub }}>📍 לאחרונה: {person.lastSeen || 'אזור האגם'} | {person.updated_at || 'עכשיו'}</div>
+                              <div style={{ fontSize: '10px', color: textSub }}>📍 לאחרונה: {person.lastSeen || 'שטח האגם'} | {person.updated_at || 'עכשיו'}</div>
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }} title="שלח צליל פעמונים נעים למכשיר של בן המשפחה">
+                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
                               🔔 שלח צליל
                             </button>
                             <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -1658,8 +1278,7 @@ export default function App() {
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                      <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ flex: 1, padding: '12px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>📍 עדכן מיקום יום</button>
-                      <button onClick={() => alert('🔄 המיקומים ונתוני הסוללה עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן רדאר</button>
+                      <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ flex: 1, padding: '12px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>📍 עדכן מיקום יזום שלי</button>
                     </div>
                   </div>
                 </div>
