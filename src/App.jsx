@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.16 ---
-const APP_VERSION = 'v9.9.16';
+// --- GARDA-MOBILE v9.9.17 ---
+const APP_VERSION = 'v9.9.17';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה وרונה", 
+        name: "נחיתה בנמל התעופה ורונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -1374,7 +1374,7 @@ export default function App() {
       {sharedTimer && (
         <div style={{ background: isDark ? '#111111' : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', borderBottom: isDark ? '1px solid #333333' : 'none', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px' }}>
           <span onClick={() => setModalType('timer')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            ⏱️ טיימר משפחתי {isTimerPaused ? '(מושהה)' : 'פועל'}: <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{formatClock(timerRemainingSec)}</span>
+            ⏱️️ טיימר משפחתי {isTimerPaused ? '(מושהה)' : 'פועל'}: <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{formatClock(timerRemainingSec)}</span>
           </span>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button onClick={toggleSharedTimerPause} style={{ background: isDark ? '#333333' : 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
@@ -1642,7 +1642,7 @@ export default function App() {
               
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי (פרו)'}
-                {modalType === 'route-map' && `🗺️ ניווט ליעד: ${day.title}`}
+                {modalType === 'route-map' && `🗺️️ ניווט ליעד: ${day.title}`}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 Car Finder Pro - שמירת מיקום רכב'}
