@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.19 ---
-const APP_VERSION = 'v9.9.19';
+// --- GARDA-MOBILE v9.9.20 ---
+const APP_VERSION = 'v9.9.20';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -312,7 +312,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-arik', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)', isLink: false, url: '#', passenger: 'COHEN/ARIK MR', ticketNo: '8180011314102' },
   { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
-  { id: 'flight-lian', folder: '✈️️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
+  { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
   { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
   { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
@@ -400,23 +400,23 @@ export default function App() {
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
   
-  // טעינה וניהול מובטח של כל המשפחה יחד
+  // ניהול מובטח של כלל חברי המשפחה (אריק, עמית, יולי, ליאן, הראל) עם תמיכה בשיתוף מקומי ושרת
   const [familyLocations, setFamilyLocations] = useState(() => {
-    const defaultFamily = {
-      'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה', battery: 88, lastSeen: 'מלון Vojon' },
-      'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות', battery: 74, lastSeen: 'פסקיירה דל גארדה' },
-      'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות', battery: 92, lastSeen: 'מלון Vojon' },
-      'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות', battery: 65, lastSeen: 'מלון Vojon' },
-      'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 99, lastSeen: 'גארדלנד' }
+    const initialFamily = {
+      'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'עכשיו', battery: 90, lastSeen: 'נקודת מוצא' },
+      'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'עכשיו', battery: 85, lastSeen: 'סביבת האגם' },
+      'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'עכשיו', battery: 88, lastSeen: 'סביבת האגם' },
+      'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'עכשיו', battery: 92, lastSeen: 'סביבת האגם' },
+      'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 95, lastSeen: 'סביבת האגם' }
     };
     try {
       const saved = localStorage.getItem('garda-family-radar-all');
       if (saved) {
         const parsed = JSON.parse(saved);
-        return { ...defaultFamily, ...parsed };
+        return { ...initialFamily, ...parsed };
       }
     } catch (e) {}
-    return defaultFamily;
+    return initialFamily;
   });
 
   const [activeSosAlert, setActiveSosAlert] = useState(null);
@@ -646,7 +646,7 @@ export default function App() {
               const code = data.current_weather.weathercode;
               let condIcon = '☀️ שמש';
               if (code >= 1 && code <= 3) condIcon = '🌤️ מעונן';
-              else if (code >= 51 && code <= 67) condIcon = '🌧️️ גשם';
+              else if (code >= 51 && code <= 67) condIcon = '🌧️ גשם';
               else if (code >= 71 && code <= 77) condIcon = '❄️ שלג';
               else if (code >= 95) condIcon = '⛈️ סערה';
 
@@ -712,7 +712,7 @@ export default function App() {
 
   const chimeIntervalRef = useRef(null);
 
-  // מנגנון צליל התראה מתוקן: מתנגן למשך 6 שניות מלאות ומדויקות עם עוצמה גבוהה
+  // מנגנון צליל התראה חזק, בולט ומתמשך לזמן רב (6 שניות)
   const playLoudAlertMelody = () => {
     try {
       if (chimeIntervalRef.current) clearInterval(chimeIntervalRef.current);
@@ -723,38 +723,38 @@ export default function App() {
 
       let count = 0;
       const playSequence = () => {
-        if (count >= 3) {
+        if (count >= 4) {
           clearInterval(chimeIntervalRef.current);
           chimeIntervalRef.current = null;
           return;
         }
         count++;
 
-        const notes = [659.25, 783.99, 987.77, 1318.51]; // צלילים גבוהים ובולטים
+        const notes = [659.25, 783.99, 987.77, 1318.51, 1567.98];
         notes.forEach((freq, idx) => {
           setTimeout(() => {
             try {
               if (ctx.state === 'suspended') ctx.resume();
               const osc = ctx.createOscillator();
               const gain = ctx.createGain();
-              osc.type = 'square'; // גל מרובע נשמע חזק וחד יותר בפלאפונים
+              osc.type = 'square';
               osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
-              gain.gain.setValueAtTime(0.6, ctx.currentTime);
-              gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+              gain.gain.setValueAtTime(0.7, ctx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
 
               osc.connect(gain);
               gain.connect(ctx.destination);
 
               osc.start();
-              osc.stop(ctx.currentTime + 0.5);
+              osc.stop(ctx.currentTime + 0.6);
             } catch (err) {}
-          }, idx * 180);
+          }, idx * 150);
         });
       };
 
       playSequence();
-      chimeIntervalRef.current = setInterval(playSequence, 2000);
+      chimeIntervalRef.current = setInterval(playSequence, 1800);
     } catch (e) {}
   };
 
@@ -766,7 +766,7 @@ export default function App() {
   };
 
   const sendSoundAlert = async (targetName) => {
-    const customMsg = prompt(`שלח הודעה וצלצול אל ${targetName}:`, "נא ליצור קשר מיידית עם אריק!");
+    const customMsg = prompt(`שלח הודעה דחופה ובקשת יצירת קשר אל ${targetName}:`, "נא ליצור קשר מיידית עם אריק!");
     if (customMsg === null) return;
 
     playLoudAlertMelody();
@@ -780,25 +780,24 @@ export default function App() {
 
     setActiveSoundAlert(soundAlertPayload);
 
-    // שמירה מקומית ושליחה לשרת כדי לוודא שזה מקפיץ אצלו
     try {
       localStorage.setItem('garda-active-sound-alert', JSON.stringify(soundAlertPayload));
       await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
-      alert(`🔔 נשלח צליל והודעה אל ${targetName}!`);
+      alert(`🔔 נשלחה התראה קולית והודעה אל ${targetName}!`);
     } catch (e) {
-      alert(`🔔 נשלח צליל והודעה מקומית אל ${targetName}!`);
+      alert(`🔔 נשלחה התראה קולית מקומית אל ${targetName}!`);
     }
   };
 
-  // סנכרון רדאר כפול: גם מול Supabase וגם מול LocalStorage משותף (פוללינג כל 3 שניות לשקט נפשי במקרי חירום)
+  // מנגנון סנכרון רדאר כפול חזק: מושך מ-Supabase ומעדכן ב-LocalStorage המשותף ברציפות
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    const syncEverything = async () => {
-      // בדיקה מקומית משותפת
+    const syncRadarData = async () => {
+      // 1. קריאה מזיכרון מקומי משותף
       try {
         const localSaved = localStorage.getItem('garda-family-radar-all');
         if (localSaved) {
@@ -807,7 +806,7 @@ export default function App() {
         }
       } catch (e) {}
 
-      // בדיקה מול Supabase
+      // 2. קריאה מול Supabase
       try {
         const { data, error } = await supabase.from('family_radar').select('*');
         if (data && !error && data.length > 0) {
@@ -829,8 +828,19 @@ export default function App() {
       } catch (e) {}
     };
 
-    syncEverything();
-    const syncInterval = setInterval(syncEverything, 3000);
+    syncRadarData();
+    const radarInterval = setInterval(syncRadarData, 3000);
+
+    const fetchInitialTimer = async () => {
+      try {
+        const { data } = await supabase.from('family_timers').select('*').eq('id', 1).single();
+        if (data) {
+          setSharedTimer(data);
+          setIsTimerPaused(data.is_paused);
+        }
+      } catch (e) {}
+    };
+    fetchInitialTimer();
 
     const channel = supabase.channel('family_trip_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
@@ -850,13 +860,19 @@ export default function App() {
           }
         }
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
+        if (payload.new) {
+          setSharedTimer(payload.new);
+          setIsTimerPaused(payload.new.is_paused);
+        }
+      })
       .subscribe();
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       supabase.removeChannel(channel);
-      clearInterval(syncInterval);
+      clearInterval(radarInterval);
       stopLoudAlertMelody();
     };
   }, [currentUser]);
@@ -867,7 +883,7 @@ export default function App() {
       const diff = Math.max(0, Math.floor((sharedTimer.end_time - Date.now()) / 1000));
       setTimerRemainingSec(diff);
       if (diff === 0) {
-        alert(`⏱️ הזמן נגמר עבור: ${sharedTimer.title}!`);
+        alert(`⏱️️ הזמן נגמר עבור: ${sharedTimer.title}!`);
         setSharedTimer(null);
         clearInterval(interval);
       }
@@ -985,7 +1001,7 @@ export default function App() {
 
     setMyLocation({ lat: coords.latitude, lng: coords.longitude });
     
-    // שמירה כפולה גם מקומית וגם בשרת
+    // עדכון וסינכרון מקומי מידי כך שכולם יופיעו במפה
     setFamilyLocations(prev => {
       const updated = { ...prev, [currentUser]: locObj };
       try { localStorage.setItem('garda-family-radar-all', JSON.stringify(updated)); } catch (e) {}
@@ -1068,6 +1084,7 @@ export default function App() {
     `;
   }, [myLocation, activeDay, isDark]);
 
+  // רדאר מעודכן: יוצר סיכות עם האות הראשונה של השם מעל כל סיכה אדומה לנוחות מרבית
   const radarMapHTML = useMemo(() => {
     let centerLat = 45.4384, centerLng = 10.6816;
     if (activeSosAlert?.lat) { centerLat = activeSosAlert.lat; centerLng = activeSosAlert.lng; }
@@ -1075,8 +1092,17 @@ export default function App() {
 
     let markersJS = '';
     Object.values(familyLocations).forEach(loc => {
-      if (loc && loc.lat) {
-        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>👤 ${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 עדכון: ${loc.lastSeen || 'שטח האגם'}');\n`;
+      if (loc && loc.lat && loc.lng) {
+        const firstLetter = loc.name ? loc.name.charAt(0) : '👤';
+        // יצירת אייקון מותאם אישית עם האות הראשונה של השם
+        markersJS += `
+          const icon_${loc.name} = L.divIcon({
+            className: 'custom-family-marker',
+            html: '<div style="background:#ef4444; color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:15px; border:2.5px solid #fff; box-shadow:0 4px 12px rgba(0,0,0,0.4);">${firstLetter}</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+          });
+          L.marker([${loc.lat}, ${loc.lng}], {icon: icon_${loc.name}}).addTo(map).bindPopup('<b>👤 ${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 עדכון: ${loc.lastSeen || 'שטח האגם'}');\n`;
       }
     });
 
@@ -1156,7 +1182,7 @@ export default function App() {
           <p style={{ fontSize: '12px', opacity: 0.9, marginBottom: '16px' }}>זמן עדכון: {activeSosAlert.updated_at}</p>
           <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px' }}>
             <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '12px', background: isDark ? '#ffffff' : '#fff', color: isDark ? '#000000' : '#ef4444', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
-              נווט למיקום 🗺️️
+              נווט למיקום 🗺️
             </a>
             <button onClick={dismissSos} style={{ flex: 1, padding: '12px', background: isDark ? '#333333' : '#0f172a', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
               בטל אזעקה ✓
@@ -1384,7 +1410,7 @@ export default function App() {
           </span>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button onClick={toggleSharedTimerPause} style={{ background: isDark ? '#333333' : 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
-              {isTimerPaused ? '▶️️ המשך' : '⏸️ עצור'}
+              {isTimerPaused ? '▶️ המשך' : '⏸️ עצור'}
             </button>
             <button onClick={clearSharedTimer} style={{ background: isDark ? '#222222' : 'rgba(0,0,0,0.3)', border: 'none', color: '#fff', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
               ✕ סגור
@@ -1404,7 +1430,7 @@ export default function App() {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <span>{isDark ? '🌙 כהה' : '☀️️ בהיר'}</span>
+            <span>{isDark ? '🌙 כהה' : '☀️ בהיר'}</span>
           </button>
           <div style={{ flex: 1.2 }}>
             <select 
@@ -1648,7 +1674,7 @@ export default function App() {
               
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {modalType === 'radar' && '📡 רדאר משפחתי חי (פרו)'}
-                {modalType === 'route-map' && `🗺️ ניווט ליעד: ${day.title}`}
+                {modalType === 'route-map' && `🗺️️ ניווט ליעד: ${day.title}`}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
                 {modalType === 'parking' && '🚗 Car Finder Pro - שמירת מיקום רכב'}
@@ -1664,7 +1690,7 @@ export default function App() {
                     ▶️ התחל
                   </button>
                   <button onClick={handlePauseTrivia} style={{ background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
-                    ⏸️ השהה
+                    ⏸️️ השהה
                   </button>
                   <button onClick={handleResetTrivia} style={{ background: isDark ? '#222222' : '#ef4444', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
                     🔄 איפוס
@@ -1705,7 +1731,9 @@ export default function App() {
                       {Object.values(familyLocations).map((person, pIdx) => (
                         <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? '#111111' : '#f8fafc', padding: '10px 12px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '16px' }}>👤</span>
+                            <div style={{ background: '#2563eb', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '13px' }}>
+                              {person.name ? person.name.charAt(0) : '👤'}
+                            </div>
                             <div>
                               <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>
                                 {person.name} <span style={{ fontSize: '11px', color: person.battery < 20 ? (isDark ? '#ffffff' : '#ef4444') : textSub, fontWeight: '800' }}>🔋 {person.battery || 85}%</span>
@@ -1714,11 +1742,11 @@ export default function App() {
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }} title="שלח צליל פעמונים נעים למכשיר של בן המשפחה">
+                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }} title="שלח צליל פעמונים חזק והודעה דחופה למכשיר של בן המשפחה">
                               🔔 שלח צליל
                             </button>
                             <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                              מעקב 🧭
+                              נווט אל {person.name} 🧭
                             </a>
                           </div>
                         </div>
@@ -2021,7 +2049,7 @@ export default function App() {
                       <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
                       <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <span>🗺️️</span> הצג מפת ניווט חי (סיכה ➔ הרכב)
+                        <span>🗺️</span> הצג מפת ניווט חי (סיכה ➔ הרכב)
                       </button>
 
                       <div style={{ fontSize: '16px', fontWeight: '900', color: textColor }}>
