@@ -313,7 +313,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
   { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
-  { id: 'flight-harel', folder: '✈️️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
+  { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
   { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
@@ -400,7 +400,6 @@ export default function App() {
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
   
-  // ניהול רדאר מול Supabase בלבד
   const [familyLocations, setFamilyLocations] = useState({
     'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'עכשיו', battery: 90, lastSeen: 'טוען מ-Supabase...' },
     'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'עכשיו', battery: 85, lastSeen: 'טוען מ-Supabase...' },
@@ -643,7 +642,7 @@ export default function App() {
               setCurrentWeather({ temp: `${tempVal}°C`, condition: condIcon });
             }
           } catch (e) {
-            setCurrentWeather({ temp: '24°C', condition: '☀️ שמש' });
+            setCurrentWeather({ temp: '24°C', condition: '☀️️ שמש' });
           }
         },
         () => {
@@ -777,7 +776,6 @@ export default function App() {
     }
   };
 
-  // סנכרון רדאר חי מלא מול Supabase (מושך ברציפות ומאזין לשינויים)
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -808,7 +806,7 @@ export default function App() {
     };
 
     fetchRadarFromSupabase();
-    const radarInterval = setInterval(fetchRadarFromSupabase, 4000); // רענון כל 4 שניות מול השרת
+    const radarInterval = setInterval(fetchRadarFromSupabase, 4000);
 
     const fetchInitialTimer = async () => {
       try {
@@ -965,7 +963,6 @@ export default function App() {
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  // פונקציית שידור מיקום מרכזית ל-Supabase
   const broadcastMyLocation = async (coords) => {
     const locObj = { 
       name: currentUser, 
@@ -1041,7 +1038,7 @@ export default function App() {
       </head>
       <body>
         <div class="route-badge">
-          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️ זמן:</span> ${duration}
+          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️️ זמן:</span> ${duration}
         </div>
         <div id="map"></div>
         <script>
@@ -1290,5 +1287,18 @@ const rectMenuCardStyle = (isDark) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   width: '100%',
+  boxSizing: 'border-box'
+});
+
+const emergencyBtnStyle = (isDark) => ({
+  padding: '14px',
+  borderRadius: '10px',
+  background: isDark ? '#111111' : '#fee2e2',
+  color: isDark ? '#ffffff' : '#ef4444',
+  fontWeight: '800',
+  fontSize: '13px',
+  textAlign: 'center',
+  textDecoration: 'none',
+  border: `1.5px solid ${isDark ? '#333333' : '#fecaca'}`,
   boxSizing: 'border-box'
 });
