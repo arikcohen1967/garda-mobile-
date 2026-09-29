@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.12 ---
-const APP_VERSION = 'v9.9.12';
+// --- GARDA-MOBILE v9.9.13 ---
+const APP_VERSION = 'v9.9.13';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה وרונה", 
+        name: "נחיתה בנמל התעופה ורונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -228,7 +228,7 @@ const INITIAL_TRIP_DAYS = [
         dest: "Lago di Tenno, Italy", 
         lat: 45.9221, 
         lng: 10.8405, 
-        note: "עלייה קצרה להר לנו טנו בעל המים בצבע טורקיז מרהיב – זמן למנוחה, פיקניק וטבילה מרעננת.",
+        note: "עלייה קצרה להר לאגם טנו בעל המים בצבע טורקיז מרהיב – זמן למנוחה, פיקניק וטבילה מרעננת.",
         creative: {
           name: "חופי טורקיז בטנו",
           dest: "Lago di Tenno",
@@ -259,7 +259,7 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR בורונה + חזרה לישראל", icon: "❤️",
+    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR ורונה + חזרה לישראל", icon: "❤️",
     stops: [
       { 
         time: "08:30", 
@@ -267,7 +267,7 @@ const INITIAL_TRIP_DAYS = [
         dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", 
         lat: 45.4093, 
         lng: 10.9632, 
-        note: "נסיעה ישירה מהמלון לחנות הענק MediaWorld בקניון Adigeo בדרום וורונה. רכישת Meta Quest 3/3S, הצגת דרכון ובקשת טופס Tax Free (Modulo Tax Free).",
+        note: "נסיעה ישירה מהמלון לחנות הענק MediaWorld בקניון Adigeo בדרום ורונה. רכישת Meta Quest 3/3S, הצגת דרכון ובקשת טופס Tax Free (Modulo Tax Free).",
         challenge: {
           title: "משימת Tax Free!",
           desc: "וידוא קבלת קבלה מקורית וטופס החזר מס (Global Blue / Planet) עבור המשקפיים."
@@ -279,20 +279,20 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         challenge: {
           title: "שיא הטיול המשפחתי!",
-          desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
+          desc: "בוחרים יחד בארנה של ורונה את הרגע המצחיק והמרגש ביותר של הטיול."
         },
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
-          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
+          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב ורונה לפני הנסיעה לשדה."
         }
       },
       { 
         time: "18:30", 
-        name: "שדה התעופה وרונה – מכס וחזרה הביתה", 
+        name: "שדה התעופה ורונה – מכס וחזרה הביתה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -314,7 +314,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
   { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
   { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
-  { id: 'aig-insurance', folder: '✈️️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
+  { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
   { id: 'gardaland-2', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 2 (Serial 601)', ticketCode: 'VKN1P01Y901ME4T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
@@ -903,8 +903,6 @@ export default function App() {
   const textSub = isDark ? '#a3a3a3' : '#64748b';
   const borderColor = isDark ? '#333333' : '#cbd5e1';
   const accentGradient = isDark ? '#ffffff' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
-  const accentColor = isDark ? '#ffffff' : '#2563eb';
-  const accentBg = isDark ? '#1a1a1a' : '#eff6ff';
 
   const itineraryStopCardStyle = {
     background: isDark ? '#111111' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
@@ -1483,7 +1481,7 @@ export default function App() {
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: textColor, background: isDark ? '#222222' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: `1px solid ${borderColor}` }}>{stop.time}</span>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: textColor, background: isDark ? '#222222' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: `1.5px solid ${borderColor}` }}>{stop.time}</span>
                   </div>
                   <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45' }}>{stop.note}</p>
                 </div>
@@ -1804,7 +1802,7 @@ export default function App() {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
                   {isTriviaPaused && (
                     <div style={{ background: isDark ? '#111111' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
-                      ⏸️️ המשחק מושהה (לחץ על כפתור "התחל" למעלה כדי להפעיל את השעון)
+                      ⏸️ המשחק מושהה (לחץ על כפתור "התחל" למעלה כדי להפעיל את השעון)
                     </div>
                   )}
 
@@ -1976,7 +1974,7 @@ export default function App() {
                           נווט ב-Google 🗺️
                         </a>
                         <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
-                          אפס חניה 🗑️
+                          אפס חניה 🗑️️
                         </button>
                       </div>
                     </div>
