@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.17 ---
-const APP_VERSION = 'v9.9.17';
+// --- GARDA-MOBILE v9.9.18 ---
+const APP_VERSION = 'v9.9.18';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -279,7 +279,7 @@ const INITIAL_TRIP_DAYS = [
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         challenge: {
           title: "שיא הטיול המשפחתי!",
           desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
@@ -287,7 +287,7 @@ const INITIAL_TRIP_DAYS = [
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
-          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
+          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב ורונה לפני הנסיעה לשדה."
         }
       },
       { 
@@ -400,8 +400,9 @@ export default function App() {
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
   
+  // ניהול מובטח של כלל בני המשפחה גם דרך זיכרון מקומי משותף (localStorage)
   const [familyLocations, setFamilyLocations] = useState(() => {
-    const defaults = {
+    const defaultFamily = {
       'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה', battery: 88, lastSeen: 'מלון Vojon' },
       'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות', battery: 74, lastSeen: 'פסקיירה דל גארדה' },
       'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות', battery: 92, lastSeen: 'מלון Vojon' },
@@ -409,13 +410,13 @@ export default function App() {
       'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 99, lastSeen: 'גארדלנד' }
     };
     try {
-      const saved = localStorage.getItem('garda-local-family-locations');
+      const saved = localStorage.getItem('garda-family-radar-all');
       if (saved) {
         const parsed = JSON.parse(saved);
-        return { ...defaults, ...parsed };
+        return { ...defaultFamily, ...parsed };
       }
     } catch (e) {}
-    return defaults;
+    return defaultFamily;
   });
 
   const [activeSosAlert, setActiveSosAlert] = useState(null);
@@ -645,7 +646,7 @@ export default function App() {
               const code = data.current_weather.weathercode;
               let condIcon = '☀️ שמש';
               if (code >= 1 && code <= 3) condIcon = '🌤️ מעונן';
-              else if (code >= 51 && code <= 67) condIcon = '🌧️️ גשם';
+              else if (code >= 51 && code <= 67) condIcon = '🌧️ גשם';
               else if (code >= 71 && code <= 77) condIcon = '❄️ שלג';
               else if (code >= 95) condIcon = '⛈️ סערה';
 
@@ -783,29 +784,44 @@ export default function App() {
     }
   };
 
+  // סנכרון כפול: משיכה מול Supabase ומול LocalStorage המשפחתי כדי להבטיח שכולם תמיד מופיעים
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    const fetchInitialRadar = async () => {
+    const syncAllLocations = async () => {
+      // 1. נסה למשוך מ-Supabase
       try {
         const { data, error } = await supabase.from('family_radar').select('*');
         if (data && !error && data.length > 0) {
-          const mapObj = {};
-          data.forEach(item => {
-            if (item && item.name) mapObj[item.name] = item;
-          });
           setFamilyLocations(prev => {
-            const merged = { ...prev, ...mapObj };
-            try { localStorage.setItem('garda-local-family-locations', JSON.stringify(merged)); } catch (err) {}
-            return merged;
+            const updated = { ...prev };
+            data.forEach(item => {
+              if (item && item.name && item.lat) {
+                updated[item.name] = item;
+              }
+            });
+            try { localStorage.setItem('garda-family-radar-all', JSON.stringify(updated)); } catch (err) {}
+            return updated;
           });
+          return;
+        }
+      } catch (e) {}
+
+      // 2. גיבוי: טעינה מ-LocalStorage המשותף אם השרת לא החזיר נתונים
+      try {
+        const saved = localStorage.getItem('garda-family-radar-all');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setFamilyLocations(prev => ({ ...prev, ...parsed }));
         }
       } catch (e) {}
     };
-    fetchInitialRadar();
+
+    syncAllLocations();
+    const pollInterval = setInterval(syncAllLocations, 5000); // בדיקה כל 5 שניות
 
     const fetchInitialTimer = async () => {
       try {
@@ -820,10 +836,10 @@ export default function App() {
 
     const channel = supabase.channel('family_trip_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
-        if (payload.new) {
+        if (payload.new && payload.new.name) {
           setFamilyLocations(prev => {
             const updated = { ...prev, [payload.new.name]: payload.new };
-            try { localStorage.setItem('garda-local-family-locations', JSON.stringify(updated)); } catch (err) {}
+            try { localStorage.setItem('garda-family-radar-all', JSON.stringify(updated)); } catch (err) {}
             return updated;
           });
           if (payload.new.is_sos) {
@@ -848,6 +864,7 @@ export default function App() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       supabase.removeChannel(channel);
+      clearInterval(pollInterval);
       stopExtendedChimeMelody();
     };
   }, [currentUser]);
@@ -976,9 +993,10 @@ export default function App() {
 
     setMyLocation({ lat: coords.latitude, lng: coords.longitude });
     
+    // מעדכן את כל המפה המקומית ושומר בזיכרון המשותף למניעת איבוד משתמשים
     setFamilyLocations(prev => {
       const updated = { ...prev, [currentUser]: locObj };
-      try { localStorage.setItem('garda-local-family-locations', JSON.stringify(updated)); } catch (e) {}
+      try { localStorage.setItem('garda-family-radar-all', JSON.stringify(updated)); } catch (e) {}
       return updated;
     });
 
@@ -1066,11 +1084,11 @@ export default function App() {
     let markersJS = '';
     Object.values(familyLocations).forEach(loc => {
       if (loc && loc.lat) {
-        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 לאחרונה: ${loc.lastSeen || 'שטח האגם'}');\n`;
+        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>👤 ${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 עדכון: ${loc.lastSeen || 'שטח האגם'}');\n`;
       }
     });
 
-    markersJS += `L.marker([${rallyPoint.lat}, ${rallyPoint.lng}]).addTo(map).bindPopup('<b>נקודת כינוס חירום:</b><br>${rallyPoint.name}');\n`;
+    markersJS += `L.marker([${rallyPoint.lat}, ${rallyPoint.lng}]).addTo(map).bindPopup('<b>🚩 נקודת כינוס חירום:</b><br>${rallyPoint.name}');\n`;
 
     return `
       <!DOCTYPE html>
@@ -1087,10 +1105,6 @@ export default function App() {
         <script>
           const map = L.map('map').setView([${centerLat}, ${centerLng}], 11);
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-          const myLocData = ${JSON.stringify(myLocation)};
-          if (myLocData && myLocData.lat) {
-            L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
-          }
           ${markersJS}
         </script>
       </body>
@@ -1374,7 +1388,7 @@ export default function App() {
       {sharedTimer && (
         <div style={{ background: isDark ? '#111111' : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', borderBottom: isDark ? '1px solid #333333' : 'none', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px' }}>
           <span onClick={() => setModalType('timer')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            ⏱️️ טיימר משפחתי {isTimerPaused ? '(מושהה)' : 'פועל'}: <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{formatClock(timerRemainingSec)}</span>
+            ⏱️ טיימר משפחתי {isTimerPaused ? '(מושהה)' : 'פועל'}: <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{formatClock(timerRemainingSec)}</span>
           </span>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button onClick={toggleSharedTimerPause} style={{ background: isDark ? '#333333' : 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
@@ -1658,7 +1672,7 @@ export default function App() {
                     ▶️ התחל
                   </button>
                   <button onClick={handlePauseTrivia} style={{ background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
-                    ⏸️ השהה
+                    ⏸️️ השהה
                   </button>
                   <button onClick={handleResetTrivia} style={{ background: isDark ? '#222222' : '#ef4444', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
                     🔄 איפוס
