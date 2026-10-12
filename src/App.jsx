@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.17-SpellingFix ---
-const APP_VERSION = 'v9.9.17-SpellingFix';
+// --- GARDA-MOBILE v9.9.18-RadarFix ---
+const APP_VERSION = 'v9.9.18-RadarFix';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -37,7 +37,7 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה ורונה", 
+        name: "נחיתה בנמל התעופה وרונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
@@ -55,7 +55,7 @@ const INITIAL_TRIP_DAYS = [
         lng: 10.6908, 
         note: "צ׳ק-אין במלון ומנוחה קצרה לפני היציאה לארוחת ערב.",
         creative: {
-          name: "נהר המינצ'ו בפסקיירה",
+          name: "נהר המינצ'و בפסקיירה",
           dest: "Peschiera del Garda, Italy",
           desc: "עצירה קצרה ומרגיעה ליד גדת הנהר לפתיחת מחברות ציור ותיעוד הנוף הראשון שלכם באיטליה."
         },
@@ -228,7 +228,7 @@ const INITIAL_TRIP_DAYS = [
         dest: "Lago di Tenno, Italy", 
         lat: 45.9221, 
         lng: 10.8405, 
-        note: "עלייה קצרה להר לאגם טנו בעל המים בצבע טורקיז מרהיב – זמן למנוחה, פיקניק וטבילה מרעננת.",
+        note: "עלייה קצרה להר לאגם טנו בעל המים בצבע טורקיז מרהيב – זמן למנוחה, פיקניק וטבילה מרעננת.",
         creative: {
           name: "חופי טורקיז בטנו",
           dest: "Lago di Tenno",
@@ -259,15 +259,15 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR ורונה + חזרה לישראל", icon: "❤️",
+    date: "2026-10-06", label: "שלישי · 06/10", title: "קניית VR وרונה + חזרה לישראל", icon: "❤️",
     stops: [
       { 
         time: "08:30", 
-        name: "רכישת משקפי VR בורונה (מדריך רכישה מלא ו-Tax Free)", 
+        name: "רכישת משקפי VR בורונה (מדריך רכישה מלא و-Tax Free)", 
         dest: "Centro Commerciale Adigeo, Viale delle Nazioni, Verona", 
         lat: 45.4093, 
         lng: 10.9632, 
-        note: "מדריך מקוצר ושימושי לרכישת משקפי Meta Quest בורונה:\n\n1. השוואת דגמים ומחירי יעד:\n- Meta Quest 3S (128GB): ~€330–€350 (נטו לאחר Tax Free: ~€290–€310) | המומלץ ביותר לילדים ונוער.\n- Meta Quest 3S (256GB): ~€470 (נטו: ~€410–€415) | למשחקים כבדים.\n- Meta Quest 3 (512GB): ~€570–€620 (נטו: ~€500–€545) | דגם הדגל עם עדשות Pancake.\n\n2. חנויות מומלצות:\n- MediaWorld (קניון Adigeo, Viale delle Nazioni): חנות ענק עם הסיכוי הגבוה ביותר למלאי זמין על המדף.\n- Unieuro (סניף מרכז Via Cappello 34 או סניף פרברי Via Preare 42).\n\n3. צ'ק-ליסט Tax Free:\n- בקשו בעת הקנייה טופס החזר מס (Modulo Tax Free) והציגו דרכון.\n- אל תפתחו את האריזה עד לאישור המכס בשדה (Dogana).\n- החתימו את הטופס בשדה התעופה (בעמדת המכס או בקיוסקים הדיגיטליים) טרם קבלת הזיכוי.",
+        note: "מדריך מקוצר وשימושי לרכישת משקפי Meta Quest בורונה:\n\n1. השוואת דגמים ומחירי יעד:\n- Meta Quest 3S (128GB): ~€330–€350 (נטו לאחר Tax Free: ~€290–€310) | המומלץ ביותר לילדים وנוער.\n- Meta Quest 3S (256GB): ~€470 (נטו: ~€410–€415) | למשחקים כבדים.\n- Meta Quest 3 (512GB): ~€570–€620 (נטו: ~€500–€545) | דגם הדגל עם עדשות Pancake.\n\n2. חנויות מומלצות:\n- MediaWorld (קניון Adigeo, Viale delle Nazioni): חנות ענק עם הסיכוי הגבוה ביותר למלאי זמין על המדף.\n- Unieuro (סניף מרכז Via Cappello 34 או סניף פרברי Via Preare 42).\n\n3. צ'ק-ליסט Tax Free:\n- בקשו בעת הקנייה טופס החזר מס (Modulo Tax Free) והציגו דרכון.\n- אל תפתחו את האריזה עד לאישור המכס בשדה (Dogana).\n- החתימו את הטופס בשדה התעופה (בעמדת המכס או בקיוסקים הדיגיטליים) טרם קבלת הזיכוי.",
         challenge: {
           title: "משימת Tax Free!",
           desc: "וידוא קבלת קבלה מקורית וטופס החזר מס עבור המשקפיים."
@@ -275,15 +275,15 @@ const INITIAL_TRIP_DAYS = [
       },
       { 
         time: "11:00", 
-        name: "סיור בעיר העתיקה בוורונה ואוכל", 
+        name: "סיור בעיר העתיקה בוורונה وأוכל", 
         dest: "Piazza Cittadella, Verona", 
         lat: 45.4384, 
         lng: 10.9916, 
-        note: "הארנה של ורונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
         culinary: {
           name: "Farcito Verona",
           dest: "Verona, Italy",
-          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
+          desc: "המבורגרים איטלקיים מעולים وפיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
         }
       },
       { 
@@ -292,25 +292,25 @@ const INITIAL_TRIP_DAYS = [
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
-        note: "מעבר במכס (Dogana) עם קופסת המשקפיים להחתמת ה-Tax Free, החזרת הרכב וטיסה ישירה לישראל.",
+        note: "מעבר במכס (Dogana) עם קופסת המשקפיים להחתמת ה-Tax Free, החזרת הרכב وטיסה ישירה לישראל.",
         creative: {
           name: "גלוית פרידה מאיטליה",
           dest: "Verona, Italy",
-          desc: "כתיבת גלוית סיכום משפחתית וציור קטן למזכרת במחברת הטיול לפני העלייה למטוס."
+          desc: "כתיבת גלוית סיכום משפחתית وציור קטן למזכרת במחברת הטיול לפני העלייה למטוס."
         }
       }
     ]
   }
 ];
 
-const TICKET_DEFAULT_FOLDERS = ['✈️ טיסות ורכב', '🏡 מלון', '🎢 Gardaland', '🎬 Movieland', '🚤 ונציה'];
+const TICKET_DEFAULT_FOLDERS = ['✈️ טיסות وרכב', '🏡 מלון', '🎢 Gardaland', '🎬 Movieland', '🚤 ונציה'];
 const DEFAULT_DOCUMENTS = [
-  { id: 'flight-arik', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)', isLink: false, url: '#', passenger: 'COHEN/ARIK MR', ticketNo: '8180011314102' },
-  { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
-  { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
-  { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
-  { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
-  { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
+  { id: 'flight-arik', folder: '✈️ טיסות وרכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)', isLink: false, url: '#', passenger: 'COHEN/ARIK MR', ticketNo: '8180011314102' },
+  { id: 'flight-amit', folder: '✈️ טיסות وרכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
+  { id: 'flight-yuly', folder: '✈️ טיסות وרכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
+  { id: 'flight-lian', folder: '✈️ טיסות وרכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
+  { id: 'flight-harel', folder: '✈️ טיסות وרכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
+  { id: 'aig-insurance', folder: '✈️ טיסות وרכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
   { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
   { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
   { id: 'gardaland-2', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 2 (Serial 601)', ticketCode: 'VKN1P01Y901ME4T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
@@ -322,7 +322,7 @@ const DEFAULT_DOCUMENTS = [
   { id: 'movieland-3', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 3', ticketCode: '934FEA2F66750267', trans: '017JUNAR0071', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
   { id: 'movieland-4', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 4', ticketCode: '52CACC0D5CAE334B', trans: '017JUNAR0072', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
   { id: 'movieland-5', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 5', ticketCode: '32D6C578DF258ACF', trans: '017JUNAR0073', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
-  { id: 'medieval-times', folder: '🎬 Movieland', title: 'Medieval Times - כרטיס משפחתי (5 מבוגרים)', ticketCode: 'CVBDK20260922114620', trans: '195.00€', desc: 'מופע אבירים וארוחה (Tikez) - 03.10.2026 בשעה 19:30' }
+  { id: 'medieval-times', folder: '🎬 Movieland', title: 'Medieval Times - כרטיס משפחתי (5 מבוגרים)', ticketCode: 'CVBDK20260922114620', trans: '195.00€', desc: 'מופע אבירים وأרוחה (Tikez) - 03.10.2026 בשעה 19:30' }
 ];
 
 const ROAD_TRIVIA_QUESTIONS = Array.from({ length: 1000 }, (_, i) => {
@@ -414,6 +414,51 @@ export default function App() {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const photoFileInputRef = useRef(null);
 
+  // --- מנגנון רדאר משפחתי אוטומטי (Polling + Realtime) ---
+  const broadcastMyLocation = async (coords) => {
+    if (!coords || !coords.latitude || !coords.longitude) return;
+    const timeStr = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+    const locObj = { 
+      name: currentUser, 
+      lat: coords.latitude, 
+      lng: coords.longitude, 
+      updated_at: timeStr, 
+      is_sos: false, 
+      battery: 95, 
+      lastSeen: 'שטח הטיול' 
+    };
+    setMyLocation({ lat: coords.latitude, lng: coords.longitude });
+    setFamilyLocations(prev => ({ ...prev, [currentUser]: locObj }));
+    try { 
+      await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); 
+    } catch (e) {
+      console.error("Error broadcasting location:", e);
+    }
+  };
+
+  // משיכת כל מיקומי המשפחה מ-Supabase
+  const fetchAllFamilyLocations = async () => {
+    try {
+      const { data, error } = await supabase.from('family_radar').select('*');
+      if (!error && data) {
+        const locationsMap = {};
+        data.forEach(item => {
+          if (item && item.name) {
+            locationsMap[item.name] = item;
+            if (item.is_sos && (!activeSosAlert || activeSosAlert.name !== item.name)) {
+              setActiveSosAlert(item);
+            }
+          }
+        });
+        if (Object.keys(locationsMap).length > 0) {
+          setFamilyLocations(prev => ({ ...prev, ...locationsMap }));
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching family locations:", e);
+    }
+  };
+
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
@@ -423,6 +468,24 @@ export default function App() {
       } catch (e) { console.error(e); }
     };
     fetchPhotos();
+    fetchAllFamilyLocations();
+
+    // מעקב GPS אוטומטי ברקע במכשיר
+    let watchId = null;
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          broadcastMyLocation(pos.coords);
+        },
+        (err) => { console.warn("GPS watch error:", err); },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      );
+    }
+
+    // Polling אוטומטי כל 10 שניות למשיכת מיקומי כולם (מבטיח סנכרון מלא גם אם Realtime מתנתק)
+    const pollingInterval = setInterval(() => {
+      fetchAllFamilyLocations();
+    }, 10000);
 
     const photoChannel = supabase.channel('family_trip_photos_channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_trip_photos' }, payload => {
@@ -432,10 +495,27 @@ export default function App() {
       })
       .subscribe();
 
+    const radarChannel = supabase.channel('family_radar_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
+        if (payload.new && payload.new.name) {
+          setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
+          if (payload.new.is_sos) {
+            setActiveSosAlert(payload.new);
+            playExtendedChimeMelody();
+          }
+        }
+      })
+      .subscribe();
+
     return () => {
+      if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      clearInterval(pollingInterval);
       supabase.removeChannel(photoChannel);
+      supabase.removeChannel(radarChannel);
     };
-  }, []);
+  }, [currentUser]);
 
   const handleUploadPhotoFile = async (e) => {
     const file = e.target.files[0];
@@ -690,7 +770,7 @@ export default function App() {
   }, [modalType, isTriviaPaused, questionTimeLeft, selectedAnswer]);
 
   const [folders] = useState(TICKET_DEFAULT_FOLDERS);
-  const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
+  const [activeFolder, setActiveFolder] = useState('✈️ טיסות وרכב');
   const [ticketFiles] = useState(DEFAULT_DOCUMENTS);
 
   const chimeIntervalRef = useRef(null);
@@ -785,19 +865,6 @@ export default function App() {
     fetchInitialTimer();
 
     const channel = supabase.channel('family_trip_channel')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
-        if (payload.new) {
-          setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
-          if (payload.new.is_sos) {
-            setActiveSosAlert(payload.new);
-            playExtendedChimeMelody();
-          }
-          if (payload.new.is_sound_alert && payload.new.name === currentUser) {
-            setActiveSoundAlert(payload.new);
-            playExtendedChimeMelody();
-          }
-        }
-      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
         if (payload.new) {
           setSharedTimer(payload.new);
@@ -925,13 +992,6 @@ export default function App() {
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  const broadcastMyLocation = async (coords) => {
-    const locObj = { name: currentUser, lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false, battery: 95, lastSeen: 'עדכון ידני' };
-    setMyLocation({ lat: coords.latitude, lng: coords.longitude });
-    setFamilyLocations(prev => ({ ...prev, [currentUser]: locObj }));
-    try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
-  };
-
   const routeMapHTML = useMemo(() => {
     const currentLat = myLocation?.lat || 45.4384;
     const currentLng = myLocation?.lng || 10.6816;
@@ -1008,8 +1068,8 @@ export default function App() {
 
     let markersJS = '';
     Object.values(familyLocations).forEach(loc => {
-      if (loc && loc.lat) {
-        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 לאחרונה: ${loc.lastSeen || 'שטח האגם'}');\n`;
+      if (loc && loc.lat && loc.lng) {
+        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 לאחרונה: ${loc.lastSeen || 'שטח האגם'} (${loc.updated_at || 'עכשיו'})');\n`;
       }
     });
 
@@ -1383,7 +1443,7 @@ export default function App() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>העשרה ובידור</span>
+          <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>העשרה وבידור</span>
 
           <button onClick={() => { setSidebarOpen(false); setModalType('trip-album'); }} style={rectMenuCardStyle(isDark)}>
             <span>📸 אלבום טיול למשפחת כהן</span>
@@ -1394,7 +1454,7 @@ export default function App() {
           </button>
 
           <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={rectMenuCardStyle(isDark)}>
-            <span>ארנק כרטיסים ומסמכים</span>
+            <span>ארנק כרטיסים ومסמכים</span>
           </button>
         </div>
 
@@ -1591,7 +1651,7 @@ export default function App() {
                 {modalType === 'parking' && '🚗 Car Finder Pro - שמירת מיקום רכב'}
                 {modalType === 'trivia' && '🧠 טריויה משפחתית (1000 שאלות)'}
                 {modalType === 'trip-album' && '📸 אלבום טיול למשפחת כהן'}
-                {modalType === 'tickets' && '🎟️ ארנק כרטיסים ומסמכים'}
+                {modalType === 'tickets' && '🎟️ ארנק כרטיסים ومסמכים'}
                 {modalType === 'emergency' && '🆘 מספרי חירום ושגרירות'}
               </h2>
 
@@ -1664,7 +1724,7 @@ export default function App() {
 
                     <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                       <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ flex: 1, padding: '12px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>📍 עדכן מיקום יום</button>
-                      <button onClick={() => alert('🔄 המיקומים ונתוני הסוללה עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן רדאר</button>
+                      <button onClick={fetchAllFamilyLocations} style={{ flex: 1, padding: '12px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן רדאר</button>
                     </div>
                   </div>
                 </div>
@@ -1963,61 +2023,3 @@ export default function App() {
 
                       <div style={{ fontSize: '16px', fontWeight: '900', color: textColor }}>
                         מרחק הליכה: {carDistanceToWalk}
-                      </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%' }}>
-                        <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '10px', background: isDark ? '#333333' : accentGradient, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>
-                          נווט ב-Google 🗺️
-                        </a>
-                        <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
-                          אפס חניה 🗑️
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-            </div>
-
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
-}
-
-const rectMenuCardStyle = (isDark) => ({
-  background: isDark ? '#111111' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-  border: `1px solid ${isDark ? '#333333' : '#cbd5e1'}`,
-  borderRight: `3.5px solid ${isDark ? '#ffffff' : '#475569'}`,
-  color: isDark ? '#ffffff' : '#334155',
-  padding: '12px 16px',
-  borderRadius: '12px',
-  textAlign: 'right',
-  fontWeight: '900',
-  fontSize: '13px',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  width: '100%',
-  boxShadow: isDark ? 'none' : '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
-  transition: 'all 0.15s ease',
-  boxSizing: 'border-box',
-  letterSpacing: '-0.01em'
-});
-
-const emergencyBtnStyle = (isDark) => ({
-  padding: '14px',
-  borderRadius: '10px',
-  background: isDark ? '#111111' : '#fee2e2',
-  color: isDark ? '#ffffff' : '#ef4444',
-  fontWeight: '800',
-  fontSize: '13px',
-  textAlign: 'center',
-  textDecoration: 'none',
-  border: `1.5px solid ${isDark ? '#333333' : '#fecaca'}`,
-  boxSizing: 'border-box'
-});
