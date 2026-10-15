@@ -136,4 +136,219 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-03", label: "שבת · 0
+    date: "2026-10-03", label: "שבת · 03/10", title: "Movieland + Medieval Times", icon: "🎬",
+    stops: [
+      { 
+        time: "09:00", 
+        name: "Movieland The Hollywood Park", 
+        dest: "Movieland The Hollywood Park, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "יום הרפתקאות, אפקטים מיוחדים, צוללות ופעלולים הוליוודיים.",
+        challenge: {
+          title: "פוסטר קולנועי משפחתי!",
+          desc: "צלמו סלפי משפחתי בפוזה דרמטית ליד אחת מתפאורות הסרטים בפארק."
+        }
+      },
+      { 
+        time: "19:30", 
+        name: "Medieval Times – מופע האבירים והמשתה (הזמנה CVBDK20260922114620)", 
+        dest: "Medieval Times, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "טורניר אבירים סוער עם סוסים וארוחת ערב מלכותית (5 מבוגרים) ללא סכו״ם!",
+        creative: {
+          name: "סדנת כתרים אביריים",
+          dest: "Medieval Times, Lazise",
+          desc: "הכנת כתרים מקושטים מנייר כסף ודפים צבעוניים לפני תחילת המופע."
+        },
+        culinary: {
+          name: "Medieval Times Banquet (Tikez)",
+          dest: "Medieval Times, Lazise",
+          desc: "ארוחת אבירים מסורתית הכוללת עוף צלוי, תפוחי אדמה חמים, מרק ומאפים – הכול נאכל בידיים! (סה״כ 195€)."
+        }
+      }
+    ]
+  },
+  {
+    date: "2026-10-04", label: "ראשון · 04/10", title: "ונציה – עיר המים", icon: "🛶",
+    stops: [
+      { 
+        time: "07:30", 
+        name: "יציאה וחניה בוונציה (Tronchetto)", 
+        dest: "Venezia Tronchetto Parking", 
+        lat: 45.4384, 
+        lng: 12.3167, 
+        note: "חניה נוחה בחניון טרונקטו ומעבר בסירת ואפורטו (או מונית מים) לכיוון המרכז."
+      },
+      { 
+        time: "09:30", 
+        name: "כיכר סן מרקו וסמטאות ונציה", 
+        dest: "St. Mark's Square, Venice", 
+        lat: 45.4343, 
+        lng: 12.3388, 
+        note: "הלב הפועם של ונציה – הבזיליקה, גשר האנחות ושיטוט בגשרים הקטנים.",
+        challenge: {
+          title: "הגשר הנסתר בסמטה!",
+          desc: "מצאו גשר אבן קטן ומיוחד מחוץ למסלול הראשי והעמוס והצטלמו עליו."
+        },
+        creative: {
+          name: "גשר הציורים בוונציה",
+          dest: "Venice, Italy",
+          desc: "עצירה קצרה על גשר שקט לציור מהיר של גונדולה חולפת מתחת לתעלה."
+        },
+        culinary: {
+          name: "Suso Gelatoteca & Pizza al Taglio",
+          dest: "St. Mark's Square, Venice",
+          desc: "משולשי פיצה דקים וטריים בסמטאות, ולקינוח גלידת סוסו (Suso) המפורסמת ביותר בוונציה."
+        }
+      }
+    ]
+  },
+  {
+    date: "2026-10-05", label: "שני · 05/10", title: "לימונה + אגם טנו + ריבה/בארונה", icon: "🍋",
+    stops: [
+      { 
+        time: "08:30", 
+        name: "לימונה סול גארדה והטיילת (Limone sul Garda)", 
+        dest: "Limone sul Garda Parking, Italy", 
+        lat: 45.8143, 
+        lng: 10.7932, 
+        note: "ירידה לצד המערבי של האגם, חנייה מסודרת וסיור מרגיע בטיילת הציורית התלויה ובסמטאות עצי הלימון.",
+        challenge: {
+          title: "תמונת לימון משפחתית!",
+          desc: "מצאו פרי לימון אמיתי או סממן לימוני והצטלמו איתו בחיוך ענק."
+        }
+      },
+      { 
+        time: "11:30", 
+        name: "אגם טנו – פיקניק ושחייה (Lake Tenno)", 
+        dest: "Lago di Tenno, Italy", 
+        lat: 45.9221, 
+        lng: 10.8405, 
+        note: "עלייה קצרה להר לאגם טנו בעל המים בצבע טורקיז מרהיב – זמן למנוחה, פיקניק וטבילה מרעננת.",
+        creative: {
+          name: "חופי טורקיז בטנו",
+          dest: "Lago di Tenno",
+          desc: "איסוף אבנים חלקות ומיוחדות משפת האגם והכנת מגדל אבנים משפחתי למזכרת."
+        }
+      },
+      { 
+        time: "14:30", 
+        name: "ריבה דל גארדה או מפלי בארונה (Varone Waterfall)", 
+        dest: "Cascata del Varone, Riva del Garda", 
+        lat: 45.9085, 
+        lng: 10.8442, 
+        note: "ביקור בריבה דל גארדה הצפונית או כניסה למפלי בארונה המרהיבים הזורמים בתוך נקיק סלע פנימי.",
+        culinary: {
+          name: "Gelateria Flora (Riva del Garda)",
+          dest: "Riva del Garda, Italy",
+          desc: "גלידה איטלקית מעולה מול הנוף הפתוח של צפון האגם."
+        }
+      },
+      { 
+        time: "17:00", 
+        name: "נסיעה חזרה דרך מלצ'זינה (דרך המזרח)", 
+        dest: "Malcesine, Italy", 
+        lat: 45.7678, 
+        lng: 10.8119, 
+        note: "נסיעה חזרה דרומה דרך הגדה המזרחית של האגם ועצירה קצרה במלצ'זינה לקראת השקיעה."
+      }
+    ]
+  },
+  {
+    date: "2026-10-06", label: "שלישי · 06/10", title: "ורונה + חזרה לישראל", icon: "❤️",
+    stops: [
+      { 
+        time: "09:00", 
+        name: "סיור בעיר העתיקה בוורונה", 
+        dest: "Piazza Cittadella, Verona", 
+        lat: 45.4384, 
+        lng: 10.9916, 
+        note: "הארנה של وרונה, פיאצה ברה והמרפסת המפורסמת של יוליה.",
+        challenge: {
+          title: "שיא הטיול המשפחתי!",
+          desc: "בוחרים יחד בארנה של وרונה את הרגע המצחיק והמרגש ביותר של הטיול."
+        },
+        culinary: {
+          name: "Farcito Verona",
+          dest: "Verona, Italy",
+          desc: "המבורגרים איטלקיים מעולים ופיצה מיוחדת בלב وרונה לפני הנסיעה לשדה."
+        }
+      },
+      { 
+        time: "18:30", 
+        name: "שדה התעופה وרונה וחזרה הביתה", 
+        dest: "Verona Villafranca Airport", 
+        lat: 45.3957, 
+        lng: 10.8885, 
+        note: "החזרת הרכב השכור, צ'ק-אין וטיסה ישירה חזרה לישראל.",
+        creative: {
+          name: "גלוית פרידה מאיטליה",
+          dest: "Verona, Italy",
+          desc: "כתיבת גלוית סיכום משפחתית וציור קטן למזכרת במחברת הטיול לפני העלייה למטוס."
+        }
+      }
+    ]
+  }
+];
+
+const TICKET_DEFAULT_FOLDERS = ['✈️ טיסות ורכב', '🏡 מלון', '🎢 Gardaland', '🎬 Movieland', '🚤 ונציה'];
+const DEFAULT_DOCUMENTS = [
+  { id: 'flight-arik', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - אריק כהן (8180011314102)', isLink: false, url: '#', passenger: 'COHEN/ARIK MR', ticketNo: '8180011314102' },
+  { id: 'flight-amit', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - עמית כהן (8180011314103)', isLink: false, url: '#', passenger: 'COHEN/AMIT MS', ticketNo: '8180011314103' },
+  { id: 'flight-yuly', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - יולי כהן (8180011314104)', isLink: false, url: '#', passenger: 'COHEN/YULY MS', ticketNo: '8180011314104' },
+  { id: 'flight-lian', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - ליאן כהן (8180011314105)', isLink: false, url: '#', passenger: 'COHEN/LIAN CHD', ticketNo: '8180011314105' },
+  { id: 'flight-harel', folder: '✈️ טיסות ורכב', title: 'כרטיס טיסה - הראל כהן (8180011314106)', isLink: false, url: '#', passenger: 'VILNAI COHEN/HAREL MR', ticketNo: '8180011314106' },
+  { id: 'aig-insurance', folder: '✈️ טיסות ורכב', title: 'ביטוח נסיעות AIG (170270213826)', isInsuranceInfo: true },
+  { id: 'vojon-hotel', folder: '🏡 מלון', title: 'הזמנת Bio Agriturismo Vojon', isHotelInfo: true, hotelPhone: '+39 0376 83522', hotelAddress: 'Via Pradello 8, 46040 Ponti sul Mincio, Mantova, Italy', bookingRef: 'BK-VOJON-2026', bookingUrl: 'https://www.booking.com' },
+  { id: 'gardaland-1', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 1 (Serial 600)', ticketCode: 'BKN1P01Y901MART', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'gardaland-2', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 2 (Serial 601)', ticketCode: 'VKN1P01Y901ME4T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'gardaland-3', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 3 (Serial 606)', ticketCode: 'TKN1P01Y901MUTT', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'gardaland-4', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 4 (Serial 607)', ticketCode: 'VKN1P01Y901MY6T', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'gardaland-5', folder: '🎢 Gardaland', title: 'כרטיס Gardaland - נוסע 5 (Serial 608)', ticketCode: 'CKN1P01Y901N2IT', trans: '602608201209', desc: 'פארק גארדה - כניסה מהירה (1 Giorno Open)' },
+  { id: 'movieland-1', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 1', ticketCode: 'EA35DB7A2EA540D5', trans: '017JUNAR0070', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'movieland-2', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 2', ticketCode: '256612CCD43B8E08', trans: '017JUNAR0069', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'movieland-3', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 3', ticketCode: '934FEA2F66750267', trans: '017JUNAR0071', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'movieland-4', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 4', ticketCode: '52CACC0D5CAE334B', trans: '017JUNAR0072', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'movieland-5', folder: '🎬 Movieland', title: 'כרטיס Movieland - נוסע 5', ticketCode: '32D6C578DF258ACF', trans: '017JUNAR0073', desc: 'Movieland The Hollywood Park - כרטיס פתוח עונה 2026' },
+  { id: 'medieval-times', folder: '🎬 Movieland', title: 'Medieval Times - כרטיס משפחתי (5 מבוגרים)', ticketCode: 'CVBDK20260922114620', trans: '195.00€', desc: 'מופע אבירים וארוחה (Tikez) - 03.10.2026 בשעה 19:30' }
+];
+
+const ROAD_TRIVIA_QUESTIONS = Array.from({ length: 1000 }, (_, i) => {
+  const id = i + 1;
+  const banks = [
+    { q: `שאלה #${id}: כמה שיניים יש לאדם מבוגר בדרך כלל (כולל שיני בינה)?`, options: ["28", "32", "36", "24"], correct: 1 },
+    { q: `שאלה #${id}: באיזו מדינה באירופה נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+    { q: `שאלה #${id}: איזה בעל חיים ימי נחשב למהיר ביותר באוקיינוס?`, options: ["כריש לבן", "דג מפרש", "דולפין", "לווייתן כחול"], correct: 1 },
+    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פירנצה"], correct: 2 },
+    { q: `שאלה #${id}: כמה רגליים יש לעכביש?`, options: ["6", "8", "10", "12"], correct: 1 }
+  ];
+  return banks[i % banks.length];
+});
+
+const TRAVELERS_LIST = ['אריק', 'עמית', 'יולי', 'ליאן', 'הראל'];
+
+const calculateDistanceAndDuration = (lat1, lon1, lat2, lon2) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return { dist: '---', duration: '---' };
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distKm = R * c;
+  
+  const hours = distKm / 70;
+  const mins = Math.round(hours * 60);
+  
+  let durationStr = `${mins} דק'`;
+  if (mins >= 60) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    durationStr = `${h} שע' ${m > 0 ? `${m} דק'` : ''}`;
+  }
+
+  return {
