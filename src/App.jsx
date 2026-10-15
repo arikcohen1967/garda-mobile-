@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.4 (Clean & Stable for Vercel) ---
+// --- GARDA-MOBILE v9.9.4 (Vercel Production Ready) ---
 const APP_VERSION = 'v9.9.4';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -129,4 +129,125 @@ const INITIAL_TRIP_DAYS = [
         note: "שיטוט בסמטאות עיירת ימי הביניים, טירת סקאליג'רו וטיילת האגם הקסומה.",
         culinary: {
           name: "Trattoria La Marsa & Gelateria Iguana",
-          dest: "
+          dest: "Sirmione, Italy",
+          desc: "פסטה טורטליני מדהימה הצופה לאגם, ולאחר מכן גלידריית בוטיק עם עשרות טעמים ייחודיים בסמטאות."
+        }
+      }
+    ]
+  },
+  {
+    date: "2026-10-03", label: "שבת · 03/10", title: "Movieland + Medieval Times", icon: "🎬",
+    stops: [
+      { 
+        time: "09:00", 
+        name: "Movieland The Hollywood Park", 
+        dest: "Movieland The Hollywood Park, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "יום הרפתקאות, אפקטים מיוחדים, צוללות ופעלולים הוליוודיים.",
+        challenge: {
+          title: "פוסטר קולנועי משפחתי!",
+          desc: "צלמו סלפי משפחתי בפוזה דרמטית ליד אחת מתפאורות הסרטים בפארק."
+        }
+      },
+      { 
+        time: "19:30", 
+        name: "Medieval Times – מופע האבירים והמשתה (הזמנה CVBDK20260922114620)", 
+        dest: "Medieval Times, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "טורניר אבירים סוער עם סוסים וארוחת ערב מלכותית (5 מבוגרים) ללא סכו״ם!",
+        creative: {
+          name: "סדנת כתרים אביריים",
+          dest: "Medieval Times, Lazise",
+          desc: "הכנת כתרים מקושטים מנייר כסף ודפים צבעוניים לפני תחילת המופע."
+        },
+        culinary: {
+          name: "Medieval Times Banquet (Tikez)",
+          dest: "Medieval Times, Lazise",
+          desc: "ארוחת אבירים מסורתית הכוללת עוף צלוי, תפוחי אדמה חמים, מרק ומאפים – הכול נאכל בידיים! (סה״כ 195€)."
+        }
+      }
+    ]
+  },
+  {
+    date: "2026-10-04", label: "ראשון · 04/10", title: "ונציה – עיר המים", icon: "🛶",
+    stops: [
+      { 
+        time: "07:30", 
+        name: "יציאה וחניה בוונציה (Tronchetto)", 
+        dest: "Venezia Tronchetto Parking", 
+        lat: 45.4384, 
+        lng: 12.3167, 
+        note: "חניה נוחה בחניון טרונקטו ומעבר בסירת ואפורטו (או מונית מים) לכיוון המרכז."
+      },
+      { 
+        time: "09:30", 
+        name: "כיכר סן מרקו וסמטאות ונציה", 
+        dest: "St. Mark's Square, Venice", 
+        lat: 45.4343, 
+        lng: 12.3388, 
+        note: "הלב הפועם של ונציה – הבזיליקה, גשר האנחות ושיטוט בגשרים הקטנים.",
+        challenge: {
+          title: "הגשר הנסתר בסמטה!",
+          desc: "מצאו גשר אבן קטן ומיוחד מחוץ למסלול הראשי והעמוס והצטלמו עליו."
+        },
+        creative: {
+          name: "גשר הציורים בוונציה",
+          dest: "Venice, Italy",
+          desc: "עצירה קצרה על גשר שקט לציור מהיר של גונדולה חולפת מתחת לתעלה."
+        },
+        culinary: {
+          name: "Suso Gelatoteca & Pizza al Taglio",
+          dest: "St. Mark's Square, Venice",
+          desc: "משולשי פיצה דקים וטריים בסמטאות, ולקינוח גלידת סוסו (Suso) המפורסמת ביותר בוונציה."
+        }
+      }
+    ]
+  },
+  {
+    date: "2026-10-05", label: "שני · 05/10", title: "לימונה + אגם טנו + ריבה/בארונה", icon: "🍋",
+    stops: [
+      { 
+        time: "08:30", 
+        name: "לימונה סול גארדה והטיילת (Limone sul Garda)", 
+        dest: "Limone sul Garda Parking, Italy", 
+        lat: 45.8143, 
+        lng: 10.7932, 
+        note: "ירידה לצד המערבי של האגם, חנייה מסודרת וסיור מרגיע בטיילת הציורית התלויה ובסמטאות עצי הלימון.",
+        challenge: {
+          title: "תמונת לימון משפחתית!",
+          desc: "מצאו פרי לימון אמיתי או סממן לימוני והצטלמו איתו בחיוך ענק."
+        }
+      },
+      { 
+        time: "11:30", 
+        name: "אגם טנו – פיקניק ושחייה (Lake Tenno)", 
+        dest: "Lago di Tenno, Italy", 
+        lat: 45.9221, 
+        lng: 10.8405, 
+        note: "עלייה קצרה להר לאגם טנו בעל המים בצבע טורקיז מרהיב – זמן למנוחה, פיקניק וטבילה מרעננת.",
+        creative: {
+          name: "חופי טורקיז בטנו",
+          dest: "Lago di Tenno",
+          desc: "איסוף אבנים חלקות ומיוחדות משפת האגם והכנת מגדל אבנים משפחתי למזכרת."
+        }
+      },
+      { 
+        time: "14:30", 
+        name: "ריבה דל גארדה או מפלי בארונה (Varone Waterfall)", 
+        dest: "Cascata del Varone, Riva del Garda", 
+        lat: 45.9085, 
+        lng: 10.8442, 
+        note: "ביקור בריבה דל גארדה הצפונית או כניסה למפלי בארונה המרהיבים הזורמים בתוך נקיק סלע פנימי.",
+        culinary: {
+          name: "Gelateria Flora (Riva del Garda)",
+          dest: "Riva del Garda, Italy",
+          desc: "גלידה איטלקית מעולה מול הנוף הפתוח של צפון האגם."
+        }
+      },
+      { 
+        time: "17:00", 
+        name: "נסיעה חזרה דרך מלצ'זינה (דרך המזרח)", 
+        dest: "Malcesine, Italy", 
+        lat: 45.767
