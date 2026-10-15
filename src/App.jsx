@@ -37,14 +37,14 @@ const INITIAL_TRIP_DAYS = [
     stops: [
       { 
         time: "16:00", 
-        name: "נחיתה בנמל התעופה ורונה", 
+        name: "נחיתה בנמל התעופה وרונה", 
         dest: "Verona Villafranca Airport", 
         lat: 45.3957, 
         lng: 10.8885, 
         note: "איסוף מזוודות וקבלת הרכב השכור בשדה התעופה.",
         challenge: {
           title: "סלפי משפחתי ראשון באיטליה!",
-          desc: "נחתנו! המשימה שלכם: סלפי משפחתי חגיגי בשדה או מיд עם קבלת הרכב השכור."
+          desc: "נחתנו! המשימה שלכם: סלפי משפחתי חגיגי בשדה או מיד עם קבלת הרכב השכור."
         }
       },
       { 
@@ -68,4 +68,151 @@ const INITIAL_TRIP_DAYS = [
     ]
   },
   {
-    date: "2026-10-01", label: "חמישי · 01
+    date: "2026-10-01", label: "חמישי · 01/10", title: "Gardaland – יום פארק מלא", icon: "🎢",
+    stops: [
+      { 
+        time: "08:30", 
+        name: "יציאה מהמלון לגארדלנד", 
+        dest: "Gardaland Resort, Castelnuovo del Garda", 
+        lat: 45.4526, 
+        lng: 10.7153, 
+        note: "הגעה מוקדמת לפני פתיחת השערים כדי לתפוס את הרכבות הראשונות!",
+        creative: {
+          name: "סדנת סיכות האמיצים",
+          dest: "Gardaland Resort",
+          desc: "הכנת סיכת 'אמיצים בגארדלנד' מקרטון קשיח וטושים מהתיק המשפחתי לפני שנכנסים לרכבות."
+        }
+      },
+      { 
+        time: "13:00", 
+        name: "אקשן ומתקנים בגארדלנד", 
+        dest: "Gardaland Resort", 
+        lat: 45.4526, 
+        lng: 10.7153, 
+        note: "בילוי בכל מתקני הפארק, הופעות חיות וארוחת צהריים מהירה.",
+        challenge: {
+          title: "שלושת המתקנים הכי אקסטרימיים!",
+          desc: "צלמו תמונה צועקים על אחד המתקנים וספרו מי צעק הכי חזק."
+        },
+        culinary: {
+          name: "Roadhouse Restaurant (פסקיירה)",
+          dest: "Peschiera del Garda, Italy",
+          desc: "המבורגרים עסיסיים וסטייקים מעולים על האש להתאוששות לאחר יום הבילוי האינטנסיבי בפארק."
+        }
+      }
+    ]
+  },
+  {
+    date: "2026-10-02", label: "שישי · 02/10", title: "מונטה באלדו + סירמיונה", icon: "🚠",
+    stops: [
+      { 
+        time: "08:30", 
+        name: "רכבל מונטה באלדו (מלצ׳סינה)", 
+        dest: "Funivia Malcesine-Monte Baldo", 
+        lat: 45.7797, 
+        lng: 10.8105, 
+        note: "עלייה ברכבל המסתובב אל פסגת ההר המושלג בגובה 1,800 מטר.",
+        challenge: {
+          title: "תמונת פנורמה משפחתית מפסגת הרכבל!",
+          desc: "תצפית מרהיבה על כל אגם גארדה מלמעלה – לא לשכוח ללבוש שכבה חמה."
+        },
+        creative: {
+          name: "פסגת מונטה באלדו",
+          dest: "Funivia Malcesine-Monte Baldo",
+          desc: "ציור הנוף הנשקף מלמעלה כמפת הרפתקנים על רקע העננים והאגם."
+        }
+      },
+      { 
+        time: "13:00", 
+        name: "סירמיונה וחצי האי", 
+        dest: "Sirmione, Italy", 
+        lat: 45.4925, 
+        lng: 10.6053, 
+        note: "שיטוט בסמטאות עיירת ימי הביניים, טירת סקאליג'רו וטיילת האגם הקסומה.",
+        culinary: {
+          name: "Trattoria La Marsa & Gelateria Iguana",
+          dest: "Sirmione, Italy",
+          desc: "פסטה טורטליני מדהימה הצופה לאגם, ולאחר מכן גלידריית בוטיק עם עשרות טעמים ייחודיים בסמטאות."
+        }
+      }
+    ]
+  },
+  {
+    date: "2026-10-03", label: "שבת · 03/10", title: "Movieland + Medieval Times", icon: "🎬",
+    stops: [
+      { 
+        time: "09:00", 
+        name: "Movieland The Hollywood Park", 
+        dest: "Movieland The Hollywood Park, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "יום הרפתקאות, אפקטים מיוחדים, צוללות ופעלולים הוליוודיים.",
+        challenge: {
+          title: "פוסטר קולנועי משפחתי!",
+          desc: "צלמו סלפי משפחתי בפוזה דרמטית ליד אחת מתפאורות הסרטים בפארק."
+        }
+      },
+      { 
+        time: "19:30", 
+        name: "Medieval Times – מופע האבירים והמשתה (הזמנה CVBDK20260922114620)", 
+        dest: "Medieval Times, Lazise", 
+        lat: 45.4745, 
+        lng: 10.7291, 
+        note: "טורניר אבירים סוער עם סוסים וארוחת ערב מלכותית (5 מבוגרים) ללא סכו״ם!",
+        creative: {
+          name: "סדנת כתרים אביריים",
+          dest: "Medieval Times, Lazise",
+          desc: "הכנת כתרים מקושטים מנייר כסף ודפים צבעוניים לפני תחילת המופע."
+        },
+        culinary: {
+          name: "Medieval Times Banquet (Tikez)",
+          dest: "Medieval Times, Lazise",
+          desc: "ארוחת אבירים מסורתית הכוללת עוף צלוי, תפוחי אדמה חמים, מרק ומאפים – הכול נאכל בידיים! (סה״כ 195€)."
+        }
+      }
+    ]
+  },
+  {
+    date: "2026-10-04", label: "ראשון · 04/10", title: "ונציה – עיר המים", icon: "🛶",
+    stops: [
+      { 
+        time: "07:30", 
+        name: "יציאה וחניה בוונציה (Tronchetto)", 
+        dest: "Venezia Tronchetto Parking", 
+        lat: 45.4384, 
+        lng: 12.3167, 
+        note: "חניה נוחה בחניון טרונקטו ומעבר בסירת ואפורטו (או מונית מים) לכיוון המרכז."
+      },
+      { 
+        time: "09:30", 
+        name: "כיכר סן מרקו וסמטאות ונציה", 
+        dest: "St. Mark's Square, Venice", 
+        lat: 45.4343, 
+        lng: 12.3388, 
+        note: "הלב הפועם של ונציה – הבזיליקה, גשר האנחות ושיטוט בגשרים הקטנים.",
+        challenge: {
+          title: "הגשר הנסתר בסמטה!",
+          desc: "מצאו גשר אבן קטן ומיוחד מחוץ למסלול הראשי והעמוס והצטלמו עליו."
+        },
+        creative: {
+          name: "גשר הציורים בוונציה",
+          dest: "Venice, Italy",
+          desc: "עצירה קצרה על גשר שקט לציור מהיר של גונדולה חולפת מתחת לתעלה."
+        },
+        culinary: {
+          name: "Suso Gelatoteca & Pizza al Taglio",
+          dest: "St. Mark's Square, Venice",
+          desc: "משולשי פיצה דקים וטריים בסמטאות, ולקינוח גלידת סוסו (Suso) המפורסמת ביותר בוונציה."
+        }
+      }
+    ]
+  },
+  {
+    date: "2026-10-05", label: "שני · 05/10", title: "לימונה + אגם טנו + ריבה/בארונה", icon: "🍋",
+    stops: [
+      { 
+        time: "08:30", 
+        name: "לימונה סול גארדה והטיילת (Limone sul Garda)", 
+        dest: "Limone sul Garda Parking, Italy", 
+        lat: 45.8143, 
+        lng: 1
