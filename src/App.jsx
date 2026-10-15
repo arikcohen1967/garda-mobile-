@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- GARDA-MOBILE v9.9.11 ---
-const APP_VERSION = 'v9.9.11';
+// --- GARDA-MOBILE v9.9.4 ---
+const APP_VERSION = 'v9.9.4';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
@@ -10,7 +10,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const WAZE_SVG = (
   <svg viewBox="0 0 512 512" width="13" height="13" xmlns="http://www.w3.org/2000/svg">
-    <rect width="512" height="512" rx="90" fill="currentColor"/>
+    <rect width="512" height="512" rx="90" fill="#38bdf8"/>
     <path d="M375.4 233.5c-3.7-31.8-29.3-56.7-61.6-59.5-35.3-3.1-66.5 19.3-73.8 53.6-1.5 7-1.4 14.3.4 21.2-22.1 4.7-38.6 24.1-38.6 47.3 0 17.5 9.7 32.7 24.1 40.5l-10.7 33.3c-2.4 7.4 2.8 15 10.6 15 3.3 0 6.4-1.4 8.6-3.8l21.9-23.7c13.7 4.9 28.7 7.5 44.1 7.5 70.7 0 128-50.5 128-112.7 0-11.8-1.8-23.3-5.2-34.4zm-146 5.3c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20zm112 40c-11 0-20-9-20-20s9-20 20-20 20 9 20 20-9 20-20 20zm-56 22c-29.8 0-54-15.6-54-35 0-3.3 2.7-6 6-6h96c3.3 0 6 2.7 6 6 0 19.4-24.2 35-54 35z" fill="#fff"/>
     <path d="M220.5 240c-1.2 5.5-6.2 9.5-12 9.5s-10.8-4-12-9.5-2.8-12.7-14.2-22-27.5-22-15.5 0-28 12.5-28 28s12.5 28 28 28c4.4 0 8 3.6 8 8s-3.6 8-8 8c-24.3 0-44-19.7-44-44s19.7-44 44-44c21.2 0 39.1 14.7 43.5 34.5z" fill="#18181b"/>
     <circle cx="178" cy="246" r="10" fill="#18181b"/>
@@ -21,11 +21,11 @@ const WAZE_SVG = (
 
 const MAPS_SVG = (
   <svg viewBox="0 0 512 512" width="13" height="13" xmlns="http://www.w3.org/2000/svg">
-    <rect width="512" height="512" rx="90" fill="currentColor"/>
-    <path d="M120 392l80-160 160-80-80 160z" fill="#fff"/>
-    <path d="M200 232l152-72-72 152-80-80z" fill="#aaa"/>
+    <rect width="512" height="512" rx="90" fill="#71717a"/>
+    <path d="M120 392l80-160 160-80-80 160z" fill="#10b981"/>
+    <path d="M200 232l152-72-72 152-80-80z" fill="#3b82f6"/>
     <circle cx="260" cy="260" r="50" fill="#fff"/>
-    <polygon points="260,225 240,290 260,275 280,290" fill="#000"/>
+    <polygon points="260,225 240,290 260,275 280,290" fill="#2563eb"/>
   </svg>
 );
 
@@ -388,18 +388,15 @@ export default function App() {
   const [viewerItem, setViewerItem] = useState(null);
   const [myLocation, setMyLocation] = useState(null);
   const [familyLocations, setFamilyLocations] = useState({
-    'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה', battery: 88, lastSeen: 'מלון Vojon' },
-    'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות', battery: 74, lastSeen: 'פסקיירה דל גארדה' },
-    'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות', battery: 92, lastSeen: 'מלון Vojon' },
-    'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות', battery: 65, lastSeen: 'מלון Vojon' },
-    'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו', battery: 99, lastSeen: 'גארדלנד' }
+    'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה' },
+    'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות' },
+    'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות' },
+    'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות' },
+    'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו' }
   });
   const [activeSosAlert, setActiveSosAlert] = useState(null);
   const [activeSoundAlert, setActiveSoundAlert] = useState(null);
   
-  const [safeZoneRadiusKm, setSafeZoneRadiusKm] = useState(15);
-  const [rallyPoint, setRallyPoint] = useState({ name: 'שער הכניסה הראשי (נקודת כינוס)', lat: 45.4526, lng: 10.7153 });
-
   const [tripPhotos, setTripPhotos] = useState([]);
   const [photoCaptionInput, setPhotoCaptionInput] = useState('');
   const [selectedPhotoViewer, setSelectedPhotoViewer] = useState(null);
@@ -409,10 +406,9 @@ export default function App() {
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
-        const { data, error } = await supabase.from('family_trip_photos').select('*').order('created_at', { ascending: false });
-        if (error) console.error("Supabase fetch error:", error);
+        const { data } = await supabase.from('family_trip_photos').select('*').order('created_at', { ascending: false });
         if (data) setTripPhotos(data);
-      } catch (e) { console.error(e); }
+      } catch (e) {}
     };
     fetchPhotos();
 
@@ -449,7 +445,6 @@ export default function App() {
       try {
         const { data, error } = await supabase.from('family_trip_photos').insert([newPhotoRecord]).select();
         if (error) {
-          console.error("Supabase insert error:", error);
           setTripPhotos(prev => [newPhotoRecord, ...prev]);
         } else if (data && data[0]) {
           setTripPhotos(prev => [data[0], ...prev]);
@@ -457,7 +452,6 @@ export default function App() {
         setPhotoCaptionInput('');
         alert('✨ התמונה הועלתה בהצלחה לאלבום המרכזי וזמינה לכולם!');
       } catch (err) {
-        console.error("Upload error:", err);
         setTripPhotos(prev => [newPhotoRecord, ...prev]);
       } finally {
         setIsUploadingPhoto(false);
@@ -685,13 +679,14 @@ export default function App() {
   const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
   const [ticketFiles] = useState(DEFAULT_DOCUMENTS);
 
-  const chimeIntervalRef = useRef(null);
+  const audioCtxRef = useRef(null);
+  const alarmIntervalRef = useRef(null);
 
   const sendSoundAlert = async (targetName) => {
-    const customMsg = prompt(`שלח התראה נעימה אל ${targetName}:`, "נא ליצור קשר כשאתם יכולים!");
+    const customMsg = prompt(`שלח הודעה וצליל אל ${targetName}:`, "נא להגיע אל נקודת המפגש!");
     if (customMsg === null) return;
 
-    playExtendedChimeMelody();
+    playLongChime();
 
     const soundAlertPayload = {
       name: targetName,
@@ -704,59 +699,42 @@ export default function App() {
 
     try {
       await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
-      alert(`🔔 צליל פעמונים נעים מנגן כעת (למשך 30 שניות מלאות או עד כיבוי) אל ${targetName}!`);
-    } catch (e) { console.error(e); }
-  };
-
-  const playExtendedChimeMelody = () => {
-    try {
-      if (chimeIntervalRef.current) clearInterval(chimeIntervalRef.current);
-
-      let cycles = 0;
-      chimeIntervalRef.current = setInterval(() => {
-        cycles++;
-        if (cycles > 15) {
-          stopExtendedChimeMelody();
-          return;
-        }
-
-        try {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) {
-            const ctx = new AudioContextClass();
-            if (ctx.state === 'suspended') ctx.resume();
-
-            const notes = [523.25, 659.25, 783.99, 987.77, 1174.66];
-            notes.forEach((freq, idx) => {
-              setTimeout(() => {
-                try {
-                  const osc = ctx.createOscillator();
-                  const gain = ctx.createGain();
-                  osc.type = 'sine';
-                  osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-                  gain.gain.setValueAtTime(0.35, ctx.currentTime);
-                  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.4);
-
-                  osc.connect(gain);
-                  gain.connect(ctx.destination);
-
-                  osc.start();
-                  osc.stop(ctx.currentTime + 1.4);
-                } catch (err) {}
-              }, idx * 250);
-            });
-          }
-        } catch (e) {}
-      }, 2000);
     } catch (e) {}
   };
 
-  const stopExtendedChimeMelody = () => {
-    if (chimeIntervalRef.current) {
-      clearInterval(chimeIntervalRef.current);
-      chimeIntervalRef.current = null;
-    }
+  const playLongChime = () => {
+    try {
+      if (!audioCtxRef.current) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtxRef.current = new AudioContextClass();
+        }
+      }
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => {
+          try {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+            gain.gain.setValueAtTime(0.4, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start();
+            osc.stop(ctx.currentTime + 0.6);
+          } catch (err) {}
+        }, idx * 200);
+      });
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -782,11 +760,11 @@ export default function App() {
           setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
           if (payload.new.is_sos) {
             setActiveSosAlert(payload.new);
-            playExtendedChimeMelody();
+            triggerSirenSound();
           }
           if (payload.new.is_sound_alert && payload.new.name === currentUser) {
             setActiveSoundAlert(payload.new);
-            playExtendedChimeMelody();
+            playLongChime();
           }
         }
       })
@@ -802,7 +780,7 @@ export default function App() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       supabase.removeChannel(channel);
-      stopExtendedChimeMelody();
+      stopSirenSound();
     };
   }, [currentUser]);
 
@@ -855,6 +833,51 @@ export default function App() {
     } catch (e) {}
   };
 
+  const triggerSirenSound = () => {
+    try {
+      if (!audioCtxRef.current) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtxRef.current = new AudioContextClass();
+        }
+      }
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      let freq = 300;
+      if (alarmIntervalRef.current) clearInterval(alarmIntervalRef.current);
+
+      alarmIntervalRef.current = setInterval(() => {
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 0.4);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start();
+          osc.stop(ctx.currentTime + 0.4);
+
+          freq += 80;
+          if (freq > 1200) freq = 300;
+        } catch (e) {}
+      }, 500);
+    } catch (e) {}
+  };
+
+  const stopSirenSound = () => {
+    if (alarmIntervalRef.current) {
+      clearInterval(alarmIntervalRef.current);
+      alarmIntervalRef.current = null;
+    }
+  };
+
   const triggerSos = async () => {
     if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
     if (!window.confirm('🚨 להפעיל אזעקת חירום SOS לכל בני המשפחה?')) return;
@@ -868,7 +891,7 @@ export default function App() {
         is_sos: true
       };
       setActiveSosAlert(sosData);
-      playExtendedChimeMelody();
+      triggerSirenSound();
       try {
         await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
       } catch (e) {}
@@ -876,7 +899,7 @@ export default function App() {
   };
 
   const dismissSos = async () => {
-    stopExtendedChimeMelody();
+    stopSirenSound();
     setActiveSosAlert(null);
     try {
       await supabase.from('family_radar').upsert([{ name: currentUser, is_sos: false }], { onConflict: 'name' });
@@ -884,24 +907,20 @@ export default function App() {
   };
 
   const isDark = themeMode === 'dark';
-  
-  // הגדרת משתני צבע תואמים לשחור-לבן מוחלט במצב כהה
-  const bgMain = isDark ? '#000000' : '#ffffff';
-  const cardBg = isDark ? '#111111' : '#ffffff';
-  const textColor = isDark ? '#ffffff' : '#0f172a';
-  const textSub = isDark ? '#a3a3a3' : '#64748b';
-  const borderColor = isDark ? '#333333' : '#cbd5e1';
-  const accentGradient = isDark ? '#ffffff' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
-  const accentColor = isDark ? '#ffffff' : '#2563eb';
-  const accentBg = isDark ? '#1a1a1a' : '#eff6ff';
+  const bgMain = isDark ? '#060913' : '#ffffff';
+  const cardBg = isDark ? 'rgba(17, 24, 39, 0.98)' : '#ffffff';
+  const textColor = isDark ? '#f3f4f6' : '#0f172a';
+  const textSub = isDark ? '#9ca3af' : '#64748b';
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.15)' : '#cbd5e1';
+  const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
 
   const itineraryStopCardStyle = {
-    background: isDark ? '#111111' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+    background: isDark ? 'linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(11, 15, 25, 0.98) 100%)' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
     borderRadius: '16px',
     padding: '18px',
     border: `1px solid ${borderColor}`,
-    borderRight: isDark ? '3.5px solid #ffffff' : '3.5px solid #475569',
-    boxShadow: isDark ? 'none' : '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
+    borderRight: '3.5px solid #475569',
+    boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
     display: 'flex',
     flexDirection: 'column',
     gap: '14px',
@@ -909,7 +928,7 @@ export default function App() {
   };
 
   const headerBg = isDark 
-    ? '#000000' 
+    ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(11, 15, 25, 0.95) 100%)' 
     : 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)';
 
   const day = INITIAL_TRIP_DAYS[activeDay];
@@ -921,7 +940,7 @@ export default function App() {
   };
 
   const broadcastMyLocation = async (coords) => {
-    const locObj = { name: currentUser, lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false, battery: 95, lastSeen: 'עדכון ידני' };
+    const locObj = { name: currentUser, lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false };
     setMyLocation({ lat: coords.latitude, lng: coords.longitude });
     setFamilyLocations(prev => ({ ...prev, [currentUser]: locObj }));
     try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
@@ -948,7 +967,7 @@ export default function App() {
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <style>
-          body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#000000' : '#ffffff'}; }
+          body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; }
           #map { width: 100%; height: 100%; }
           .route-badge {
             position: absolute;
@@ -956,21 +975,21 @@ export default function App() {
             left: 50%;
             transform: translateX(-50%);
             z-index: 9999;
-            background: ${isDark ? '#111111' : 'rgba(255, 255, 255, 0.95)'};
-            color: ${isDark ? '#ffffff' : '#0f172a'};
+            background: ${isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.95)'};
+            color: ${isDark ? '#f8fafc' : '#0f172a'};
             padding: 8px 14px;
             border-radius: 10px;
             font-weight: 900;
             font-size: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.25);
             backdrop-filter: blur(10px);
-            border: 1.5px solid ${isDark ? '#333333' : '#cbd5e1'};
+            border: 1.5px solid ${isDark ? 'rgba(255,255,255,0.2)' : '#cbd5e1'};
             display: flex;
             align-items: center;
             gap: 10px;
             direction: rtl;
           }
-          .route-badge span { color: ${isDark ? '#ffffff' : '#2563eb'}; }
+          .route-badge span { color: #2563eb; }
         </style>
       </head>
       <body>
@@ -989,7 +1008,7 @@ export default function App() {
             [${currentLat}, ${currentLng}],
             [${destLat}, ${destLng}]
           ];
-          L.polyline(latlngs, {color: '${isDark ? '#ffffff' : '#ef4444'}', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
+          L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
         </script>
       </body>
       </html>
@@ -1001,14 +1020,34 @@ export default function App() {
     if (activeSosAlert?.lat) { centerLat = activeSosAlert.lat; centerLng = activeSosAlert.lng; }
     else if (myLocation?.lat) { centerLat = myLocation.lat; centerLng = myLocation.lng; }
 
+    const currentDayObj = INITIAL_TRIP_DAYS[activeDay] || INITIAL_TRIP_DAYS[0];
+    const nextStop = currentDayObj.stops[0];
+    const nextLat = nextStop?.lat || 45.4192;
+    const nextLng = nextStop?.lng || 10.6908;
+    const nextName = nextStop?.name || 'היעד הבא';
+
     let markersJS = '';
     Object.values(familyLocations).forEach(loc => {
       if (loc && loc.lat) {
-        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>🔋 סוללה: ${loc.battery || 85}%<br>📍 לאחרונה: ${loc.lastSeen || 'שטח האגם'}');\n`;
+        markersJS += `L.marker([${loc.lat}, ${loc.lng}]).addTo(map).bindPopup('<b>${loc.name}</b><br>עודכן: ${loc.updated_at || 'עכשיו'}');\n`;
       }
     });
 
-    markersJS += `L.marker([${rallyPoint.lat}, ${rallyPoint.lng}]).addTo(map).bindPopup('<b>נקודת כינוס חירום:</b><br>${rallyPoint.name}');\n`;
+    let routePolylineJS = '';
+    if (myLocation && myLocation.lat) {
+      routePolylineJS = `
+        const latlngs = [
+          [${myLocation.lat}, ${myLocation.lng}],
+          [${nextLat}, ${nextLng}]
+        ];
+        const polyline = L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
+        L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
+      `;
+    } else {
+      routePolylineJS = `
+        L.marker([${nextLat}, ${nextLng}]).addTo(map).bindPopup('🏁 <b>יעד הבא:</b> ${nextName}');
+      `;
+    }
 
     return `
       <!DOCTYPE html>
@@ -1018,7 +1057,7 @@ export default function App() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#000000' : '#ffffff'}; } #map { width: 100%; height: 100%; }</style>
+        <style>body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; } #map { width: 100%; height: 100%; }</style>
       </head>
       <body>
         <div id="map"></div>
@@ -1030,11 +1069,12 @@ export default function App() {
             L.marker([myLocData.lat, myLocData.lng]).addTo(map).bindPopup('📍 המיקום שלי');
           }
           ${markersJS}
+          ${routePolylineJS}
         </script>
       </body>
       </html>
     `;
-  }, [familyLocations, myLocation, activeSosAlert, rallyPoint, isDark]);
+  }, [familyLocations, myLocation, activeSosAlert, activeDay, isDark]);
 
   const handleTriviaAnswer = (optIdx) => {
     if (isTriviaPaused || selectedAnswer !== null) return;
@@ -1081,16 +1121,16 @@ export default function App() {
     <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', transition: 'background 0.3s ease, color 0.3s ease' }}>
       
       {activeSosAlert && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '50vh', background: isDark ? '#111111' : 'rgba(239, 68, 68, 0.95)', borderBottom: isDark ? '2px solid #ffffff' : 'none', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', color: '#fff', borderBottomLeftRadius: '28px', borderBottomRightRadius: '28px', boxShadow: '0 15px 40px rgba(0,0,0,0.6)', boxSizing: 'border-box' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '50vh', background: 'rgba(239, 68, 68, 0.95)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', color: '#fff', borderBottomLeftRadius: '28px', borderBottomRightRadius: '28px', boxShadow: '0 15px 40px rgba(0,0,0,0.6)', boxSizing: 'border-box' }}>
           <span style={{ fontSize: '44px', marginBottom: '8px' }}>🚨</span>
           <h2 style={{ fontSize: '22px', fontWeight: '900', margin: '0 0 6px' }}>התרעת חירום SOS פעילה!</h2>
           <p style={{ fontSize: '15px', fontWeight: '800', marginBottom: '10px' }}>משתמש/ת: {activeSosAlert.name} זקוק/ה לעזרה מיידית!</p>
           <p style={{ fontSize: '12px', opacity: 0.9, marginBottom: '16px' }}>זמן עדכון: {activeSosAlert.updated_at}</p>
           <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px' }}>
-            <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '12px', background: isDark ? '#ffffff' : '#fff', color: isDark ? '#000000' : '#ef4444', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <a href={`https://maps.google.com/?q=${activeSosAlert.lat},${activeSosAlert.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '12px', background: '#fff', color: '#ef4444', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
               נווט למיקום 🗺️
             </a>
-            <button onClick={dismissSos} style={{ flex: 1, padding: '12px', background: isDark ? '#333333' : '#0f172a', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <button onClick={dismissSos} style={{ flex: 1, padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
               בטל אזעקה ✓
             </button>
           </div>
@@ -1100,18 +1140,18 @@ export default function App() {
       {backupModalOpen && (
         <div onClick={() => setBackupModalOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(12px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 25px 60px rgba(0,0,0,0.6)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center', position: 'relative' }}>
-            <button onClick={() => setBackupModalOpen(false)} style={{ position: 'absolute', top: '16px', left: '16px', background: isDark ? '#222222' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+            <button onClick={() => setBackupModalOpen(false)} style={{ position: 'absolute', top: '16px', left: '16px', background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
             <span style={{ fontSize: '32px', marginTop: '10px' }}>🛡️</span>
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>ניהול גיבוי ושחזור (גרסה {APP_VERSION})</h3>
             
             {backupSuccessMsg ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ background: isDark ? '#222222' : 'rgba(16, 185, 129, 0.15)', color: isDark ? '#ffffff' : '#10b981', border: `1.5px solid ${borderColor}`, padding: '16px', borderRadius: '14px', fontWeight: '900', fontSize: '14px', lineHeight: '1.4' }}>
+                <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', border: '1.5px solid #10b981', padding: '16px', borderRadius: '14px', fontWeight: '900', fontSize: '14px', lineHeight: '1.4' }}>
                   💾 קובץ הגיבוי הורד בהצלחה ונשמר במכשיר!
                 </div>
                 <button 
                   onClick={() => setBackupSuccessMsg(false)} 
-                  style={{ width: '100%', padding: '12px', background: isDark ? '#ffffff' : '#0f172a', color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
+                  style={{ width: '100%', padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}
                 >
                   חזור לתפריט גיבוי ➔
                 </button>
@@ -1125,11 +1165,11 @@ export default function App() {
                     placeholder="הזן קוד מנהל ליצירת גיבוי (1967)" 
                     value={adminPassInput} 
                     onChange={e => setAdminPassInput(e.target.value)} 
-                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#000000' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
                   />
                   <button 
                     onClick={executeBackupDownload} 
-                    style={{ width: '100%', padding: '12px', background: isDark ? '#ffffff' : '#2563eb', color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
+                    style={{ width: '100%', padding: '12px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
                   >
                     הורד קובץ גיבוי לטלפון 💾
                   </button>
@@ -1138,13 +1178,13 @@ export default function App() {
                 <hr style={{ width: '100%', border: `0.5px solid ${borderColor}`, margin: '4px 0' }} />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'right' }}>
-                  <label style={{ fontSize: '12px', fontWeight: '900', color: textSub }}>2. שחזור נתונים מקובץ:</label>
+                  <label style={{ fontSize: '12px', fontWeight: '900', color: '#ef4444' }}>2. שחזור נתונים מקובץ:</label>
                   <input 
                     type="password" 
                     placeholder="הזן קוד מנהל לשחזור (1967)" 
                     value={restorePassInput} 
                     onChange={e => setRestorePassInput(e.target.value)} 
-                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#000000' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', textAlign: 'center', boxSizing: 'border-box', fontWeight: 'bold' }} 
                   />
                   <input 
                     type="file" 
@@ -1162,7 +1202,7 @@ export default function App() {
                       }
                       fileInputRef.current.click();
                     }} 
-                    style={{ width: '100%', padding: '12px', background: isDark ? '#333333' : '#ef4444', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}
+                    style={{ width: '100%', padding: '12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }}
                   >
                     בחר קובץ גיבוי ושחזר 📂
                   </button>
@@ -1170,7 +1210,7 @@ export default function App() {
 
                 <button 
                   onClick={() => setBackupModalOpen(false)} 
-                  style={{ width: '100%', padding: '10px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', marginTop: '6px' }}
+                  style={{ width: '100%', padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '13px', marginTop: '6px' }}
                 >
                   סגור ✕
                 </button>
@@ -1181,22 +1221,22 @@ export default function App() {
       )}
 
       {activeSoundAlert && (
-        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '400px', background: isDark ? '#111111' : '#2563eb', zIndex: 9998, borderRadius: '14px', padding: '18px', textAlign: 'center', color: '#fff', boxShadow: '0 15px 40px rgba(0, 0, 0, 0.4)', boxSizing: 'border-box', border: `2px solid ${isDark ? '#ffffff' : 'rgba(255,255,255,0.3)'}` }}>
+        <div style={{ position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '400px', background: '#2563eb', zIndex: 9998, borderRadius: '14px', padding: '18px', textAlign: 'center', color: '#fff', boxShadow: '0 15px 40px rgba(37, 99, 235, 0.4)', boxSizing: 'border-box', border: '2px solid rgba(255,255,255,0.3)' }}>
           <span style={{ fontSize: '32px' }}>🔔</span>
-          <h3 style={{ margin: '6px 0', fontSize: '16px', fontWeight: '900' }}>התראה נעימה התקבלה!</h3>
-          <p style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: '800', background: isDark ? '#222222' : 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px' }}>
+          <h3 style={{ margin: '6px 0', fontSize: '16px', fontWeight: '900' }}>התראה קולית התקבלה!</h3>
+          <p style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: '800', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px' }}>
             "{activeSoundAlert.sound_msg}"
           </p>
           <span style={{ fontSize: '11px', opacity: 0.85, display: 'block', marginBottom: '12px' }}>נשלח על ידי: {activeSoundAlert.name} ({activeSoundAlert.updated_at})</span>
-          <button onClick={() => { stopExtendedChimeMelody(); setActiveSoundAlert(null); }} style={{ padding: '8px 22px', background: isDark ? '#ffffff' : '#fff', color: isDark ? '#000000' : '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
-            הפסק צליל ואישור ✓
+          <button onClick={() => setActiveSoundAlert(null)} style={{ padding: '8px 22px', background: '#fff', color: '#2563eb', border: 'none', borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+            אישור והסרה ✓
           </button>
         </div>
       )}
 
       {selectedPhotoViewer && (
         <div onClick={() => setSelectedPhotoViewer(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
-          <button onClick={() => setSelectedPhotoViewer(null)} style={{ position: 'absolute', top: '20px', left: '20px', background: isDark ? '#222222' : '#1e293b', color: '#fff', border: '1px solid #fff', width: '40px', height: '40px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', fontSize: '18px' }}>✕</button>
+          <button onClick={() => setSelectedPhotoViewer(null)} style={{ position: 'absolute', top: '20px', left: '20px', background: '#1e293b', color: '#fff', border: '1px solid #fff', width: '40px', height: '40px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', fontSize: '18px' }}>✕</button>
           <img src={selectedPhotoViewer.image_url} alt="Full view" style={{ maxWidth: '100%', maxHeight: '75vh', objectFit: 'contain', borderRadius: '12px', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }} />
           <div style={{ color: '#fff', textAlign: 'center', marginTop: '16px' }}>
             <h4 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: '900' }}>{selectedPhotoViewer.caption}</h4>
@@ -1207,15 +1247,15 @@ export default function App() {
 
       {showParkingMapModal && savedCarParking && (
         <div onClick={() => setShowParkingMapModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 99999, display: 'flex', flexDirection: 'column', backdropFilter: 'blur(10px)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#000000' : '#fff', borderBottom: `1px solid ${borderColor}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: isDark ? '#0b0f19' : '#fff', borderBottom: `1px solid ${borderColor}` }}>
             <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>🧭 ניווט חי לרכב (מעקב מיקום דינמי)</h3>
-            <button onClick={() => setShowParkingMapModal(false)} style={{ background: isDark ? '#222222' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+            <button onClick={() => setShowParkingMapModal(false)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '36px', height: '36px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
           </div>
-          <div style={{ flex: 1, width: '100%', height: '100%', background: isDark ? '#000000' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
+          <div style={{ flex: 1, width: '100%', height: '100%', background: isDark ? '#0b0f19' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', textAlign: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <span style={{ fontSize: '32px' }}>🚗</span>
               <p style={{ fontWeight: '800', fontSize: '14px', color: textColor }}>רכב חונה בנסיון ניווט חי מהיר.</p>
-              <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '12px 20px', background: isDark ? '#ffffff' : '#2563eb', color: isDark ? '#000000' : '#fff', borderRadius: '10px', fontWeight: '900', textDecoration: 'none' }}>
+              <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '12px 20px', background: '#2563eb', color: '#fff', borderRadius: '10px', fontWeight: '900', textDecoration: 'none' }}>
                 פתח מפות Google מותאמות 🗺️
               </a>
             </div>
@@ -1223,7 +1263,7 @@ export default function App() {
         </div>
       )}
 
-      <header style={{ background: headerBg, backdropFilter: 'blur(20px)', borderBottom: `2px solid ${isDark ? '#333333' : '#cbd5e1'}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: isDark ? 'none' : '0 6px 20px rgba(15, 23, 42, 0.08)' }}>
+      <header style={{ background: headerBg, backdropFilter: 'blur(20px)', borderBottom: `2px solid ${isDark ? 'rgba(255, 255, 255, 0.12)' : '#cbd5e1'}`, padding: '16px 16px 24px', position: 'sticky', top: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '14px', boxShadow: isDark ? '0 8px 25px rgba(0,0,0,0.6)' : '0 6px 20px rgba(15, 23, 42, 0.08)' }}>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: '8px' }}>
           
@@ -1231,7 +1271,7 @@ export default function App() {
             <button 
               onClick={() => setSidebarOpen(true)} 
               style={{ 
-                background: isDark ? '#111111' : '#ffffff', 
+                background: isDark ? 'rgba(30, 41, 59, 0.9)' : '#ffffff', 
                 color: textColor, 
                 border: `1.5px solid ${borderColor}`, 
                 height: '42px', 
@@ -1243,7 +1283,7 @@ export default function App() {
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                boxShadow: isDark ? 'none' : '0 2px 8px rgba(0,0,0,0.05)', 
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)', 
                 transition: 'all 0.2s ease',
                 letterSpacing: '2px'
               }}
@@ -1257,7 +1297,7 @@ export default function App() {
             <button 
               onClick={handleProtectedBackup}
               style={{
-                background: isDark ? '#111111' : '#ffffff',
+                background: isDark ? 'rgba(30, 41, 59, 0.9)' : '#ffffff',
                 border: `1.5px solid ${borderColor}`,
                 color: textColor,
                 fontSize: '13px',
@@ -1267,7 +1307,7 @@ export default function App() {
                 height: '42px',
                 padding: '0 16px',
                 borderRadius: '10px',
-                boxShadow: isDark ? 'none' : '0 2px 8px rgba(0,0,0,0.05)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
@@ -1282,43 +1322,43 @@ export default function App() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <div style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, height: '42px', padding: '0 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: isDark ? 'none' : '0 2px 8px rgba(0,0,0,0.05)' }}>
-              <span style={{ fontSize: '11px', fontWeight: '900', color: textColor }}>
+            <div style={{ background: isDark ? 'rgba(30, 41, 59, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, height: '42px', padding: '0 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+              <span style={{ fontSize: '11px', fontWeight: '900', color: isOnline ? '#22c55e' : '#f59e0b' }}>
                 {isOnline ? 'Online' : 'Offline'}
               </span>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? (isDark ? '#ffffff' : '#22c55e') : '#737373', display: 'inline-block' }}></span>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isOnline ? '#22c55e' : '#f59e0b', display: 'inline-block' }}></span>
             </div>
           </div>
 
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.3fr 1.2fr', gap: '8px', alignItems: 'center' }}>
-          <button onClick={triggerSos} style={{ height: '36px', padding: '0 10px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer', boxShadow: isDark ? 'none' : '0 4px 12px rgba(239, 68, 68, 0.15)' }}>
+          <button onClick={triggerSos} style={{ height: '36px', padding: '0 10px', borderRadius: '10px', background: '#ffffff', color: '#ef4444', border: '1.5px solid #fecaca', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.15)' }}>
             <span>🚨</span> SOS חירום
           </button>
 
-          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ height: '36px', padding: '0 10px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, textDecoration: 'none', border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: isDark ? 'none' : '0 4px 12px rgba(56, 189, 248, 0.15)' }}>
+          <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ height: '36px', padding: '0 10px', borderRadius: '10px', background: '#ffffff', color: '#0284c7', textDecoration: 'none', border: '1.5px solid #bae6fd', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.15)' }}>
             {WAZE_SVG} למלון Vojon
           </a>
 
-          <button onClick={() => alert(`מזג אוויר נוכחי: ${currentWeather.condition}, ${currentWeather.temp}`)} style={{ height: '36px', padding: '0 10px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '800', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', cursor: 'pointer' }} title="הצג תחזית מזג אוויר">
+          <a href="weather://" target="_blank" rel="noreferrer" style={{ height: '36px', padding: '0 10px', borderRadius: '10px', background: isDark ? 'rgba(30, 41, 59, 0.8)' : '#ffffff', color: textColor, textDecoration: 'none', border: `1.5px solid ${borderColor}`, fontWeight: '800', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }} title="פתח את אפליקציית מזג האוויר בטלפון">
             <span>{currentWeather.condition.split(' ')[0]}</span>
             <span>{currentWeather.temp}</span>
-          </button>
+          </a>
         </div>
 
       </header>
 
       {sharedTimer && (
-        <div style={{ background: isDark ? '#111111' : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', borderBottom: isDark ? '1px solid #333333' : 'none', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px' }}>
+        <div style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '800', fontSize: '13px', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)' }}>
           <span onClick={() => setModalType('timer')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
             ⏱️ טיימר משפחתי {isTimerPaused ? '(מושהה)' : 'פועל'}: <span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{formatClock(timerRemainingSec)}</span>
           </span>
           <div style={{ display: 'flex', gap: '6px' }}>
-            <button onClick={toggleSharedTimerPause} style={{ background: isDark ? '#333333' : 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+            <button onClick={toggleSharedTimerPause} style={{ background: 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
               {isTimerPaused ? '▶️ המשך' : '⏸️ עצור'}
             </button>
-            <button onClick={clearSharedTimer} style={{ background: isDark ? '#222222' : 'rgba(0,0,0,0.3)', border: 'none', color: '#fff', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+            <button onClick={clearSharedTimer} style={{ background: 'rgba(0,0,0,0.3)', border: 'none', color: '#fff', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
               ✕ סגור
             </button>
           </div>
@@ -1327,24 +1367,24 @@ export default function App() {
 
       {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 2500, backdropFilter: 'blur(8px)', transition: 'opacity 0.3s ease' }} />}
       
-      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? '#000000' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? 'none' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
+      <aside style={{ position: 'fixed', top: 0, bottom: 0, right: 0, width: '315px', background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(25px)', zIndex: 2600, transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)', transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '16px', boxSizing: 'border-box', overflowY: 'auto', borderLeft: `1px solid ${borderColor}`, boxShadow: isDark ? '-15px 0 40px rgba(0,0,0,0.7)' : '-15px 0 40px rgba(0,0,0,0.1)' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900', color: textColor }}>תפריט מהיר</h3>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, color: textColor, width: '34px', height: '34px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+          <button onClick={() => setSidebarOpen(false)} style={{ background: '#ffffff', border: '1.5px solid #475569', color: '#374151', width: '34px', height: '34px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>✕</button>
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <button onClick={() => setThemeMode(isDark ? 'light' : 'dark')} style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', background: '#ffffff', color: '#374151', border: '1.5px solid #475569', fontWeight: '900', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)' }}>
             <span>{isDark ? '🌙 כהה' : '☀️ בהיר'}</span>
           </button>
           <div style={{ flex: 1.2 }}>
             <select 
               value={currentUser} 
               onChange={e => setCurrentUser(e.target.value)} 
-              style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: 'bold', fontSize: '14px', outline: 'none' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', background: '#ffffff', color: '#374151', border: '1.5px solid #475569', fontWeight: 'bold', fontSize: '14px', outline: 'none', boxShadow: '0 2px 6px rgba(71, 85, 105, 0.1)' }}
             >
-              {TRAVELERS_LIST.map(t => <option key={t} value={t} style={{ background: isDark ? '#000' : '#fff', color: isDark ? '#fff' : '#000' }}>{t}</option>)}
+              {TRAVELERS_LIST.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
         </div>
@@ -1352,11 +1392,11 @@ export default function App() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>ניווט ומעקב</span>
           
-          <button onClick={() => { setSidebarOpen(false); setActiveDay(activeDay); setModalType(null); }} style={rectMenuCardStyle(isDark)}>
+          <button onClick={() => { setSidebarOpen(false); setActiveDay(activeDay); setModalType(null); }} style={rectMenuCardStyle}>
             <span>מסלול ימי הטיול</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={rectMenuCardStyle(isDark)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('radar'); }} style={rectMenuCardStyle}>
             <span>רדאר משפחתי חי</span>
           </button>
         </div>
@@ -1364,15 +1404,15 @@ export default function App() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>כלים ושימושי</span>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={rectMenuCardStyle(isDark)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('timer'); }} style={rectMenuCardStyle}>
             <span>טיימר משפחתי</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={rectMenuCardStyle(isDark)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('parking'); }} style={rectMenuCardStyle}>
             <span>שמירת מיקום רכב חכם</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={rectMenuCardStyle(isDark)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('around-me'); }} style={rectMenuCardStyle}>
             <span>סביבי (Around Me)</span>
           </button>
         </div>
@@ -1380,21 +1420,21 @@ export default function App() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, paddingRight: '4px' }}>העשרה ובידור</span>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('trip-album'); }} style={rectMenuCardStyle(isDark)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('trip-album'); }} style={{ ...rectMenuCardStyle, background: 'linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(59,130,246,0.1) 100%)', borderColor: '#2563eb' }}>
             <span>📸 אלבום טיול למשפחת כהן</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={rectMenuCardStyle(isDark)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('trivia'); }} style={rectMenuCardStyle}>
             <span>טריויה חכמה לדרך (1000 שאלות)</span>
           </button>
 
-          <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={rectMenuCardStyle(isDark)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('tickets'); }} style={rectMenuCardStyle}>
             <span>ארנק כרטיסים ומסמכים</span>
           </button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto', paddingTop: '10px' }}>
-          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={rectMenuCardStyle(isDark)}>
+          <button onClick={() => { setSidebarOpen(false); setModalType('emergency'); }} style={{ ...rectMenuCardStyle, borderColor: '#fca5a5', color: '#ef4444', background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2' }}>
             <span>מספרי חירום ושגרירות</span>
           </button>
         </div>
@@ -1417,13 +1457,13 @@ export default function App() {
                     width: '100%',
                     padding: '10px 18px', 
                     borderRadius: '10px', 
-                    background: isActive ? (isDark ? '#ffffff' : '#2563eb') : (isDark ? '#111111' : '#ffffff'), 
-                    color: isActive ? (isDark ? '#000000' : '#ffffff') : (isDark ? '#ffffff' : '#2563eb'), 
-                    border: `1.5px solid ${isDark ? '#ffffff' : '#2563eb'}`, 
+                    background: isActive ? '#2563eb' : (isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff'), 
+                    color: isActive ? '#ffffff' : '#2563eb', 
+                    border: '1.5px solid #2563eb', 
                     fontSize: '13px', 
                     fontWeight: '900', 
                     cursor: 'pointer', 
-                    boxShadow: isDark ? 'none' : (isActive ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)'), 
+                    boxShadow: isActive ? '0 4px 14px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
                     transition: 'all 0.2s ease',
                     whiteSpace: 'nowrap'
                   }}
@@ -1435,7 +1475,7 @@ export default function App() {
                     height: '4px', 
                     width: '100%', 
                     borderRadius: '4px', 
-                    background: isDark ? '#ffffff' : '#2563eb', 
+                    background: '#2563eb', 
                     marginTop: '6px', 
                     opacity: isActive ? 1 : 0, 
                     transition: 'opacity 0.2s ease, transform 0.2s ease',
@@ -1452,7 +1492,7 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px', padding: '0 4px' }}>
             <span style={{ fontSize: '32px' }}>{day.icon}</span>
             <div>
-              <small style={{ color: textSub, fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
+              <small style={{ color: '#2563eb', fontWeight: '800', fontSize: '11px', letterSpacing: '0.02em' }}>{day.date}</small>
               <button 
                 onClick={() => setModalType('route-map')}
                 style={{ background: 'transparent', border: 'none', padding: 0, textAlign: 'right', cursor: 'pointer' }}
@@ -1472,38 +1512,38 @@ export default function App() {
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>{stop.name}</h4>
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: textColor, background: isDark ? '#222222' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: `1px solid ${borderColor}` }}>{stop.time}</span>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#2563eb', background: isDark ? 'rgba(37, 99, 235, 0.15)' : '#eff6ff', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(37, 99, 235, 0.3)' }}>{stop.time}</span>
                   </div>
                   <p style={{ margin: 0, fontSize: '13px', color: textSub, lineHeight: '1.45' }}>{stop.note}</p>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#111111' : '#ffffff', color: textColor, padding: '10px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>{MAPS_SVG} Maps</a>
-                  <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#ffffff' : '#38bdf8', color: isDark ? '#000000' : '#0f172a', padding: '10px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>{WAZE_SVG} Waze</a>
+                  <a href={`https://maps.apple.com/?q=${encodeURIComponent(stop.dest)}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#1e293b' : '#ffffff', color: '#2563eb', padding: '10px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: '1.5px solid #2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 2px 6px rgba(37, 99, 235, 0.12)' }}>{MAPS_SVG} Maps</a>
+                  <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ background: '#38bdf8', color: '#0f172a', padding: '10px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center', border: '1.5px solid #38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(56, 189, 248, 0.25)' }}>{WAZE_SVG} Waze</a>
                 </div>
 
                 {stop.challenge && (
-                  <div style={{ background: isDark ? '#111111' : '#f0f7ff', border: `1.5px dashed ${borderColor}`, borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ background: isDark ? 'rgba(37, 99, 235, 0.08)' : '#f0f7ff', border: '1.5px dashed #3b82f6', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span style={{ fontSize: '15px' }}>🎯</span>
-                      <strong style={{ fontSize: '13px', color: textColor }}>אתגר התחנה: {stop.challenge.title}</strong>
+                      <strong style={{ fontSize: '13px', color: '#2563eb' }}>אתגר התחנה: {stop.challenge.title}</strong>
                     </div>
                     <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{stop.challenge.desc}</p>
                   </div>
                 )}
 
                 {stop.creative && (
-                  <div style={{ background: isDark ? '#111111' : '#f0fdf4', border: `1.5px solid ${borderColor}`, borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ background: isDark ? 'rgba(16, 185, 129, 0.08)' : '#f0fdf4', border: '1.5px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span style={{ fontSize: '15px' }}>🎨</span>
-                      <strong style={{ fontSize: '13px', color: textColor }}>נקודת חוויה ויצירה: {stop.creative.name}</strong>
+                      <strong style={{ fontSize: '13px', color: '#059669' }}>נקודת חוויה ויצירה: {stop.creative.name}</strong>
                     </div>
                     <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{stop.creative.desc}</p>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.creative.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#222222' : '#ffffff', color: textColor, padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.creative.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#1e293b' : '#ffffff', color: '#059669', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: '1.5px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                         {MAPS_SVG} Maps
                       </a>
-                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.creative.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#ffffff' : '#10b981', color: isDark ? '#000000' : '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.creative.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#10b981', color: '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                         {WAZE_SVG} Waze
                       </a>
                     </div>
@@ -1511,17 +1551,17 @@ export default function App() {
                 )}
 
                 {stop.culinary && (
-                  <div style={{ background: isDark ? '#111111' : '#fffbeb', border: `1.5px solid ${borderColor}`, borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ background: isDark ? 'rgba(217, 119, 6, 0.08)' : '#fffbeb', border: '1.5px solid rgba(217, 119, 6, 0.3)', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span style={{ fontSize: '15px' }}>🍝</span>
-                      <strong style={{ fontSize: '13px', color: textColor }}>עצירה מומלצת לאוכל וגלידה: {stop.culinary.name}</strong>
+                      <strong style={{ fontSize: '13px', color: '#d97706' }}>עצירה מומלצת לאוכל וגלידה: {stop.culinary.name}</strong>
                     </div>
                     <p style={{ margin: 0, fontSize: '12px', color: textSub, lineHeight: '1.4' }}>{stop.culinary.desc}</p>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.culinary.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#222222' : '#ffffff', color: textColor, padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <a href={`https://maps.google.com/?q=${encodeURIComponent(stop.culinary.dest)}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#1e293b' : '#ffffff', color: '#d97706', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', fontWeight: '800', fontSize: '11px', textAlign: 'center', border: '1.5px solid rgba(217, 119, 6, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                         {MAPS_SVG} Maps
                       </a>
-                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.culinary.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: isDark ? '#ffffff' : '#f59e0b', color: isDark ? '#000000' : '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <a href={`https://www.waze.com/ul?q=${encodeURIComponent(stop.culinary.dest)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#f59e0b', color: '#fff', padding: '7px 10px', borderRadius: '8px', textDecoration: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                         {WAZE_SVG} Waze
                       </a>
                     </div>
@@ -1539,32 +1579,32 @@ export default function App() {
       {viewerItem && (
         <div onClick={() => setViewerItem(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 4000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: cardBg, color: textColor, padding: '24px', borderRadius: '20px', width: '100%', maxWidth: '400px', border: `2px solid ${borderColor}`, boxShadow: '0 20px 50px rgba(0,0,0,0.3)', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'center', position: 'relative' }}>
-            <button onClick={() => setViewerItem(null)} style={{ position: 'absolute', top: '16px', left: '16px', background: isDark ? '#222222' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
+            <button onClick={() => setViewerItem(null)} style={{ position: 'absolute', top: '16px', left: '16px', background: isDark ? '#1e293b' : '#f1f5f9', border: `1px solid ${borderColor}`, color: textColor, width: '32px', height: '32px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>✕</button>
             <span style={{ fontSize: '36px', marginTop: '10px' }}>🎟️</span>
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '900' }}>{viewerItem.title}</h3>
             
             {viewerItem.isHotelInfo ? (
-              <div style={{ background: isDark ? '#111111' : '#f8fafc', padding: '16px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ background: isDark ? '#1e293b' : '#f8fafc', padding: '16px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <span style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>🏨 מלון: Bio Agriturismo Vojon</span>
                 <span style={{ fontSize: '13px', fontWeight: '800', color: textColor }}>📍 כתובת: {viewerItem.hotelAddress}</span>
                 <span style={{ fontSize: '13px', fontWeight: '800', color: textColor }}>📞 טלפון: {viewerItem.hotelPhone}</span>
-                <span style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>📋 מספר הזמנה: {viewerItem.bookingRef}</span>
-                <a href={viewerItem.bookingUrl} target="_blank" rel="noreferrer" style={{ marginTop: '8px', padding: '12px', background: isDark ? '#ffffff' : '#003580', color: isDark ? '#000000' : '#fff', borderRadius: '10px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center', display: 'block' }}>
+                <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>📋 מספר הזמנה: {viewerItem.bookingRef}</span>
+                <a href={viewerItem.bookingUrl} target="_blank" rel="noreferrer" style={{ marginTop: '8px', padding: '12px', background: '#003580', color: '#fff', borderRadius: '10px', fontWeight: '900', textDecoration: 'none', fontSize: '13px', textAlign: 'center', display: 'block' }}>
                   פתח באתר Booking.com 🌐
                 </a>
               </div>
             ) : (
-              <div style={{ background: isDark ? '#111111' : '#f8fafc', padding: '14px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ background: isDark ? '#1e293b' : '#f8fafc', padding: '14px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <span style={{ fontSize: '12px', fontWeight: '800', color: textSub }}>קטגוריה: {viewerItem.folder}</span>
                 {viewerItem.ticketCode && <span style={{ fontSize: '14px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🔑 קוד כרטיס/הזמנה: {viewerItem.ticketCode}</span>}
                 {viewerItem.trans && <span style={{ fontSize: '13px', fontWeight: '800', color: textSub }}>📋 סכום/פרטים: {viewerItem.trans}</span>}
                 {viewerItem.desc && <span style={{ fontSize: '13px', fontWeight: '700', color: textColor }}>ℹ️ פרטים: {viewerItem.desc}</span>}
-                {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>👤 נוסע: {viewerItem.passenger}</span>}
+                {viewerItem.passenger && <span style={{ fontSize: '13px', fontWeight: '900', color: '#2563eb' }}>👤 נוסע: {viewerItem.passenger}</span>}
                 {viewerItem.ticketNo && <span style={{ fontSize: '13px', fontWeight: '900', color: textColor, fontFamily: 'monospace' }}>🎫 מספר כרטיס: {viewerItem.ticketNo}</span>}
               </div>
             )}
 
-            <button onClick={() => setViewerItem(null)} style={{ padding: '12px', background: isDark ? '#333333' : '#0f172a', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+            <button onClick={() => setViewerItem(null)} style={{ padding: '12px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
               סגור ✓
             </button>
           </div>
@@ -1575,11 +1615,11 @@ export default function App() {
         <div onClick={() => setModalType(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, backdropFilter: 'blur(10px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: bgMain, color: textColor, padding: 0, width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', flexShrink: 0, background: isDark ? '#000000' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box', minHeight: '68px', zIndex: 100 }}>
-              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#222222' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '40px', height: '40px', borderRadius: '10px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} title="חזור">✕</button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', flexShrink: 0, background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', backdropFilter: 'blur(20px)', borderBottom: `1.5px solid ${borderColor}`, boxSizing: 'border-box', minHeight: '68px', zIndex: 100 }}>
+              <button onClick={() => setModalType(null)} style={{ background: isDark ? '#1e293b' : '#f1f5f9', border: `1.5px solid ${borderColor}`, color: textColor, width: '40px', height: '40px', borderRadius: '10px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', flexShrink: 0 }} title="חזור">✕</button>
               
               <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900', textAlign: 'center', flex: 1, padding: '0 12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {modalType === 'radar' && '📡 רדאר משפחתי חי (פרו)'}
+                {modalType === 'radar' && '📡 רדאר משפחתי חי ומפת האגם'}
                 {modalType === 'route-map' && `🗺️ ניווט ליעד: ${day.title}`}
                 {modalType === 'around-me' && '📍 סביבי (Around Me)'}
                 {modalType === 'timer' && '⏱️ טיימר משפחתי'}
@@ -1592,13 +1632,13 @@ export default function App() {
 
               {modalType === 'trivia' ? (
                 <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-                  <button onClick={handleStartTrivia} style={{ background: isDark ? '#ffffff' : '#2563eb', color: isDark ? '#000000' : '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
+                  <button onClick={handleStartTrivia} style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
                     ▶️ התחל
                   </button>
-                  <button onClick={handlePauseTrivia} style={{ background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
+                  <button onClick={handlePauseTrivia} style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
                     ⏸️ השהה
                   </button>
-                  <button onClick={handleResetTrivia} style={{ background: isDark ? '#222222' : '#ef4444', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
+                  <button onClick={handleResetTrivia} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }}>
                     🔄 איפוס
                   </button>
                 </div>
@@ -1615,42 +1655,28 @@ export default function App() {
 
               {modalType === 'radar' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', overflow: 'hidden' }}>
-                  <div style={{ flex: 1, width: '100%', minHeight: '42vh', overflow: 'hidden' }}>
+                  <div style={{ flex: 1, width: '100%', minHeight: '45vh', overflow: 'hidden' }}>
                     <iframe title="Map" srcDoc={radarMapHTML} style={{ width: '100%', height: '100%', border: 'none' }} />
                   </div>
                   
-                  <div style={{ background: isDark ? '#000000' : 'rgba(255, 255, 255, 0.98)', padding: '14px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', maxHeight: '46vh', overflowY: 'auto' }}>
-                    
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? '#111111' : '#eff6ff', padding: '10px 14px', borderRadius: '12px', border: `1.5px solid ${borderColor}` }}>
-                      <div>
-                        <div style={{ fontSize: '12px', fontWeight: '900', color: textColor }}>🚩 נקודת כינוס: {rallyPoint.name}</div>
-                        <div style={{ fontSize: '10px', color: textSub }}>רדיוס התראת התפצלות: {safeZoneRadiusKm} ק"מ</div>
-                      </div>
-                      <a href={`https://maps.google.com/?q=${rallyPoint.lat},${rallyPoint.lng}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#ffffff' : '#2563eb', color: isDark ? '#000000' : '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none' }}>
-                        נווט לכינוס 🧭
-                      </a>
-                    </div>
-
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub, marginTop: '4px' }}>סטטוס בני המשפחה (סוללה, מיקום אחרון ושליחת התראה נעימה):</span>
-                    
+                  <div style={{ background: isDark ? 'rgba(11, 15, 25, 0.98)' : 'rgba(255, 255, 255, 0.98)', padding: '14px 16px 20px', borderTop: `1.5px solid ${borderColor}`, display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', maxHeight: '42vh', overflowY: 'auto' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: textSub }}>מיקומי כל בני המשפחה:</span>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {Object.values(familyLocations).map((person, pIdx) => (
-                        <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? '#111111' : '#f8fafc', padding: '10px 12px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
+                        <div key={pIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#f8fafc', padding: '10px 12px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '16px' }}>👤</span>
                             <div>
-                              <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>
-                                {person.name} <span style={{ fontSize: '11px', color: person.battery < 20 ? (isDark ? '#ffffff' : '#ef4444') : textSub, fontWeight: '800' }}>🔋 {person.battery || 85}%</span>
-                              </div>
-                              <div style={{ fontSize: '10px', color: textSub }}>📍 לאחרונה: {person.lastSeen || 'אזור האגם'} | {person.updated_at || 'עכשיו'}</div>
+                              <div style={{ fontSize: '13px', fontWeight: '900', color: textColor }}>{person.name}</div>
+                              <div style={{ fontSize: '10px', color: textSub }}>עודכן: {person.updated_at || 'עכשיו'}</div>
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', cursor: 'pointer' }} title="שלח צליל פעמונים נעים למכשיר של בן המשפחה">
-                              🔔 שלח צליל
+                            <button onClick={() => sendSoundAlert(person.name)} style={{ background: isDark ? '#1e293b' : '#ffffff', color: textColor, border: `1.5px solid ${borderColor}`, padding: '6px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}>
+                              🔔 צליל
                             </button>
-                            <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                              מעקב 🧭
+                            <a href={`https://maps.google.com/?q=${person.lat},${person.lng}`} target="_blank" rel="noreferrer" style={{ background: accentGradient, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '900', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                              Directions 🧭
                             </a>
                           </div>
                         </div>
@@ -1658,8 +1684,8 @@ export default function App() {
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                      <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ flex: 1, padding: '12px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>📍 עדכן מיקום יום</button>
-                      <button onClick={() => alert('🔄 המיקומים ונתוני הסוללה עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן רדאר</button>
+                      <button onClick={() => navigator.geolocation.getCurrentPosition(pos => broadcastMyLocation(pos.coords), () => {}, { enableHighAccuracy: true })} style={{ flex: 1, padding: '12px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)' }}>📍 עדכן מיקום יום</button>
+                      <button onClick={() => alert('🔄 המיקומים עודכנו בהצלחה!')} style={{ flex: 1, padding: '12px', background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '10px', fontWeight: '900', fontSize: '12px', cursor: 'pointer' }}>🔄 רענן מיקומים</button>
                     </div>
                   </div>
                 </div>
@@ -1668,10 +1694,10 @@ export default function App() {
               {modalType === 'around-me' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(aroundMeQuery)}`} target="_blank" rel="noreferrer" style={{ padding: '14px 24px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', textAlign: 'center', flexShrink: 0 }}>
+                    <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(aroundMeQuery)}`} target="_blank" rel="noreferrer" style={{ padding: '14px 24px', background: accentGradient, color: '#fff', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', textAlign: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(37, 99, 235, 0.35)' }}>
                       חפש
                     </a>
-                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '12px', padding: '0 14px' }}>
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '12px', padding: '0 14px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)' }}>
                       <input type="text" placeholder="" value={aroundMeQuery} onChange={e => setAroundMeQuery(e.target.value)} style={{ width: '100%', padding: '14px 0', border: 'none', background: 'transparent', color: textColor, outline: 'none', fontSize: '16px', fontWeight: '800' }} />
                       <span style={{ fontSize: '18px', cursor: 'pointer' }}>🎙️</span>
                     </div>
@@ -1680,27 +1706,27 @@ export default function App() {
                   <p style={{ fontSize: '13px', fontWeight: '800', color: textSub, margin: '4px 0 0' }}>או בחר קטגוריה מהירה לחיפוש במפה:</p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <a href="https://www.google.com/maps/search/?api=1&query=Autogrill" target="_blank" rel="noreferrer" style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '18px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Autogrill" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '18px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: '#d97706', fontWeight: '900', fontSize: '15px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                       <span>☕</span> עצרת דרך / Autogrill & שירותים
                     </a>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      <a href="https://www.google.com/maps/search/?api=1&query=pharmacy" target="_blank" rel="noreferrer" style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <a href="https://www.google.com/maps/search/?api=1&query=pharmacy" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontSize: '22px' }}>💊</span> פארם
                       </a>
-                      <a href="https://www.google.com/maps/search/?api=1&query=gas+station" target="_blank" rel="noreferrer" style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <a href="https://www.google.com/maps/search/?api=1&query=gas+station" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontSize: '22px' }}>⛽</span> תחנת דלק
                       </a>
-                      <a href="https://www.google.com/maps/search/?api=1&query=gelateria" target="_blank" rel="noreferrer" style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <a href="https://www.google.com/maps/search/?api=1&query=gelateria" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontSize: '22px' }}>🍦</span> גלידריה
                       </a>
-                      <a href="https://www.google.com/maps/search/?api=1&query=pizza" target="_blank" rel="noreferrer" style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <a href="https://www.google.com/maps/search/?api=1&query=pizza" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontSize: '22px' }}>🍕</span> פיצה
                       </a>
-                      <a href="https://www.google.com/maps/search/?api=1&query=restaurant" target="_blank" rel="noreferrer" style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <a href="https://www.google.com/maps/search/?api=1&query=restaurant" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontSize: '22px' }}>🍲</span> מסעדות
                       </a>
-                      <a href="https://www.google.com/maps/search/?api=1&query=supermarket" target="_blank" rel="noreferrer" style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <a href="https://www.google.com/maps/search/?api=1&query=supermarket" target="_blank" rel="noreferrer" style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, padding: '20px', borderRadius: '16px', textAlign: 'center', textDecoration: 'none', color: textColor, fontWeight: '900', fontSize: '15px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontSize: '22px' }}>🛒</span> סופרמרקט
                       </a>
                     </div>
@@ -1712,19 +1738,19 @@ export default function App() {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '20px 16px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
                   <p style={{ fontSize: '14px', fontWeight: '800', color: textSub, margin: 0 }}>בחר משך זמן מהיר להפעלת טיימר משפחתי לכולם:</p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(1, 1fr)', gap: '12px' }}>
-                    <button onClick={() => startSharedTimer(5)} style={{ padding: '16px', borderRadius: '10px', background: isDark ? '#111111' : 'rgba(59, 130, 246, 0.1)', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '16px', cursor: 'pointer', textAlign: 'center' }}>⚡ 5 דקות</button>
-                    <button onClick={() => startSharedTimer(15)} style={{ padding: '16px', borderRadius: '10px', background: isDark ? '#111111' : 'rgba(59, 130, 246, 0.1)', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '16px', cursor: 'pointer', textAlign: 'center' }}>⏳ 15 דקות</button>
-                    <button onClick={() => startSharedTimer(30)} style={{ padding: '16px', borderRadius: '10px', background: isDark ? '#111111' : 'rgba(59, 130, 246, 0.1)', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '16px', cursor: 'pointer', textAlign: 'center' }}>⏳ 30 דקות</button>
-                    <button onClick={() => startSharedTimer(45)} style={{ padding: '16px', borderRadius: '10px', background: isDark ? '#111111' : 'rgba(59, 130, 246, 0.1)', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '16px', cursor: 'pointer', textAlign: 'center' }}>⏳ 45 דקות</button>
-                    <button onClick={() => startSharedTimer(60)} style={{ padding: '16px', borderRadius: '10px', background: isDark ? '#111111' : 'rgba(59, 130, 246, 0.1)', color: textColor, border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '16px', cursor: 'pointer', textAlign: 'center' }}>⏰ 60 דקות (שעה)</button>
+                    <button onClick={() => startSharedTimer(5)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⚡ 5 דקות</button>
+                    <button onClick={() => startSharedTimer(15)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 15 דקות</button>
+                    <button onClick={() => startSharedTimer(30)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 30 דקות</button>
+                    <button onClick={() => startSharedTimer(45)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏳ 45 דקות</button>
+                    <button onClick={() => startSharedTimer(60)} style={{ ...timerPresetBtn, padding: '16px', fontSize: '16px' }}>⏰ 60 דקות (שעה)</button>
                   </div>
 
                   {sharedTimer && (
                     <div style={{ display: 'flex', gap: '10px', width: '100%', boxSizing: 'border-box', marginTop: '10px' }}>
-                      <button onClick={toggleSharedTimerPause} style={{ flex: 1, padding: '14px', background: isDark ? '#333333' : '#f59e0b', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+                      <button onClick={toggleSharedTimerPause} style={{ flex: 1, padding: '14px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
                         {isTimerPaused ? '▶️ המשך טיימר' : '⏸️ עצור טיימר'}
                       </button>
-                      <button onClick={clearSharedTimer} style={{ flex: 1, padding: '14px', background: isDark ? '#222222' : '#ef4444', color: '#fff', border: isDark ? '1px solid #ffffff' : 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
+                      <button onClick={clearSharedTimer} style={{ flex: 1, padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>
                         ✕ אפס טיימר
                       </button>
                     </div>
@@ -1734,8 +1760,8 @@ export default function App() {
 
               {modalType === 'trip-album' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px', boxSizing: 'border-box', overflowY: 'auto', gap: '16px', background: bgMain }}>
-                  <div style={{ background: isDark ? '#111111' : '#eff6ff', border: `1.5px solid ${borderColor}`, padding: '16px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>📸 העלאת תמונה חדשה לאלבום המשפחתי</h3>
+                  <div style={{ background: isDark ? 'rgba(37,99,235,0.1)' : '#eff6ff', border: '1.5px solid rgba(37,99,235,0.3)', padding: '16px', borderRadius: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: '#2563eb' }}>📸 העלאת תמונה חדשה לאלבום המשפחתי</h3>
                     <p style={{ margin: 0, fontSize: '12px', color: textSub }}>התמונה שתעלה תופיע מיד במכשירים של כל בני המשפחה בזמן אמת!</p>
                     
                     <input 
@@ -1743,7 +1769,7 @@ export default function App() {
                       placeholder="הוסף כותרת או תיאור לתמונה (למשל: סלפי בגארדלנד 🎢)" 
                       value={photoCaptionInput} 
                       onChange={e => setPhotoCaptionInput(e.target.value)} 
-                      style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#000000' : '#fff', color: textColor, outline: 'none', fontSize: '14px', boxSizing: 'border-box', fontWeight: 'bold' }} 
+                      style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#fff', color: textColor, outline: 'none', fontSize: '14px', boxSizing: 'border-box', fontWeight: 'bold' }} 
                     />
 
                     <input 
@@ -1757,7 +1783,7 @@ export default function App() {
                     <button 
                       disabled={isUploadingPhoto}
                       onClick={() => document.getElementById('trip-photo-file-input').click()} 
-                      style={{ width: '100%', padding: '14px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: isUploadingPhoto ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                      style={{ width: '100%', padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: isUploadingPhoto ? 'wait' : 'pointer', boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                     >
                       {isUploadingPhoto ? '⏳ מעלה תמונה...' : '📤 בחר תמונה והעלה לאלבום 📷'}
                     </button>
@@ -1774,7 +1800,7 @@ export default function App() {
                   ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', paddingBottom: '20px' }}>
                       {tripPhotos.map((photo, pIdx) => (
-                        <div key={pIdx} onClick={() => setSelectedPhotoViewer(photo)} style={{ background: cardBg, border: `1.5px solid ${borderColor}`, borderRadius: '14px', overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column', transition: 'transform 0.2s' }}>
+                        <div key={pIdx} onClick={() => setSelectedPhotoViewer(photo)} style={{ background: cardBg, border: `1.5px solid ${borderColor}`, borderRadius: '14px', overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', transition: 'transform 0.2s' }}>
                           <div style={{ width: '100%', height: '140px', background: '#000', overflow: 'hidden', position: 'relative' }}>
                             <img src={photo.image_url} alt="Trip" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
@@ -1792,24 +1818,24 @@ export default function App() {
               {modalType === 'trivia' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '14px', background: bgMain }}>
                   {isTriviaPaused && (
-                    <div style={{ background: isDark ? '#111111' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
+                    <div style={{ background: isDark ? '#1e293b' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '12px 16px', borderRadius: '12px', textAlign: 'center', fontWeight: '900', fontSize: '13px' }}>
                       ⏸️ המשחק מושהה (לחץ על כפתור "התחל" למעלה כדי להפעיל את השעון)
                     </div>
                   )}
 
-                  <div style={{ background: isDark ? '#222222' : '#e2e8f0', borderRadius: '6px', height: '8px', width: '100%', overflow: 'hidden', display: 'flex' }}>
-                    <div style={{ background: isDark ? '#ffffff' : (questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6'), width: `${(questionTimeLeft / 45) * 100}%`, transition: 'width 1s linear' }} />
+                  <div style={{ background: isDark ? '#1e293b' : '#e2e8f0', borderRadius: '6px', height: '8px', width: '100%', overflow: 'hidden', display: 'flex' }}>
+                    <div style={{ background: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6', width: `${(questionTimeLeft / 45) * 100}%`, transition: 'width 1s linear' }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '800', color: textSub, marginTop: '-6px' }}>
                     <span>⏳ זמן נותר לשאלה:</span>
-                    <span style={{ color: textColor }}>{questionTimeLeft} שניות</span>
+                    <span style={{ color: questionTimeLeft <= 10 ? '#ef4444' : '#3b82f6' }}>{questionTimeLeft} שניות</span>
                   </div>
 
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <div style={{ flex: 1, height: '46px', background: isDark ? '#111111' : '#ffffff', padding: '0 14px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor, boxSizing: 'border-box' }}>
-                      <span>תורו של:</span> <span style={{ color: textColor, textDecoration: 'underline' }}>{TRAVELERS_LIST[travelerIndex]}</span>
+                    <div style={{ flex: 1, height: '46px', background: isDark ? '#1e293b' : '#ffffff', padding: '0 14px', borderRadius: '12px', border: `1.5px solid ${borderColor}`, fontWeight: '900', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: textColor, boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
+                      <span>תורו של:</span> <span style={{ color: '#3b82f6', textDecoration: 'underline' }}>{TRAVELERS_LIST[travelerIndex]}</span>
                     </div>
-                    <button onClick={handleResetTrivia} style={{ flex: 1, height: '46px', background: isDark ? '#111111' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '0 14px', borderRadius: '12px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
+                    <button onClick={handleResetTrivia} style={{ flex: 1, height: '46px', background: isDark ? '#334155' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, padding: '0 14px', borderRadius: '12px', fontSize: '13px', fontWeight: '900', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                       איפוס משחק (מנהל)
                     </button>
                   </div>
@@ -1818,7 +1844,7 @@ export default function App() {
                     {TRAVELERS_LIST.map((t, tIdx) => {
                       const isCurrent = tIdx === travelerIndex;
                       return (
-                        <div key={tIdx} style={{ background: isCurrent ? (isDark ? '#222222' : '#e2e8f0') : (isDark ? '#111111' : '#ffffff'), color: textColor, padding: '10px 4px', borderRadius: '10px', textAlign: 'center', border: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
+                        <div key={tIdx} style={{ background: isCurrent ? (isDark ? '#334155' : '#e2e8f0') : (isDark ? '#1e293b' : '#ffffff'), color: textColor, padding: '10px 4px', borderRadius: '10px', textAlign: 'center', border: `1.5px solid ${isCurrent ? '#64748b' : borderColor}`, boxShadow: isCurrent ? '0 4px 12px rgba(0,0,0,0.1)' : '0 2px 6px rgba(0,0,0,0.03)', boxSizing: 'border-box' }}>
                           <div style={{ fontSize: '12px', fontWeight: '900', marginBottom: '2px' }}>{t}</div>
                           <div style={{ fontSize: '11px', fontWeight: '800', color: textSub }}>{travelerScores[t] || 0} נק'</div>
                         </div>
@@ -1826,7 +1852,7 @@ export default function App() {
                     })}
                   </div>
 
-                  <div style={{ background: isDark ? '#111111' : '#eff6ff', padding: '16px', borderRadius: '14px', textAlign: 'center', border: `1.5px solid ${borderColor}`, boxSizing: 'border-box' }}>
+                  <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', padding: '16px', borderRadius: '14px', textAlign: 'center', border: '1.5px solid rgba(59, 130, 246, 0.3)', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.08)' }}>
                     <span style={{ fontSize: '15px', fontWeight: '900', color: textColor }}>
                       {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].q}
                     </span>
@@ -1835,14 +1861,14 @@ export default function App() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length].options.map((opt, oIdx) => {
                       const currentQ = ROAD_TRIVIA_QUESTIONS[triviaIndex % ROAD_TRIVIA_QUESTIONS.length];
-                      let btnBg = isDark ? '#111111' : '#ffffff';
+                      let btnBg = isDark ? '#1e293b' : '#ffffff';
                       let btnColor = textColor;
                       let btnBorder = borderColor;
                       if (selectedAnswer !== null) {
                         if (oIdx === currentQ.correct) {
-                          btnBg = isDark ? '#ffffff' : '#10b981'; btnColor = isDark ? '#000000' : '#fff'; btnBorder = isDark ? '#ffffff' : '#10b981';
+                          btnBg = '#10b981'; btnColor = '#fff'; btnBorder = '#10b981';
                         } else if (oIdx === selectedAnswer) {
-                          btnBg = isDark ? '#333333' : '#ef4444'; btnColor = '#fff'; btnBorder = isDark ? '#ffffff' : '#ef4444';
+                          btnBg = '#ef4444'; btnColor = '#fff'; btnBorder = '#ef4444';
                         }
                       }
                       return (
@@ -1850,7 +1876,7 @@ export default function App() {
                           key={oIdx} 
                           disabled={isTriviaPaused || selectedAnswer !== null}
                           onClick={() => handleTriviaAnswer(oIdx)} 
-                          style={{ width: '100%', height: '48px', borderRadius: '12px', background: btnBg, color: btnColor, border: `1.5px solid ${btnBorder}`, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (isTriviaPaused || selectedAnswer !== null) ? 'not-allowed' : 'pointer', opacity: (isTriviaPaused || selectedAnswer !== null) ? 0.85 : 1, boxSizing: 'border-box' }}
+                          style={{ width: '100%', height: '48px', borderRadius: '12px', background: btnBg, color: btnColor, border: `1.5px solid ${btnBorder}`, fontWeight: '900', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: (isTriviaPaused || selectedAnswer !== null) ? 'not-allowed' : 'pointer', opacity: (isTriviaPaused || selectedAnswer !== null) ? 0.85 : 1, transition: 'all 0.2s ease', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}
                         >
                           {opt}
                         </button>
@@ -1872,13 +1898,14 @@ export default function App() {
                           style={{ 
                             padding: '10px 18px', 
                             borderRadius: '10px', 
-                            background: isActiveFolder ? (isDark ? '#ffffff' : '#2563eb') : (isDark ? '#111111' : '#f8fafc'), 
-                            color: isActiveFolder ? (isDark ? '#000000' : '#ffffff') : textColor, 
-                            border: `1.5px solid ${borderColor}`, 
+                            background: isActiveFolder ? '#2563eb' : (isDark ? '#1e293b' : '#f8fafc'), 
+                            color: isActiveFolder ? '#ffffff' : '#2563eb', 
+                            border: '1.5px solid #2563eb', 
                             fontWeight: '900', 
                             fontSize: '12px', 
                             cursor: 'pointer', 
                             whiteSpace: 'nowrap', 
+                            boxShadow: isActiveFolder ? '0 4px 12px rgba(37, 99, 235, 0.35)' : '0 2px 6px rgba(0,0,0,0.02)', 
                             transition: 'all 0.2s ease'
                           }}
                         >
@@ -1889,8 +1916,8 @@ export default function App() {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {ticketFiles.filter(d => d.folder === activeFolder).map((doc, dIdx) => (
-                      <div key={dIdx} onClick={() => setViewerItem(doc)} style={{ background: isDark ? '#111111' : '#ffffff', padding: '16px', borderRadius: '16px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <span style={{ fontSize: '14px', fontWeight: '800', color: textColor }}>📄 {doc.title}</span>
+                      <div key={dIdx} onClick={() => setViewerItem(doc)} style={{ background: isDark ? 'rgba(11, 15, 25, 0.4)' : '#ffffff', padding: '16px', borderRadius: '16px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', cursor: 'pointer', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)' }}>
+                        <span style={{ fontSize: '14px', fontWeight: '800' }}>📄 {doc.title}</span>
                       </div>
                     ))}
                   </div>
@@ -1900,15 +1927,15 @@ export default function App() {
               {modalType === 'emergency' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px 16px 24px', boxSizing: 'border-box', overflowY: 'auto', gap: '10px', background: bgMain }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                    <a href="tel:112" style={emergencyBtnStyle(isDark)}>🚨 חירום כללי: 112</a>
-                    <a href="tel:118" style={emergencyBtnStyle(isDark)}>🚑 אמבולנס: 118</a>
-                    <a href="tel:113" style={emergencyBtnStyle(isDark)}>👮 משטרה: 113</a>
-                    <a href="tel:115" style={emergencyBtnStyle(isDark)}>🚒 כיבוי אש: 115</a>
+                    <a href="tel:112" style={emergencyBtnStyle}>🚨 חירום כללי: 112</a>
+                    <a href="tel:118" style={emergencyBtnStyle}>🚑 אמבולנס: 118</a>
+                    <a href="tel:113" style={emergencyBtnStyle}>👮 משטרה: 113</a>
+                    <a href="tel:115" style={emergencyBtnStyle}>🚒 כיבוי אש: 115</a>
                   </div>
-                  <div style={{ background: isDark ? '#111111' : '#eff6ff', border: `1.5px solid ${borderColor}`, padding: '16px', borderRadius: '16px', marginTop: '6px' }}>
-                    <strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px', color: textColor }}>🇮🇱 שגרירות ישראל באיטליה (רומא)</strong>
+                  <div style={{ background: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff', border: `1.5px solid rgba(59, 130, 246, 0.3)`, padding: '16px', borderRadius: '16px', marginTop: '6px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)' }}>
+                    <strong style={{ display: 'block', marginBottom: '4px', fontSize: '14px', color: '#3b82f6' }}>🇮🇱 שגרירות ישראל באיטליה (רומא)</strong>
                     <p style={{ margin: '0 0 10px', fontSize: '13px', color: textSub }}>כתובת: Via Michele Mercati 12, 00197 Roma</p>
-                    <a href="tel:+3906361981" style={{ display: 'block', padding: '12px', background: isDark ? '#ffffff' : '#3b82f6', color: isDark ? '#000000' : '#fff', textAlign: 'center', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px' }}>📞 חיוג לשגרירות: +39 06 361981</a>
+                    <a href="tel:+3906361981" style={{ display: 'block', padding: '12px', background: '#3b82f6', color: '#fff', textAlign: 'center', borderRadius: '12px', fontWeight: '900', textDecoration: 'none', fontSize: '14px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}>📞 חיוג לשגרירות: +39 06 361981</a>
                   </div>
                 </div>
               )}
@@ -1916,60 +1943,61 @@ export default function App() {
               {modalType === 'parking' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', height: '100%', padding: '16px', boxSizing: 'border-box', overflow: 'hidden', gap: '10px', background: bgMain }}>
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: isDark ? '#111111' : '#ffffff', color: textColor, borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                    <a href={`https://www.waze.com/ul?q=${encodeURIComponent(HOTEL_ADDRESS)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: isDark ? '#1e293b' : '#ffffff', color: textColor, borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', border: `1.5px solid ${borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
                       🏡 למלון Vojon
                     </a>
-                    <a href={`https://maps.google.com/?q=${savedCarParking ? `${savedCarParking.lat},${savedCarParking.lng}` : HOTEL_ADDRESS}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: isDark ? '#ffffff' : '#1e3a8a', color: isDark ? '#000000' : '#fff', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                    <a href={`https://maps.google.com/?q=${savedCarParking ? `${savedCarParking.lat},${savedCarParking.lng}` : HOTEL_ADDRESS}`} target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', background: '#1e3a8a', color: '#fff', borderRadius: '10px', textAlign: 'center', textDecoration: 'none', fontWeight: '900', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', boxShadow: '0 4px 12px rgba(30, 58, 138, 0.3)' }}>
                       🚗 לרכב החונה
                     </a>
                   </div>
 
                   {!savedCarParking ? (
-                    <div style={{ background: isDark ? '#111111' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '16px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginTop: '10px' }}>
-                      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: isDark ? '#222222' : 'rgba(239, 68, 68, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: textColor, fontSize: '26px' }}>
+                    <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `1.5px solid ${borderColor}`, borderRadius: '16px', padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)', marginTop: '10px' }}>
+                      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', fontSize: '26px' }}>
                         🚗
                       </div>
                       <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: textColor }}>חנית את הרכב?</h3>
-                      <p style={{ margin: 0, fontSize: '12px', color: textSub }}>לחץ על הכפתור לשמירת מיקום ה-GPS המדויק.</p>
+                      <p style={{ margin: 0, fontSize: '12px', color: textSub }}>לחץ על הכפתור האדום לשמירת מיקום ה-GPS המדויק.</p>
                       
                       <input 
                         type="text" 
                         placeholder="הוסף הערה (למשל: קומה 2, ליד עמוד B4)" 
                         value={carNoteInput} 
                         onChange={e => setCarNoteInput(e.target.value)} 
-                        style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#000000' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} 
+                        style={{ width: '100%', padding: '10px 12px', borderRadius: '10px', border: `1.5px solid ${borderColor}`, background: isDark ? '#0b0f19' : '#f8fafc', color: textColor, outline: 'none', fontSize: '16px', boxSizing: 'border-box' }} 
                       />
 
                       <button 
                         onClick={saveCarLocationNow}
-                        style={{ width: '100%', padding: '14px', background: isDark ? '#ffffff' : '#ef4444', color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                        style={{ width: '100%', padding: '14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(239, 68, 68, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                       >
                         <span>🔴</span> נָעץ מיקום חניה עכשיו
                       </button>
                     </div>
                   ) : (
-                    <div style={{ background: isDark ? '#111111' : '#ffffff', border: `2.5px solid ${isDark ? '#ffffff' : '#ef4444'}`, borderRadius: '16px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
-                      <span style={{ background: isDark ? '#333333' : '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
+                    <div style={{ background: isDark ? 'rgba(17, 24, 39, 0.9)' : '#ffffff', border: `2.5px solid #ef4444`, borderRadius: '16px', padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)', marginTop: '10px' }}>
+                      <span style={{ background: '#ef4444', color: '#fff', padding: '3px 10px', borderRadius: '10px', fontSize: '10px', fontWeight: '900' }}>נשמר ב-{savedCarParking.time} ({savedCarParking.date})</span>
                       <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: textColor }}>{savedCarParking.note}</h4>
 
-                      <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: isDark ? '#ffffff' : accentGradient, color: isDark ? '#000000' : '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <span>🗺️</span> הצג מפת ניווט חי (סיכה ➔ הרכב)
+                      <button onClick={() => setShowParkingMapModal(true)} style={{ width: '100%', padding: '14px', background: accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', fontSize: '14px', cursor: 'pointer', boxShadow: '0 6px 16px rgba(37, 99, 235, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                        <span>🗺️</span> הצג מפת ניווט חי (סיכה אדומה ➔ הרכב)
                       </button>
 
-                      <div style={{ fontSize: '16px', fontWeight: '900', color: textColor }}>
+                      <div style={{ fontSize: '16px', fontWeight: '900', color: '#10b981' }}>
                         מרחק הליכה: {carDistanceToWalk}
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%' }}>
-                        <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '10px', background: isDark ? '#333333' : accentGradient, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>
+                        <a href={`https://maps.google.com/?q=${savedCarParking.lat},${savedCarParking.lng}`} target="_blank" rel="noreferrer" style={{ padding: '10px', background: accentGradient, color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: '900', fontSize: '12px', textAlign: 'center' }}>
                           נווט ב-Google 🗺️
                         </a>
-                        <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#222222' : '#f1f5f9', color: textColor, border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
+                        <button onClick={clearCarLocation} style={{ padding: '10px', background: isDark ? '#1e293b' : '#f1f5f9', color: '#ef4444', border: `1.5px solid ${borderColor}`, borderRadius: '8px', fontWeight: '900', cursor: 'pointer', fontSize: '12px' }}>
                           אפס חניה 🗑️
                         </button>
                       </div>
                     </div>
                   )}
+
                 </div>
               )}
 
@@ -1983,11 +2011,11 @@ export default function App() {
   );
 }
 
-const rectMenuCardStyle = (isDark) => ({
-  background: isDark ? '#111111' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-  border: `1px solid ${isDark ? '#333333' : '#cbd5e1'}`,
-  borderRight: `3.5px solid ${isDark ? '#ffffff' : '#475569'}`,
-  color: isDark ? '#ffffff' : '#334155',
+const rectMenuCardStyle = {
+  background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+  border: '1px solid #cbd5e1',
+  borderRight: '3.5px solid #475569',
+  color: '#334155',
   padding: '12px 16px',
   borderRadius: '12px',
   textAlign: 'right',
@@ -1998,21 +2026,33 @@ const rectMenuCardStyle = (isDark) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   width: '100%',
-  boxShadow: isDark ? 'none' : '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
+  boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
   transition: 'all 0.15s ease',
   boxSizing: 'border-box',
   letterSpacing: '-0.01em'
-});
+};
 
-const emergencyBtnStyle = (isDark) => ({
+const timerPresetBtn = {
+  padding: '16px',
+  borderRadius: '10px',
+  background: 'rgba(59, 130, 246, 0.1)',
+  color: '#3b82f6',
+  border: '1.5px solid rgba(59, 130, 246, 0.3)',
+  fontWeight: '900',
+  fontSize: '15px',
+  cursor: 'pointer',
+  textAlign: 'center'
+};
+
+const emergencyBtnStyle = {
   padding: '14px',
   borderRadius: '10px',
-  background: isDark ? '#111111' : '#fee2e2',
-  color: isDark ? '#ffffff' : '#ef4444',
+  background: '#fee2e2',
+  color: '#ef4444',
   fontWeight: '800',
   fontSize: '13px',
   textAlign: 'center',
   textDecoration: 'none',
-  border: `1.5px solid ${isDark ? '#333333' : '#fecaca'}`,
+  border: '1.5px solid #fecaca',
   boxSizing: 'border-box'
-});
+};
