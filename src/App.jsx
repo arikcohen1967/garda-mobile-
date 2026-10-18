@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.3 (Complete Edition) ---
-const APP_VERSION = 'v1.8.3';
+// --- TRIP-NAVIGATOR v1.8.5 (Original Light Theme Edition) ---
+const APP_VERSION = 'v1.8.5';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -10,16 +10,15 @@ const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const S = {
-  bg: '#0f172a',
-  cardBg: '#1e293b',
-  cardBorder: '#334155',
-  textPrimary: '#f8fafc',
-  textSecondary: '#94a3b8',
-  accent: '#3b82f6',
-  accentGradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-  success: '#10b981',
-  danger: '#ef4444',
-  radius: '20px'
+  bg: '#f8fafc',
+  cardBg: '#ffffff',
+  cardBorder: '#cbd5e1',
+  textPrimary: '#0f172a',
+  textSecondary: '#64748b',
+  accent: '#2563eb',
+  success: '#059669',
+  danger: '#dc2626',
+  radius: '16px'
 };
 
 const INITIAL_TRIP_DAYS = [
@@ -154,9 +153,9 @@ export default function App() {
 
       const redPinIcon = window.L.divIcon({
         className: 'custom-red-pin',
-        html: `<div style="background-color: #ef4444; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(239,68,68,0.5);"></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
+        html: `<div style="background-color: #dc2626; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.4);"></div>`,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
       });
 
       Object.values(allUsersLocations).forEach(loc => {
@@ -190,7 +189,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v183')
+    const channel = supabase.channel('trip_sync_v185')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -411,19 +410,18 @@ export default function App() {
 
   if (!currentUser) {
     return (
-      <div style={{ background: S.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', padding: '20px', boxSizing: 'border-box' }}>
-        <form onSubmit={handleLogin} style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, padding: '36px 28px', borderRadius: '24px', width: '100%', maxWidth: '380px', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', boxSizing: 'border-box' }}>
-          <div style={{ fontSize: '48px', marginBottom: '12px' }}>🧭</div>
-          <h2 style={{ color: S.textPrimary, fontSize: '22px', fontWeight: '900', margin: '0 0 6px', letterSpacing: '-0.5px' }}>Trip-Navigator</h2>
-          <p style={{ color: S.textSecondary, fontSize: '13px', marginBottom: '28px' }}>מערכת ניהול טיולים ורדאר משפחתי ({APP_VERSION})</p>
+      <div style={{ background: S.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif', direction: 'rtl', padding: '20px', boxSizing: 'border-box' }}>
+        <form onSubmit={handleLogin} style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, padding: '32px', borderRadius: '20px', width: '100%', maxWidth: '380px', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', boxSizing: 'border-box' }}>
+          <h2 style={{ color: S.textPrimary, fontSize: '20px', fontWeight: '900', margin: '0 0 6px' }}>Trip-Navigator</h2>
+          <p style={{ color: S.textSecondary, fontSize: '13px', marginBottom: '24px' }}>מערכת ניהול טיולים וניווט ({APP_VERSION})</p>
           <input 
             type="text" 
             placeholder="הכנס את שמך המלא (לדוגמה: אריק)" 
             value={loginInput} 
             onChange={e => setLoginInput(e.target.value)}
-            style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: `1px solid ${S.cardBorder}`, background: '#0f172a', color: S.textPrimary, marginBottom: '18px', fontSize: '15px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }}
+            style={{ width: '100%', padding: '14px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', fontSize: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }}
           />
-          <button type="submit" style={{ width: '100%', padding: '14px', background: S.accentGradient, color: '#fff', border: 'none', borderRadius: '14px', fontWeight: '800', fontSize: '15px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(59,130,246,0.4)', transition: 'transform 0.1s' }}>
+          <button type="submit" style={{ width: '100%', padding: '14px', background: S.accent, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.2)' }}>
             התחל מסע ➔
           </button>
         </form>
@@ -436,34 +434,34 @@ export default function App() {
   const sortedScores = Object.entries(triviaState.scores || {}).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
+    <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
       
       {incomingPing && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(5px)' }}>
-          <div style={{ background: S.cardBg, border: '2px solid #ef4444', borderRadius: '24px', padding: '28px', width: '100%', maxWidth: '340px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.6)' }}>
-            <div style={{ fontSize: '42px', marginBottom: '10px' }}>🚨</div>
-            <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#ef4444', margin: '0 0 8px' }}>קיבלת PING דחוף!</h3>
-            <p style={{ fontSize: '14px', fontWeight: '700', color: S.textPrimary, margin: '0 0 6px' }}>מאת: {incomingPing.from}</p>
-            <div style={{ background: '#7f1d1d', border: '1px solid #991b1b', padding: '12px', borderRadius: '12px', fontSize: '13px', color: '#fca5a5', margin: '14px 0', fontWeight: '600' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', border: '3px solid #dc2626', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '340px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+            <div style={{ fontSize: '40px', marginBottom: '8px' }}>🚨</div>
+            <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#dc2626', margin: '0 0 8px' }}>קיבלת PING דחוף!</h3>
+            <p style={{ fontSize: '14px', fontWeight: '700', color: S.textPrimary, margin: '0 0 4px' }}>מאת: {incomingPing.from}</p>
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '12px', borderRadius: '10px', fontSize: '13px', color: '#991b1b', margin: '14px 0', fontWeight: '600' }}>
               "{incomingPing.msg}"
             </div>
-            <button onClick={clearIncomingPing} style={{ width: '100%', padding: '12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(239,68,68,0.4)' }}>
+            <button onClick={clearIncomingPing} style={{ width: '100%', padding: '12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
               הבנתי, תודה 👍
             </button>
           </div>
         </div>
       )}
 
-      <header style={{ background: S.cardBg, borderBottom: `1px solid ${S.cardBorder}`, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+      <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', boxSizing: 'border-box', minWidth: 0 }}>
-          <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: S.accentGradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: '0', boxShadow: '0 4px 10px rgba(59,130,246,0.3)' }}>🧭</div>
-          <h1 style={{ fontSize: '14px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>Trip-Nav</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', boxSizing: 'border-box', minWidth: 0 }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>🧭</div>
+          <h1 style={{ fontSize: '13px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>Trip-Nav</h1>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', boxSizing: 'border-box', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', boxSizing: 'border-box', flexShrink: 0 }}>
           
-          <div style={{ background: gpsConnected ? '#064e3b' : '#7f1d1d', border: `1px solid ${gpsConnected ? '#059669' : '#b91c1c'}`, height: '30px', padding: '0 8px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: '800', color: gpsConnected ? '#34d399' : '#fca5a5', boxSizing: 'border-box' }}>
+          <div style={{ background: gpsConnected ? '#f0fdf4' : '#fef2f2', border: `1px solid ${gpsConnected ? '#bbf7d0' : '#fecaca'}`, height: '28px', padding: '0 6px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '800', color: gpsConnected ? '#166534' : '#dc2626', boxSizing: 'border-box' }}>
             <span>{gpsConnected ? '🟢' : '🔴'}</span>
             <span>{gpsConnected ? 'GPS' : 'אין GPS'}</span>
           </div>
@@ -471,19 +469,19 @@ export default function App() {
           <button 
             onClick={openWeatherApp}
             title="פתח אפליקציית מזג אוויר"
-            style={{ background: '#0f172a', border: `1px solid ${S.cardBorder}`, height: '30px', padding: '0 8px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: '800', color: S.textPrimary, boxSizing: 'border-box', cursor: 'pointer' }}
+            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 6px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '2px', fontSize: '9px', fontWeight: '800', color: S.textPrimary, boxSizing: 'border-box', cursor: 'pointer' }}
           >
             <span>{currentWeather.icon}</span>
             <span>{currentWeather.temp}</span>
           </button>
 
-          <div style={{ background: '#0f172a', border: `1px solid ${S.cardBorder}`, height: '30px', padding: '0 10px', borderRadius: '10px', display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box', whiteSpace: 'nowrap', maxWidth: '85px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 8px', borderRadius: '8px', display: 'flex', alignItems: 'center', fontSize: '10px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box', whiteSpace: 'nowrap', maxWidth: '75px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             👤 {currentUser}
           </div>
 
           <button 
             onClick={() => setSidebarOpen(true)} 
-            style={{ background: '#0f172a', border: `1px solid ${S.cardBorder}`, height: '30px', padding: '0 10px', borderRadius: '10px', display: 'flex', alignItems: 'center', color: S.textPrimary, cursor: 'pointer', fontSize: '11px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}
+            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 8px', borderRadius: '8px', display: 'flex', alignItems: 'center', color: S.textPrimary, cursor: 'pointer', fontSize: '10px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}
           >
             ⚙️ ניהול
           </button>
@@ -492,9 +490,9 @@ export default function App() {
 
       </header>
 
-      <main style={{ padding: '20px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box', width: '100%' }}>
+      <main style={{ padding: '18px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box', width: '100%' }}>
 
-        <nav style={{ background: S.cardBg, padding: '6px', borderRadius: '18px', border: `1px solid ${S.cardBorder}`, display: 'flex', gap: '6px', marginBottom: '22px', boxSizing: 'border-box', width: '100%', boxShadow: '0 8px 25px rgba(0,0,0,0.2)' }}>
+        <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
           {[
             { id: 'itinerary', label: '📅 מסלול' },
             { id: 'radar', label: '📍 מפה ורדאר' },
@@ -505,11 +503,11 @@ export default function App() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               style={{
-                flex: 1, padding: '12px 4px', borderRadius: '14px', border: 'none',
-                background: activeTab === tab.id ? S.accentGradient : 'transparent',
-                color: activeTab === tab.id ? '#ffffff' : S.textSecondary,
+                flex: 1, padding: '11px 4px', borderRadius: '12px', border: 'none',
+                background: activeTab === tab.id ? '#ffffff' : 'transparent',
+                color: activeTab === tab.id ? S.accent : S.textSecondary,
                 fontWeight: '800', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box',
-                boxShadow: activeTab === tab.id ? '0 6px 16px rgba(59,130,246,0.4)' : 'none',
+                boxShadow: activeTab === tab.id ? '0 4px 12px rgba(37,99,235,0.12), 0 1px 3px rgba(0,0,0,0.08)' : 'none',
                 textAlign: 'center', whiteSpace: 'nowrap', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
               }}
             >
@@ -520,19 +518,18 @@ export default function App() {
 
         {activeTab === 'itinerary' && (
           <div style={{ boxSizing: 'border-box', width: '100%' }}>
-            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '18px', scrollbarWidth: 'none', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '16px', scrollbarWidth: 'none', boxSizing: 'border-box', width: '100%' }}>
               {tripDays.map((d, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveDay(idx)}
                   style={{
-                    flex: '0 0 auto', padding: '12px 18px', borderRadius: '14px',
+                    flex: '0 0 auto', padding: '10px 16px', borderRadius: '12px',
                     border: `1px solid ${activeDay === idx ? S.accent : S.cardBorder}`,
-                    background: activeDay === idx ? S.accentGradient : S.cardBg,
+                    background: activeDay === idx ? S.accent : '#ffffff',
                     color: activeDay === idx ? '#ffffff' : S.textSecondary,
-                    fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box',
-                    boxShadow: activeDay === idx ? '0 6px 16px rgba(59,130,246,0.3)' : 'none',
-                    transition: 'all 0.2s'
+                    fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box',
+                    boxShadow: activeDay === idx ? '0 2px 8px rgba(37,99,235,0.2)' : 'none'
                   }}
                 >
                   {d.icon} {d.label}
@@ -540,29 +537,29 @@ export default function App() {
               ))}
             </div>
 
-            <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '22px', boxSizing: 'border-box', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', width: '100%' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '16px', boxSizing: 'border-box' }}>
-                <span style={{ fontSize: '32px', background: '#0f172a', padding: '8px', borderRadius: '14px', border: `1px solid ${S.cardBorder}` }}>{currentDay.icon}</span>
+            <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', boxSizing: 'border-box', boxShadow: '0 4px 16px rgba(0,0,0,0.04)', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '14px', boxSizing: 'border-box' }}>
+                <span style={{ fontSize: '30px' }}>{currentDay.icon}</span>
                 <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: '900', color: S.textPrimary, margin: '0 0 2px' }}>{currentDay.title}</h2>
+                  <h2 style={{ fontSize: '17px', fontWeight: '900', color: S.textPrimary, margin: '0 0 2px' }}>{currentDay.title}</h2>
                   <span style={{ fontSize: '12px', color: S.accent, fontWeight: '700' }}>{currentDay.label} · {currentDay.date}</span>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', boxSizing: 'border-box', width: '100%' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box', width: '100%' }}>
                 {currentDay.stops.map((stop, sIdx) => (
-                  <div key={sIdx} style={{ background: '#0f172a', border: `1px solid ${S.cardBorder}`, borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', boxSizing: 'border-box', width: '100%' }}>
+                  <div key={sIdx} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box' }}>
                       <strong style={{ fontSize: '14px', color: S.textPrimary, fontWeight: '800' }}>{stop.name}</strong>
-                      <span style={{ background: '#1e3a8a', color: '#93c5fd', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '800' }}>{stop.time}</span>
+                      <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800' }}>{stop.time}</span>
                     </div>
                     <p style={{ fontSize: '12px', color: S.textSecondary, margin: 0, lineHeight: '1.5' }}>{stop.note}</p>
                     
                     <div style={{ display: 'flex', gap: '8px', marginTop: '6px', boxSizing: 'border-box', width: '100%' }}>
-                      <a href={`https://waze.com/ul?q=${encodeURIComponent(stop.dest || stop.name)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#0284c7', color: '#fff', padding: '11px', borderRadius: '12px', textDecoration: 'none', fontSize: '12px', fontWeight: '800', textAlign: 'center', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(2,132,199,0.3)' }}>
+                      <a href={`https://waze.com/ul?q=${encodeURIComponent(stop.dest || stop.name)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#0284c7', color: '#fff', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}>
                         🚗 ניווט ב-Waze
                       </a>
-                      <a href={getMapsUrl(stop.lat, stop.lng, stop.dest || stop.name)} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#334155', color: '#fff', padding: '11px', borderRadius: '12px', textDecoration: 'none', fontSize: '12px', fontWeight: '800', textAlign: 'center', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(51,65,85,0.3)' }}>
+                      <a href={getMapsUrl(stop.lat, stop.lng, stop.dest || stop.name)} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#475569', color: '#fff', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}>
                         🗺️ מפות (Apple/Google)
                       </a>
                     </div>
@@ -574,35 +571,35 @@ export default function App() {
         )}
 
         {activeTab === 'radar' && (
-          <div style={{ background: S.cardBg, color: '#ffffff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '22px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 15px 35px rgba(0,0,0,0.4)' }}>
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '10px' }}>
               <div>
-                <h2 style={{ fontSize: '17px', fontWeight: '900', margin: '0 0 2px', letterSpacing: '-0.3px' }}>רדאר משפחתי – איתור ברחוב</h2>
+                <h2 style={{ fontSize: '17px', fontWeight: '900', margin: '0 0 2px', letterSpacing: '-0.3px', color: S.textPrimary }}>רדאר משפחתי – איתור ברחוב</h2>
                 <span style={{ fontSize: '11px', color: S.textSecondary }}>לחץ על הכפתור כדי לפתוח תצוגת לוויין מדויקת</span>
               </div>
-              <span style={{ fontSize: '11px', background: '#064e3b', color: '#34d399', padding: '4px 10px', borderRadius: '10px', fontWeight: '800', border: '1px solid #059669' }}>● Live</span>
+              <span style={{ fontSize: '11px', background: '#f0fdf4', color: '#166534', padding: '3px 8px', borderRadius: '10px', fontWeight: '700', border: '1px solid #bbf7d0' }}>● Live</span>
             </div>
 
-            <div ref={mapContainerRef} style={{ width: '100%', height: '420px', borderRadius: '16px', marginBottom: '16px', zIndex: 1, border: `1px solid ${S.cardBorder}` }}></div>
+            <div ref={mapContainerRef} style={{ width: '100%', height: '420px', borderRadius: '16px', marginBottom: '14px', zIndex: 1, border: `1px solid ${S.cardBorder}` }}></div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
               {Object.keys(allUsersLocations).length === 0 ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: S.textSecondary, fontSize: '13px' }}>
+                <div style={{ padding: '15px', textAlign: 'center', color: S.textSecondary, fontSize: '12px' }}>
                   ממתין לנתוני מיקום מהבנות...
                 </div>
               ) : (
                 Object.values(allUsersLocations).map((loc, idx) => (
-                  <div key={idx} style={{ background: '#0f172a', border: `1px solid ${S.cardBorder}`, padding: '14px 16px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div key={idx} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '12px 14px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ position: 'relative' }}>
-                        <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#334155', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', fontSize: '15px', border: '2px solid rgba(255,255,255,0.2)' }}>
+                        <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#e2e8f0', color: S.textPrimary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '14px', border: '1px solid #cbd5e1' }}>
                           {loc.name ? loc.name[0] : '👤'}
                         </div>
-                        <span style={{ position: 'absolute', bottom: '0px', right: '0px', width: '10px', height: '10px', background: '#10b981', borderRadius: '50%', border: '2px solid #0f172a' }}></span>
+                        <span style={{ position: 'absolute', bottom: '0px', right: '0px', width: '9px', height: '9px', background: '#059669', borderRadius: '50%', border: '1.5px solid #ffffff' }}></span>
                       </div>
                       <div>
-                        <strong style={{ fontSize: '14px', color: '#ffffff', fontWeight: '800', display: 'inline-block', marginLeft: '6px' }}>
+                        <strong style={{ fontSize: '13px', color: S.textPrimary, fontWeight: '700', display: 'inline-block', marginLeft: '6px' }}>
                           {loc.name} {loc.name === currentUser ? '(אתה)' : ''}
                         </strong>
                         {loc.updated_at && (
@@ -615,11 +612,11 @@ export default function App() {
                     
                     <div style={{ display: 'flex', gap: '6px' }}>
                       {loc.name !== currentUser && (
-                        <button onClick={() => sendPingToUser(loc.name)} style={{ background: '#d97706', color: '#ffffff', border: 'none', padding: '8px 10px', borderRadius: '10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 4px 10px rgba(217,119,6,0.3)' }} title="שלח פינג התראה">
+                        <button onClick={() => sendPingToUser(loc.name)} style={{ background: '#d97706', color: '#ffffff', border: 'none', padding: '6px 8px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }} title="שלח פינג התראה">
                           🔔 PING
                         </button>
                       )}
-                      <a href={getSatelliteMapsUrl(loc.lat, loc.lng, loc.name)} target="_blank" rel="noreferrer" style={{ background: S.accentGradient, color: '#ffffff', padding: '9px 14px', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '800', boxSizing: 'border-box', whiteSpace: 'nowrap', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}>
+                      <a href={getSatelliteMapsUrl(loc.lat, loc.lng, loc.name)} target="_blank" rel="noreferrer" style={{ background: S.accent, color: '#ffffff', padding: '8px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
                         🛰️ תצוגת לוויין ➔
                       </a>
                     </div>
@@ -631,28 +628,28 @@ export default function App() {
         )}
 
         {activeTab === 'around' && (
-          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '22px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-            <div style={{ fontSize: '36px', marginBottom: '8px' }}>📍</div>
-            <h2 style={{ fontSize: '18px', fontWeight: '900', color: S.textPrimary, marginBottom: '6px' }}>מה יש סביבי?</h2>
-            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '20px' }}>מצא מקומות בקרבת המיקום הנוכחי שלך בלחיצת כפתור:</p>
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
+            <h2 style={{ fontSize: '17px', fontWeight: '900', color: S.textPrimary, marginBottom: '6px' }}>מה יש סביבי?</h2>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '18px' }}>מצא מקומות בקרבת המיקום הנוכחי שלך בלחיצת כפתור:</p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '18px', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
               {[{ label: '🍽️ מסעדות', q: 'מסעדות' }, { label: '🏛️ מוזיאונים', q: 'מוזיאונים' }, { label: '🎢 אטרקציות', q: 'אטרקציות תיירותיות' }, { label: '☕ בתי קפה', q: 'בתי קפה' }].map((item, i) => (
-                <button key={i} type="button" onClick={() => searchAroundMe(item.q)} style={{ padding: '16px 12px', borderRadius: '14px', border: `1px solid ${S.cardBorder}`, background: '#0f172a', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', transition: 'all 0.2s' }}>
+                <button key={i} type="button" onClick={() => searchAroundMe(item.q)} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
                   {item.label}
                 </button>
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box', width: '100%', flexShrink: 0 }}>
               <input 
                 type="text" 
                 placeholder="הקלד כל דבר (לדוגמה: סופרמרקט...)" 
                 value={customSearchQuery} 
                 onChange={e => setCustomSearchQuery(e.target.value)}
-                style={{ flex: 1, minWidth: 0, padding: '13px 16px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, fontSize: '15px', boxSizing: 'border-box', outline: 'none', background: '#0f172a', color: S.textPrimary }}
+                style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, fontSize: '16px', boxSizing: 'border-box', outline: 'none', background: '#ffffff', color: '#0f172a' }}
               />
-              <button type="button" onClick={() => searchAroundMe(customSearchQuery)} style={{ padding: '13px 20px', background: S.accentGradient, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}>
+              <button type="button" onClick={() => searchAroundMe(customSearchQuery)} style={{ padding: '12px 18px', background: S.accent, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box', flexShrink: 0 }}>
                 חפש 🔍
               </button>
             </div>
@@ -660,20 +657,20 @@ export default function App() {
         )}
 
         {activeTab === 'trivia' && (
-          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '22px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: '900', color: S.textPrimary, margin: 0 }}>🎯 טריוויה משפחתית (1500)</h2>
-              <span style={{ background: triviaState.isPaused ? '#7f1d1d' : '#064e3b', color: triviaState.isPaused ? '#fca5a5' : '#34d399', padding: '6px 12px', borderRadius: '10px', fontSize: '11px', fontWeight: '800' }}>
-                {triviaState.isPaused ? '⏸️ מושהה' : `⏱️ ${timeLeft} שניות`}
+              <span style={{ background: triviaState.isPaused ? '#fef2f2' : '#f0fdf4', color: triviaState.isPaused ? '#dc2626' : '#166534', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold' }}>
+                {triviaState.isPaused ? '⏸️ מושהה ע"י מנהל' : `⏱️ ${timeLeft} שניות`}
               </span>
             </div>
 
-            <div style={{ background: '#0f172a', border: `1px solid ${S.cardBorder}`, borderRadius: '14px', padding: '14px', marginBottom: '18px', textAlign: 'right' }}>
-              <strong style={{ fontSize: '12px', color: S.textPrimary, display: 'block', marginBottom: '8px' }}>🏆 טבלת מובילים:</strong>
+            <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', padding: '12px', marginBottom: '16px', textAlign: 'right' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary, display: 'block', marginBottom: '6px' }}>🏆 טבלת מובילים:</strong>
               {sortedScores.length === 0 ? (
                 <span style={{ fontSize: '11px', color: S.textSecondary }}>עדיין אין ניקוד. התחל לענות!</span>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {sortedScores.map(([name, score], sIdx) => (
                     <div key={sIdx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                       <span>{sIdx === 0 ? '👑 ' : '👤 '}{name}</span>
@@ -686,7 +683,7 @@ export default function App() {
 
             {!triviaState.isPaused ? (
               <>
-                <div style={{ background: '#0f172a', border: `1px solid ${S.cardBorder}`, padding: '20px', borderRadius: '14px', marginBottom: '18px', fontSize: '15px', fontWeight: '800', color: S.textPrimary, lineHeight: '1.5', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}>
+                <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '18px', borderRadius: '12px', marginBottom: '16px', fontSize: '14px', fontWeight: '800', color: S.textPrimary, lineHeight: '1.5' }}>
                   {activeQ.q}
                 </div>
 
@@ -713,10 +710,10 @@ export default function App() {
                         }, 1200);
                       }}
                       style={{
-                        padding: '15px', borderRadius: '14px', border: `1px solid ${S.cardBorder}`,
-                        background: selectedOpt === null ? '#0f172a' : (oIdx === activeQ.correct ? S.success : (selectedOpt === oIdx ? S.danger : '#0f172a')),
+                        padding: '14px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`,
+                        background: selectedOpt === null ? '#ffffff' : (oIdx === activeQ.correct ? S.success : (selectedOpt === oIdx ? S.danger : '#ffffff')),
                         color: selectedOpt !== null && (oIdx === activeQ.correct || selectedOpt === oIdx) ? '#ffffff' : S.textPrimary,
-                        fontWeight: '800', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                        fontWeight: '800', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s'
                       }}
                     >
                       {opt}
@@ -725,18 +722,18 @@ export default function App() {
                 </div>
               </>
             ) : (
-              <div style={{ padding: '30px', color: '#ef4444', fontWeight: 'bold', fontSize: '14px' }}>
+              <div style={{ padding: '30px', color: S.danger, fontWeight: 'bold', fontSize: '14px' }}>
                 ⏸️ המשחק מושהה כרגע על ידי מנהל המערכת.
               </div>
             )}
 
-            <div style={{ marginTop: '20px', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '16px', display: 'flex', gap: '8px' }}>
-              <input type="password" placeholder="קוד מנהל (1967)" value={adminTriviaPin} onChange={e => setAdminTriviaPin(e.target.value)} style={{ width: '120px', padding: '10px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, textAlign: 'center', fontSize: '12px', outline: 'none', background: '#0f172a', color: '#fff' }} />
+            <div style={{ marginTop: '20px', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', display: 'flex', gap: '8px' }}>
+              <input type="password" placeholder="קוד מנהל (1967)" value={adminTriviaPin} onChange={e => setAdminTriviaPin(e.target.value)} style={{ width: '120px', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, textAlign: 'center', fontSize: '12px', outline: 'none' }} />
               <button onClick={() => {
                 if (adminTriviaPin !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
                 updateTriviaInCloud({ ...triviaState, isPaused: !triviaState.isPaused });
                 setAdminTriviaPin('');
-              }} style={{ flex: 1, padding: '10px', background: triviaState.isPaused ? '#059669' : '#d97706', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
+              }} style={{ flex: 1, padding: '8px', background: triviaState.isPaused ? S.success : '#f59e0b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
                 {triviaState.isPaused ? 'הפעל משחק ▶️' : 'השהה משחק ⏸️'}
               </button>
               <button onClick={() => {
@@ -745,7 +742,7 @@ export default function App() {
                 setTimeLeft(30);
                 setAdminTriviaPin('');
                 alert('🔄 המשחק אופס בהצלחה!');
-              }} style={{ padding: '10px 14px', background: S.danger, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
+              }} style={{ padding: '8px 12px', background: S.danger, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
                 איפוס 🔄
               </button>
             </div>
@@ -756,22 +753,22 @@ export default function App() {
       </main>
 
       {sidebarOpen && (
-        <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', justifyContent: 'flex-start', boxSizing: 'border-box', backdropFilter: 'blur(4px)' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: S.cardBg, borderLeft: `1px solid ${S.cardBorder}`, width: '85%', maxWidth: '300px', height: '100%', padding: '28px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'right' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '14px', boxSizing: 'border-box', width: '100%' }}>
+        <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', justifyContent: 'flex-start', boxSizing: 'border-box' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#ffffff', borderRight: `1px solid ${S.cardBorder}`, width: '85%', maxWidth: '300px', height: '100%', padding: '24px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'right' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '12px', boxSizing: 'border-box', width: '100%' }}>
               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: S.textPrimary }}>⚙️ ניהול ומערכת</h3>
-              <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: S.textSecondary, fontSize: '20px', cursor: 'pointer' }}>✕</button>
+              <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: S.textSecondary, fontSize: '18px', cursor: 'pointer' }}>✕</button>
             </div>
 
-            <button onClick={() => setAdminModal(true)} style={{ padding: '14px 16px', background: '#0f172a', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', fontWeight: '800', fontSize: '13px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+            <button onClick={() => setAdminModal(true)} style={{ padding: '12px 16px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '10px', fontWeight: '800', fontSize: '13px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
               📂 ניהול / טעינת מסלולים (מנהל)
             </button>
 
-            <button onClick={() => setBackupModal(true)} style={{ padding: '14px 16px', background: '#0f172a', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', fontWeight: '800', fontSize: '13px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+            <button onClick={() => setBackupModal(true)} style={{ padding: '12px 16px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '10px', fontWeight: '800', fontSize: '13px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
               💾 גיבוי ושחזור נתונים (מנהל)
             </button>
             
-            <div style={{ marginTop: 'auto', fontSize: '11px', color: S.textSecondary, textAlign: 'center', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '16px', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ marginTop: 'auto', fontSize: '11px', color: S.textSecondary, textAlign: 'center', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', boxSizing: 'border-box', width: '100%' }}>
               Trip-Navigator גרסה {APP_VERSION}
             </div>
           </div>
@@ -779,39 +776,39 @@ export default function App() {
       )}
 
       {adminModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '20px', width: '100%', maxWidth: '380px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
-            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '17px', fontWeight: '900' }}>📂 ניהול והוספת מסלולים</h3>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '380px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '16px', fontWeight: '900' }}>📂 ניהול והוספת מסלולים</h3>
             <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '12px' }}>הזן קוד מנהל ({ADMIN_PIN}):</p>
-            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '13px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#0f172a', color: S.textPrimary, marginBottom: '18px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
+            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
             
-            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '16px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', marginBottom: '14px', boxSizing: 'border-box', width: '100%' }}>
               <strong style={{ fontSize: '12px', color: S.textPrimary }}>הוספה ידנית של תחנה ליום הנבחר:</strong>
-              <input type="text" placeholder="שם היעד / תחנה" value={manualTitle} onChange={e => setManualTitle(e.target.value)} style={{ width: '100%', padding: '11px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, marginTop: '8px', marginBottom: '8px', boxSizing: 'border-box', fontSize: '14px', outline: 'none', background: '#0f172a', color: '#fff' }} />
-              <input type="text" placeholder="שעה (לדוגמה: 14:00)" value={manualTime} onChange={e => setManualTime(e.target.value)} style={{ width: '100%', padding: '11px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, marginBottom: '8px', boxSizing: 'border-box', fontSize: '14px', outline: 'none', background: '#0f172a', color: '#fff' }} />
-              <input type="text" placeholder="תיאור קצר / הערה" value={manualDesc} onChange={e => setManualDesc(e.target.value)} style={{ width: '100%', padding: '11px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, marginBottom: '12px', boxSizing: 'border-box', fontSize: '14px', outline: 'none', background: '#0f172a', color: '#fff' }} />
-              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '11px', background: S.success, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
+              <input type="text" placeholder="שם היעד / תחנה" value={manualTitle} onChange={e => setManualTitle(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginTop: '8px', marginBottom: '8px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
+              <input type="text" placeholder="שעה (לדוגמה: 14:00)" value={manualTime} onChange={e => setManualTime(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '8px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
+              <input type="text" placeholder="תיאור קצר / הערה" value={manualDesc} onChange={e => setManualDesc(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '10px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
+              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '8px', background: S.success, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
             </div>
 
-            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '16px', marginBottom: '18px', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
               <strong style={{ fontSize: '12px', color: S.textPrimary }}>או טעינה מקובץ (JSON):</strong>
-              <input type="file" accept=".json" onChange={file => handleFileUpload(file)} style={{ width: '100%', marginTop: '8px', fontSize: '12px', boxSizing: 'border-box', color: S.textSecondary }} />
+              <input type="file" accept=".json" onChange={file => handleFileUpload(file)} style={{ width: '100%', marginTop: '8px', fontSize: '12px', boxSizing: 'border-box' }} />
             </div>
 
-            <button onClick={() => setAdminModal(false)} style={{ width: '100%', padding: '12px', background: '#334155', color: S.textPrimary, border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+            <button onClick={() => setAdminModal(false)} style={{ width: '100%', padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
           </div>
         </div>
       )}
 
       {backupModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box', backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '20px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
-            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '17px', fontWeight: '900' }}>💾 גיבוי ושחזור מערכת</h3>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '16px', fontWeight: '900' }}>💾 גיבוי ושחזור מערכת</h3>
             <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '12px' }}>הזן קוד מנהל ({ADMIN_PIN}) להורדת גיבוי:</p>
-            <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '13px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#0f172a', color: S.textPrimary, marginBottom: '18px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
+            <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
             <div style={{ display: 'flex', gap: '10px', boxSizing: 'border-box' }}>
-              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '12px', background: S.success, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>הורד גיבוי</button>
-              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '12px', background: '#334155', color: S.textPrimary, border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '12px', background: S.success, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>הורד גיבוי</button>
+              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
             </div>
           </div>
         </div>
