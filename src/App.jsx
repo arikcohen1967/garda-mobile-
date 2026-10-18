@@ -1,195 +1,86 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { createClient } from '@supabase/supabase-js';
+{activeTab === 'radar' && (
+          <div style={{ background: '#18181b', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', padding: '20px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>
+              <div>
+                <h2 style={{ fontSize: '17px', fontWeight: '800', margin: '0 0 2px', letterSpacing: '-0.5px' }}>מפה חיה ורדאר משתמשים</h2>
+                <span style={{ fontSize: '10px', color: '#a1a1aa' }}>לחץ פעמיים (Double Click) על המפה למעבר למסך מלא</span>
+              </div>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                <button 
+                  onClick={() => {
+                    const el = mapContainerRef.current;
+                    if (!el) return;
+                    if (!document.fullscreenElement) {
+                      el.requestFullscreen().catch(err => alert(`שגיאה במעבר למסך מלא: ${err.message}`));
+                    } else {
+                      document.exitFullscreen();
+                    }
+                  }} 
+                  style={{ background: '#3f3f46', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                >
+                  ⛶ מסך מלא
+                </button>
+                <span style={{ fontSize: '11px', background: '#27272a', color: '#22c55e', padding: '3px 8px', borderRadius: '10px', fontWeight: '700', border: '1px solid rgba(34, 197, 94, 0.3)' }}>● Live</span>
+              </div>
+            </div>
 
-// --- TRIP-NAVIGATOR v1.7.9 (Fully Verified & Closed Brackets) ---
-const APP_VERSION = 'v1.7.9';
-const ADMIN_PIN = '1967';
-
-const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const S = {
-  bg: '#f8fafc',
-  cardBg: '#ffffff',
-  cardBorder: '#cbd5e1',
-  textPrimary: '#0f172a',
-  textSecondary: '#64748b',
-  accent: '#2563eb',
-  success: '#059669',
-  danger: '#dc2626',
-  radius: '16px'
-};
-
-const INITIAL_TRIP_DAYS = [
-  {
-    date: "2026-09-30", label: "יום 1 · נחיתה", title: "נחיתה והגעה למלון", icon: "✈️",
-    stops: [
-      { time: "16:00", name: "נחיתה בשדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף רכב וקבלת פנים ראשונה." },
-      { time: "18:00", name: "הגעה למלון Bio Agriturismo Vojon", dest: "Peschiera del Garda, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין והתארגנות." }
-    ]
-  },
-  {
-    date: "2026-10-01", label: "יום 2 · פארק", title: "Gardaland – יום פארק מלא", icon: "🎢",
-    stops: [
-      { time: "09:00", name: "Gardaland Resort", dest: "Gardaland Resort, Castelnuovo del Garda", lat: 45.4526, lng: 10.7153, note: "יום מתקנים ואטרקציות בפארק." }
-    ]
-  }
-];
-
-const TRIVIA_BANK = Array.from({ length: 1500 }, (_, i) => {
-  const id = i + 1;
-  const questionsList = [
-    { q: `שאלה #${id}: באיזו מדינה באירופאית נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
-    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פדובה"], correct: 2 },
-    { q: `שאלה #${id}: איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?`, options: ["דיסנילנד", "גארדלנד", "פורט אבנטורה", "אסטריקס"], correct: 1 },
-    { q: `שאלה #${id}: מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?`, options: ["ורונה", "מנטובה", "בולוניה", "גנואה"], correct: 0 },
-    { q: `שאלה #${id}: איזה מאכל איטלקי מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?`, options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 }
-  ];
-  return questionsList[i % questionsList.length];
-});
-
-export default function App() {
-  const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('trip-user') || '');
-  const [loginInput, setLoginInput] = useState('');
-  const [activeTab, setActiveTab] = useState('itinerary'); 
-  const [activeDay, setActiveDay] = useState(0);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-  const [tripDays, setTripDays] = useState(() => {
-    try {
-      const saved = localStorage.getItem('trip-custom-days');
-      return saved ? JSON.parse(saved) : INITIAL_TRIP_DAYS;
-    } catch (e) { return INITIAL_TRIP_DAYS; }
-  });
-
-  const [myLocation, setMyLocation] = useState(null);
-  const [gpsConnected, setGpsConnected] = useState(false);
-  const [allUsersLocations, setAllUsersLocations] = useState({});
-  const [currentWeather, setCurrentWeather] = useState({ temp: '... ', icon: '⏳' });
-  const [incomingPing, setIncomingPing] = useState(null);
-
-  const [customSearchQuery, setCustomSearchQuery] = useState('');
-
-  const [adminModal, setAdminModal] = useState(false);
-  const [adminPinInput, setAdminPinInput] = useState('');
-  const [manualTitle, setManualTitle] = useState('');
-  const [manualDesc, setManualDesc] = useState('');
-  const [manualTime, setManualTime] = useState('10:00');
-
-  const [backupModal, setBackupModal] = useState(false);
-  const [backupPinInput, setBackupPinInput] = useState('');
-
-  const [triviaState, setTriviaState] = useState(() => {
-    try {
-      const saved = localStorage.getItem('trip-trivia-state');
-      return saved ? JSON.parse(saved) : { idx: 0, scores: {}, isPaused: false };
-    } catch (e) { return { idx: 0, scores: {}, isPaused: false }; }
-  });
-  const [timeLeft, setTimeLeft] = useState(30);
-  const [selectedOpt, setSelectedOpt] = useState(null);
-  const [adminTriviaPin, setAdminTriviaPin] = useState('');
-
-  const mapContainerRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-
-  // פונקציית עדכון טריוויה מול Supabase
-  const updateTriviaInCloud = async (newState) => {
-    setTriviaState(newState);
-    localStorage.setItem('trip-trivia-state', JSON.stringify(newState));
-    try {
-      await supabase.from('family_radar').upsert([{
-        name: currentUser,
-        lat: myLocation?.lat || 45.43,
-        lng: myLocation?.lng || 10.68,
-        updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        trivia_state: newState
-      }], { onConflict: 'name' });
-    } catch (err) {}
-  };
-
-  useEffect(() => {
-    if (document.getElementById('leaflet-script')) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    document.head.appendChild(link);
-
-    const script = document.createElement('script');
-    script.id = 'leaflet-script';
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    document.body.appendChild(script);
-  }, []);
-
-  useEffect(() => {
-    if (activeTab !== 'radar') return;
-    const timer = setTimeout(() => {
-      if (!window.L || !mapContainerRef.current) return;
-
-      const defaultLat = myLocation?.lat || 45.4384;
-      const defaultLng = myLocation?.lng || 10.6816;
-
-      if (!mapInstanceRef.current) {
-        mapInstanceRef.current = window.L.map(mapContainerRef.current, {
-          dragging: true,
-          touchZoom: true,
-          scrollWheelZoom: true,
-          doubleClickZoom: true
-        }).setView([defaultLat, defaultLng], 12);
-
-        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '© OpenStreetMap'
-        }).addTo(mapInstanceRef.current);
-      } else {
-        mapInstanceRef.current.setView([defaultLat, defaultLng], 12);
-        mapInstanceRef.current.invalidateSize();
-      }
-
-      mapInstanceRef.current.eachLayer((layer) => {
-        if (layer instanceof window.L.Marker) {
-          mapInstanceRef.current.removeLayer(layer);
-        }
-      });
-
-      const redPinIcon = window.L.divIcon({
-        className: 'custom-red-pin',
-        html: `<div style="background-color: #dc2626; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.4);"></div>`,
-        iconSize: [22, 22],
-        iconAnchor: [11, 11]
-      });
-
-      Object.values(allUsersLocations).forEach(loc => {
-        if (loc.lat && loc.lng) {
-          const marker = window.L.marker([loc.lat, loc.lng], { icon: redPinIcon }).addTo(mapInstanceRef.current);
-          marker.bindPopup(`<b>${loc.name}</b><br/>עדכון: ${loc.updated_at || 'לפני רגע'}`);
-        }
-      });
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [activeTab, allUsersLocations, myLocation]);
-
-  useEffect(() => {
-    if (!currentUser) return;
-
-    const fetchInitialData = async () => {
-      try {
-        const { data } = await supabase.from('family_radar').select('*');
-        if (data) {
-          const map = {};
-          data.forEach(item => { 
-            map[item.name] = item; 
-            if (item.trivia_state && item.name === currentUser) {
-              setTriviaState(item.trivia_state);
-            }
-          });
-          setAllUsersLocations(map);
-        }
-      } catch (err) {}
-    };
-    fetchInitialData();
-
-    const channel = supabase.channel('trip_sync_v179')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
-        if (payload.
+            {/* אזור המפה - לחיצה כפולה (Double Click) תכניס או תצא ממסך מלא */}
+            <div 
+              ref={mapContainerRef} 
+              onDoubleClick={() => {
+                const el = mapContainerRef.current;
+                if (!el) return;
+                if (!document.fullscreenElement) {
+                  el.requestFullscreen().catch(err => {});
+                } else {
+                  document.exitFullscreen().catch(err => {});
+                }
+              }}
+              style={{ width: '100%', height: '500px', borderRadius: '16px', marginBottom: '14px', zIndex: 1, border: '1px solid rgba(255,255,255,0.15)', cursor: 'zoom-in' }}
+              title="לחץ פעמיים למסך מלא"
+            ></div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
+              {Object.keys(allUsersLocations).length === 0 ? (
+                <div style={{ padding: '15px', textAlign: 'center', color: '#a1a1aa', fontSize: '12px' }}>
+                  ממתין לנתוני מיקום מהמשתמשים...
+                </div>
+              ) : (
+                Object.values(allUsersLocations).map((loc, idx) => (
+                  <div key={idx} style={{ background: '#27272a', border: '1px solid rgba(255,255,255,0.08)', padding: '10px 14px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ position: 'relative' }}>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#3f3f46', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '13px', border: '1.5px solid rgba(255,255,255,0.2)' }}>
+                          {loc.name ? loc.name[0] : '👤'}
+                        </div>
+                        <span style={{ position: 'absolute', bottom: '0px', right: '0px', width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', border: '1.5px solid #27272a' }}></span>
+                      </div>
+                      <div>
+                        <strong style={{ fontSize: '13px', color: '#ffffff', fontWeight: '700', display: 'inline-block', marginLeft: '6px' }}>
+                          {loc.name} {loc.name === currentUser ? '(אתה)' : ''}
+                        </strong>
+                        {loc.updated_at && (
+                          <span style={{ fontSize: '10px', color: '#a1a1aa' }}>
+                            ({loc.updated_at})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {loc.name !== currentUser && (
+                        <button onClick={() => sendPingToUser(loc.name)} style={{ background: '#f59e0b', color: '#ffffff', border: 'none', padding: '6px 8px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }} title="שלח פינג התראה">
+                          🔔 PING
+                        </button>
+                      )}
+                      <a href={getMapsUrl(loc.lat, loc.lng, loc.name)} target="_blank" rel="noreferrer" style={{ background: '#3b82f6', color: '#ffffff', padding: '6px 10px', borderRadius: '8px', textDecoration: 'none', fontSize: '11px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
+                        נווט ➔
+                      </a>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
