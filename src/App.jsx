@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.7.8 (Fully Fixed & Complete Code) ---
-const APP_VERSION = 'v1.7.8';
+// --- TRIP-NAVIGATOR v1.7.9 (Fully Verified & Closed Brackets) ---
+const APP_VERSION = 'v1.7.9';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -93,7 +93,6 @@ export default function App() {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
 
-  // Load Leaflet scripts
   useEffect(() => {
     if (document.getElementById('leaflet-script')) return;
     const link = document.createElement('link');
@@ -107,7 +106,6 @@ export default function App() {
     document.body.appendChild(script);
   }, []);
 
-  // Render Locked Fixed Map
   useEffect(() => {
     if (activeTab !== 'radar') return;
     const timer = setTimeout(() => {
@@ -133,14 +131,12 @@ export default function App() {
         mapInstanceRef.current.invalidateSize();
       }
 
-      // Clear layers
       mapInstanceRef.current.eachLayer((layer) => {
         if (layer instanceof window.L.Marker) {
           mapInstanceRef.current.removeLayer(layer);
         }
       });
 
-      // Custom Red Pin Icon
       const redPinIcon = window.L.divIcon({
         className: 'custom-red-pin',
         html: `<div style="background-color: #dc2626; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.4);"></div>`,
@@ -159,7 +155,6 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [activeTab, allUsersLocations, myLocation]);
 
-  // Sync Supabase & GPS
   useEffect(() => {
     if (!currentUser) return;
 
@@ -175,7 +170,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v178')
+    const channel = supabase.channel('trip_sync_v179')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -408,7 +403,6 @@ export default function App() {
   return (
     <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
       
-      {/* Incoming PING Modal Alert */}
       {incomingPing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: '#ffffff', border: '3px solid #dc2626', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '340px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
@@ -425,25 +419,20 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header - Uniform Compact Elements */}
       <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
         
-        {/* Right Side: Logo + Title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', boxSizing: 'border-box', minWidth: 0 }}>
           <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>🧭</div>
           <h1 style={{ fontSize: '13px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>Trip-Nav</h1>
         </div>
 
-        {/* Left Side: 4 Uniform Control Buttons/Badges */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px', boxSizing: 'border-box', flexShrink: 0 }}>
           
-          {/* 1. GPS Status Badge */}
           <div style={{ background: gpsConnected ? '#f0fdf4' : '#fef2f2', border: `1px solid ${gpsConnected ? '#bbf7d0' : '#fecaca'}`, height: '28px', padding: '0 6px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '800', color: gpsConnected ? '#166534' : '#dc2626', boxSizing: 'border-box' }}>
             <span>{gpsConnected ? '🟢' : '🔴'}</span>
             <span>{gpsConnected ? 'GPS' : 'אין GPS'}</span>
           </div>
 
-          {/* 2. Weather Button */}
           <button 
             onClick={openWeatherApp}
             title="פתח אפליקציית מזג אוויר"
@@ -453,12 +442,10 @@ export default function App() {
             <span>{currentWeather.temp}</span>
           </button>
 
-          {/* 3. User Badge */}
           <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 8px', borderRadius: '8px', display: 'flex', alignItems: 'center', fontSize: '10px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box', whiteSpace: 'nowrap', maxWidth: '75px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             👤 {currentUser}
           </div>
 
-          {/* 4. Admin / Settings Button */}
           <button 
             onClick={() => setSidebarOpen(true)} 
             style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 8px', borderRadius: '8px', display: 'flex', alignItems: 'center', color: S.textPrimary, cursor: 'pointer', fontSize: '10px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}
@@ -470,7 +457,6 @@ export default function App() {
 
       </header>
 
-      {/* Main Container */}
       <main style={{ padding: '18px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box', width: '100%' }}>
 
         <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
@@ -497,7 +483,6 @@ export default function App() {
           ))}
         </nav>
 
-        {/* Tab 1: Itinerary */}
         {activeTab === 'itinerary' && (
           <div style={{ boxSizing: 'border-box', width: '100%' }}>
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '16px', scrollbarWidth: 'none', boxSizing: 'border-box', width: '100%' }}>
@@ -552,7 +537,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 2: Radar & Locked Fixed Map */}
         {activeTab === 'radar' && (
           <div style={{ background: '#18181b', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', padding: '20px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}>
             
@@ -564,10 +548,8 @@ export default function App() {
               <span style={{ fontSize: '11px', background: '#27272a', color: '#22c55e', padding: '3px 8px', borderRadius: '10px', fontWeight: '700', border: '1px solid rgba(34, 197, 94, 0.3)' }}>● Live</span>
             </div>
 
-            {/* Fixed Map Container (Dragging Disabled, Zoom Allowed) */}
             <div ref={mapContainerRef} style={{ width: '100%', height: '380px', borderRadius: '16px', marginBottom: '14px', zIndex: 1, border: '1px solid rgba(255,255,255,0.15)' }}></div>
             
-            {/* Compact Users List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
               {Object.keys(allUsersLocations).length === 0 ? (
                 <div style={{ padding: '15px', textAlign: 'center', color: '#a1a1aa', fontSize: '12px' }}>
@@ -612,7 +594,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3: What's Around Me */}
         {activeTab === 'around' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
@@ -649,7 +630,6 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 4: Trivia */}
         {activeTab === 'trivia' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -746,7 +726,6 @@ export default function App() {
 
       </main>
 
-      {/* Sidebar Modal */}
       {sidebarOpen && (
         <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', justifyContent: 'flex-start', boxSizing: 'border-box' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: '#ffffff', borderRight: `1px solid ${S.cardBorder}`, width: '85%', maxWidth: '300px', height: '100%', padding: '24px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'right' }}>
@@ -770,7 +749,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Admin Modal */}
       {adminModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
           <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '380px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
@@ -796,7 +774,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Backup Modal */}
       {backupModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
           <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
