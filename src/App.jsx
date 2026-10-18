@@ -356,3 +356,567 @@ const calculateDistanceAndDuration = (lat1, lon1, lat2, lon2) => {
     const h = Math.floor(mins / 60);
     const m = mins % 60;
     durationStr = `${h} שע' ${m > 0 ? `${m} דק'` : ''}`;
+  }
+
+  return {
+    dist: `${distKm.toFixed(1)} ק"מ`,
+    duration: durationStr
+  };
+};
+
+export default function App() {
+  const [activeDay, setActiveDay] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [modalType, setModalType] = useState(null);
+  
+  const [currentUser, setCurrentUser] = useState(() => {
+    try { return localStorage.getItem('garda-current-user') || 'אריק'; } catch (e) { return 'אריק'; }
+  });
+
+  const [themeMode, setThemeMode] = useState(() => {
+    try { return localStorage.getItem('garda-theme-mode') || 'light'; } catch (e) { return 'light'; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem('garda-current-user', currentUser); } catch (e) {}
+  }, [currentUser]);
+
+  useEffect(() => {
+    try { localStorage.setItem('garda-theme-mode', themeMode); } catch (e) {}
+  }, [themeMode]);
+
+  const [viewerItem, setViewerItem] = useState(null);
+  const [myLocation, setMyLocation] = useState(null);
+  const [familyLocations, setFamilyLocations] = useState({
+    'אריק': { name: 'אריק', lat: 45.4384, lng: 10.6816, updated_at: 'לפני דקה' },
+    'עמית': { name: 'עמית', lat: 45.4484, lng: 10.6916, updated_at: 'לפני 5 דקות' },
+    'יולי': { name: 'יולי', lat: 45.4284, lng: 10.6716, updated_at: 'לפני 10 דקות' },
+    'ליאן': { name: 'ליאן', lat: 45.4184, lng: 10.6616, updated_at: 'לפני 12 דקות' },
+    'הראל': { name: 'הראל', lat: 45.4584, lng: 10.7016, updated_at: 'עכשיו' }
+  });
+  const [activeSosAlert, setActiveSosAlert] = useState(null);
+  const [activeSoundAlert, setActiveSoundAlert] = useState(null);
+  
+  const [tripPhotos, setTripPhotos] = useState([]);
+  const [photoCaptionInput, setPhotoCaptionInput] = useState('');
+  const [selectedPhotoViewer, setSelectedPhotoViewer] = useState(null);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const photoFileInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const { data } = await supabase.from('family_trip_photos').select('*').order('created_at', { ascending: false });
+        if (data) setTripPhotos(data);
+      } catch (e) {}
+    };
+    fetchPhotos();
+
+    const photoChannel = supabase.channel('family_trip_photos_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_trip_photos' }, payload => {
+        if (payload.eventType === 'INSERT') {
+          setTripPhotos(prev => [payload.new, ...prev]);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(photoChannel);
+    };
+  }, []);
+
+  const handleUploadPhotoFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64Data = event.target.result;
+      const newPhotoRecord = {
+        uploader: currentUser,
+        caption: photoCaptionInput || 'תמונה מהטיול האיטלקי 📸',
+        image_url: base64Data,
+        created_at: new Date().toISOString(),
+        time_str: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        date_str: new Date().toLocaleDateString('he-IL')
+      };
+
+      try {
+        const { data, error } = await supabase.from('family_trip_photos').insert([newPhotoRecord]).select();
+        if (error) {
+          setTripPhotos(prev => [newPhotoRecord, ...prev]);
+        } else if (data && data[0]) {
+          setTripPhotos(prev => [data[0], ...prev]);
+        }
+        setPhotoCaptionInput('');
+        alert('✨ התמונה הועלתה בהצלחה לאלבום המרכזי וזמינה לכולם!');
+      } catch (err) {
+        setTripPhotos(prev => [newPhotoRecord, ...prev]);
+      } finally {
+        setIsUploadingPhoto(false);
+        if (photoFileInputRef.current) photoFileInputRef.current.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const [sharedTimer, setSharedTimer] = useState(null);
+  const [timerRemainingSec, setTimerRemainingSec] = useState(0);
+  const [isTimerPaused, setIsTimerPaused] = useState(false);
+
+  const [savedCarParking, setSavedCarParking] = useState(() => {
+    try {
+      const saved = localStorage.getItem('garda-car-parking');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) { return null; }
+  });
+  const [carNoteInput, setCarNoteInput] = useState('');
+  const [carDistanceToWalk, setCarDistanceToWalk] = useState('0 ק"מ');
+  
+  const [showParkingMapModal, setShowParkingMapModal] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (savedCarParking) {
+        localStorage.setItem('garda-car-parking', JSON.stringify(savedCarParking));
+      } else {
+        localStorage.removeItem('garda-car-parking');
+      }
+    } catch (e) {}
+  }, [savedCarParking]);
+
+  useEffect(() => {
+    if (!savedCarParking || !myLocation || typeof myLocation.lat !== 'number' || typeof myLocation.lng !== 'number') return;
+    try {
+      const { dist } = calculateDistanceAndDuration(myLocation.lat, myLocation.lng, savedCarParking.lat, savedCarParking.lng);
+      setCarDistanceToWalk(dist);
+    } catch (err) {
+      setCarDistanceToWalk('---');
+    }
+  }, [myLocation, savedCarParking]);
+
+  const saveCarLocationNow = () => {
+    if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
+    navigator.geolocation.getCurrentPosition(pos => {
+      const newCarLoc = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        note: carNoteInput || 'חניה ללא הערה',
+        time: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        date: new Date().toLocaleDateString('he-IL')
+      };
+      setSavedCarParking(newCarLoc);
+      setCarNoteInput('');
+      setModalType(null);
+      alert('🔴 כפתור אדום ננעץ! מיקום הרכב נשמר בהצלחה.');
+    }, () => {
+      alert('❌ לא ניתן לקבוע את מיקום ה-GPS. בדוק את הרשאות המיקום.');
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+  };
+
+  const clearCarLocation = () => {
+    if (window.confirm('למחוק את מיקום הרכב השמור?')) {
+      setSavedCarParking(null);
+    }
+  };
+
+  const [aroundMeQuery, setAroundMeQuery] = useState('');
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  
+  const [currentWeather, setCurrentWeather] = useState({ temp: 'טוען...', condition: '⏳ מזג אוויר' });
+
+  const [backupModalOpen, setBackupModalOpen] = useState(false);
+  const [adminPassInput, setAdminPassInput] = useState('');
+  const [backupSuccessMsg, setBackupSuccessMsg] = useState(false);
+  const [restorePassInput, setRestorePassInput] = useState('');
+  const fileInputRef = useRef(null);
+
+  const handleProtectedBackup = () => {
+    setAdminPassInput('');
+    setRestorePassInput('');
+    setBackupSuccessMsg(false);
+    setBackupModalOpen(true);
+  };
+
+  const executeBackupDownload = () => {
+    if (adminPassInput.trim() === "1967") {
+      try {
+        const backupData = JSON.stringify({
+          version: APP_VERSION,
+          date: new Date().toISOString(),
+          carParking: savedCarParking,
+          scores: travelerScores
+        }, null, 2);
+        const blob = new Blob([backupData], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `garda-mobile-${APP_VERSION}-backup.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        setBackupSuccessMsg(true);
+      } catch (err) {
+        alert("❌ שגיאה בהורדת קובץ הגיבוי.");
+      }
+    } else {
+      alert("❌ סיסמה שגויה!");
+    }
+  };
+
+  const handleFileUploadRestore = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (restorePassInput.trim() !== "1967") {
+      alert("❌ נא להזין קוד מנהל תקין (1967) לפני העלאת קובץ השחזור!");
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const fileContent = event.target.result;
+        const parsedData = JSON.parse(fileContent);
+        if (!parsedData || !parsedData.version) {
+          alert("❌ קובץ לא חוקי או שאינו קובץ גיבוי תקין של Garda-Mobile!");
+          return;
+        }
+
+        if (window.confirm("⚠️ אזהרה: שחזור מערכת יעדכן את הנתונים הנוכחיים מתוך קובץ הגיבוי שנבחר. להמשיך?")) {
+          if (parsedData.carParking) setSavedCarParking(parsedData.carParking);
+          if (parsedData.scores) setTravelerScores(parsedData.scores);
+          alert("✅ הגיבוי שוחזר בהצלחה!");
+          setBackupModalOpen(false);
+        }
+      } catch (err) {
+        alert("❌ שגיאה בקריאת קובץ הגיבוי.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            setMyLocation({ lat, lng: lon });
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+            const data = await res.json();
+            if (data && data.current_weather) {
+              const tempVal = Math.round(data.current_weather.temperature);
+              const code = data.current_weather.weathercode;
+              let condIcon = '☀️ שמש';
+              if (code >= 1 && code <= 3) condIcon = '🌤️ מעונן';
+              else if (code >= 51 && code <= 67) condIcon = '🌧️ גשם';
+              else if (code >= 71 && code <= 77) condIcon = '❄️ שלג';
+              else if (code >= 95) condIcon = '⛈️ סערה';
+
+              setCurrentWeather({ temp: `${tempVal}°C`, condition: condIcon });
+            }
+          } catch (e) {
+            setCurrentWeather({ temp: '24°C', condition: '☀️ שמש' });
+          }
+        },
+        () => {
+          setCurrentWeather({ temp: '25°C', condition: '☀️ שמש נעימה' });
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+  }, []);
+
+  const [triviaIndex, setTriviaIndex] = useState(() => {
+    try { const saved = localStorage.getItem('garda-trivia-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
+  });
+  const [travelerIndex, setTravelerIndex] = useState(() => {
+    try { const saved = localStorage.getItem('garda-traveler-index'); return saved ? Number(saved) : 0; } catch (e) { return 0; }
+  });
+  const [travelerScores, setTravelerScores] = useState(() => {
+    try { const saved = localStorage.getItem('garda-traveler-scores'); return saved ? JSON.parse(saved) : { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; } catch (e) { return { 'אריק': 0, 'עמית': 0, 'יולי': 0, 'ליאן': 0, 'הראל': 0 }; }
+  });
+  
+  const [isTriviaPaused, setIsTriviaPaused] = useState(() => {
+    try { const saved = localStorage.getItem('garda-trivia-paused'); return saved ? JSON.parse(saved) : true; } catch (e) { return true; }
+  });
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [questionTimeLeft, setQuestionTimeLeft] = useState(45);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('garda-trivia-index', triviaIndex);
+      localStorage.setItem('garda-traveler-index', travelerIndex);
+      localStorage.setItem('garda-traveler-scores', JSON.stringify(travelerScores));
+      localStorage.setItem('garda-trivia-paused', JSON.stringify(isTriviaPaused));
+    } catch (e) {}
+  }, [triviaIndex, travelerIndex, travelerScores, isTriviaPaused]);
+
+  useEffect(() => {
+    if (modalType !== 'trivia' || isTriviaPaused || selectedAnswer !== null) return;
+
+    if (questionTimeLeft <= 0) {
+      setQuestionTimeLeft(45);
+      setTriviaIndex(prev => (prev + 1) % ROAD_TRIVIA_QUESTIONS.length);
+      setTravelerIndex(prev => (prev + 1) % TRAVELERS_LIST.length);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setQuestionTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [modalType, isTriviaPaused, questionTimeLeft, selectedAnswer]);
+
+  const [folders] = useState(TICKET_DEFAULT_FOLDERS);
+  const [activeFolder, setActiveFolder] = useState('✈️ טיסות ורכב');
+  const [ticketFiles] = useState(DEFAULT_DOCUMENTS);
+
+  const audioCtxRef = useRef(null);
+  const alarmIntervalRef = useRef(null);
+
+  const sendSoundAlert = async (targetName) => {
+    const customMsg = prompt(`שלח הודעה וצליל אל ${targetName}:`, "נא להגיע אל נקודת המפגש!");
+    if (customMsg === null) return;
+
+    playLongChime();
+
+    const soundAlertPayload = {
+      name: targetName,
+      sound_msg: customMsg || "התראה קולית מהרדאר המשפחתי!",
+      updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+      is_sound_alert: true
+    };
+
+    setActiveSoundAlert(soundAlertPayload);
+
+    try {
+      await supabase.from('family_radar').upsert([soundAlertPayload], { onConflict: 'name' });
+    } catch (e) {}
+  };
+
+  const playLongChime = () => {
+    try {
+      if (!audioCtxRef.current) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtxRef.current = new AudioContextClass();
+        }
+      }
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => {
+          try {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+            gain.gain.setValueAtTime(0.4, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start();
+            osc.stop(ctx.currentTime + 0.6);
+          } catch (err) {}
+        }, idx * 200);
+      });
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    const fetchInitialTimer = async () => {
+      try {
+        const { data } = await supabase.from('family_timers').select('*').eq('id', 1).single();
+        if (data) {
+          setSharedTimer(data);
+          setIsTimerPaused(data.is_paused);
+        }
+      } catch (e) {}
+    };
+    fetchInitialTimer();
+
+    const channel = supabase.channel('family_trip_channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
+        if (payload.new) {
+          setFamilyLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
+          if (payload.new.is_sos) {
+            setActiveSosAlert(payload.new);
+            triggerSirenSound();
+          }
+          if (payload.new.is_sound_alert && payload.new.name === currentUser) {
+            setActiveSoundAlert(payload.new);
+            playLongChime();
+          }
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
+        if (payload.new) {
+          setSharedTimer(payload.new);
+          setIsTimerPaused(payload.new.is_paused);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      supabase.removeChannel(channel);
+      stopSirenSound();
+    };
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!sharedTimer || !sharedTimer.end_time || isTimerPaused) return;
+    const interval = setInterval(() => {
+      const diff = Math.max(0, Math.floor((sharedTimer.end_time - Date.now()) / 1000));
+      setTimerRemainingSec(diff);
+      if (diff === 0) {
+        alert(`⏱️ הזמן נגמר עבור: ${sharedTimer.title}!`);
+        setSharedTimer(null);
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [sharedTimer, isTimerPaused]);
+
+  const startSharedTimer = async (mins) => {
+    const duration = Number(mins) || 10;
+    const endTime = Date.now() + duration * 60 * 1000;
+    const timerPayload = { id: 1, title: 'טיימר משפחתי מרכזי', end_time: endTime, duration: duration, is_paused: false };
+    
+    setSharedTimer(timerPayload);
+    setTimerRemainingSec(duration * 60);
+    setIsTimerPaused(false);
+    setModalType(null);
+
+    try {
+      await supabase.from('family_timers').upsert([timerPayload], { onConflict: 'id' });
+    } catch (e) {}
+  };
+
+  const toggleSharedTimerPause = async () => {
+    const nextPaused = !isTimerPaused;
+    setIsTimerPaused(nextPaused);
+    if (sharedTimer) {
+      const updated = { ...sharedTimer, is_paused: nextPaused };
+      setSharedTimer(updated);
+      try {
+        await supabase.from('family_timers').upsert([updated], { onConflict: 'id' });
+      } catch (e) {}
+    }
+  };
+
+  const clearSharedTimer = async () => {
+    setSharedTimer(null);
+    setIsTimerPaused(false);
+    try {
+      await supabase.from('family_timers').delete().eq('id', 1);
+    } catch (e) {}
+  };
+
+  const triggerSirenSound = () => {
+    try {
+      if (!audioCtxRef.current) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtxRef.current = new AudioContextClass();
+        }
+      }
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      let freq = 300;
+      if (alarmIntervalRef.current) clearInterval(alarmIntervalRef.current);
+
+      alarmIntervalRef.current = setInterval(() => {
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 0.4);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start();
+          osc.stop(ctx.currentTime + 0.4);
+
+          freq += 80;
+          if (freq > 1200) freq = 300;
+        } catch (e) {}
+      }, 500);
+    } catch (e) {}
+  };
+
+  const stopSirenSound = () => {
+    if (alarmIntervalRef.current) {
+      clearInterval(alarmIntervalRef.current);
+      alarmIntervalRef.current = null;
+    }
+  };
+
+  const triggerSos = async () => {
+    if (!navigator.geolocation) return alert('GPS אינו נתמך במכשיר זה');
+    if (!window.confirm('🚨 להפעיל אזעקת חירום SOS לכל בני המשפחה?')) return;
+
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const sosData = {
+        name: currentUser,
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        is_sos: true
+      };
+      setActiveSosAlert(sosData);
+      triggerSirenSound();
+      try {
+        await supabase.from('family_radar').upsert([sosData], { onConflict: 'name' });
+      } catch (e) {}
+    }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
+  };
+
+  const dismissSos = async () => {
+    stopSirenSound();
+    setActiveSosAlert(null);
+    try {
+      await supabase.from('family_radar').upsert([{ name: currentUser, is_sos: false }], { onConflict: 'name' });
+    } catch (e) {}
+  };
+
+  const isDark = themeMode === 'dark';
+  const bgMain = isDark ? '#060913' : '#ffffff';
+  const cardBg = isDark ? 'rgba(17, 24, 39, 0.98)' : '#ffffff';
+  const textColor = isDark ? '#f3f4f6' : '#0f172a';
+  const textSub = isDark ? '#9ca3af' : '#64748b';
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.15)' : '#cbd5e1';
+
+  return (
+    <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box' }}>
+      
+      {activeSosAlert && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '50vh', background: 'rgba(239, 68, 68, 0.95)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', color: '#fff', borderBottomLeftRadius: '28px', borderBottomRightRadius: '28px', boxShadow: '0 15px 40px rgba(0,0,0,0.6)' }}>
+          <span style={{ fontSize: '44px', marginBottom: '8px' }}>🚨</span>
+          <h2 style={{ fontSize: '22px', fontWeight: '900', margin: '0 0 6px' }}>התרעת חירום SOS פעילה!</h2>
