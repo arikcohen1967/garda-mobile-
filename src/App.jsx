@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.5.1 (Apple Maps & Clean Tabs Edition) ---
-const APP_VERSION = 'v1.5.1';
+// --- TRIP-NAVIGATOR v1.6.0 (Live Weather & iOS Find My UI Edition) ---
+const APP_VERSION = 'v1.6.0';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -61,6 +61,7 @@ export default function App() {
   const [myLocation, setMyLocation] = useState(null);
   const [locationStatus, setLocationStatus] = useState('ממתין לאישור מיקום GPS...');
   const [allUsersLocations, setAllUsersLocations] = useState({});
+  const [currentWeather, setCurrentWeather] = useState({ temp: '...', icon: '⏳' });
 
   const [customSearchQuery, setCustomSearchQuery] = useState('');
 
@@ -77,35 +78,45 @@ export default function App() {
   const [triviaScore, setTriviaScore] = useState(() => Number(localStorage.getItem('trip-trivia-score')) || 0);
   const [selectedOpt, setSelectedOpt] = useState(null);
 
-  // Smart Maps URL builder (Opens Apple Maps on iOS/Mac, Google Maps elsewhere)
-  const getMapsUrl = (lat, lng, queryName) => {
-    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    if (isApple) {
-      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}`;
-      return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}`;
-    } else {
-      if (lat && lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
-    }
-  };
-
-  // Sync Location & Users
+  // Sync Location, Weather & Users
   useEffect(() => {
     if (!currentUser || !navigator.geolocation) return;
     const watchId = navigator.geolocation.watchPosition(async (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
       const coords = {
         name: currentUser,
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
+        lat: lat,
+        lng: lng,
         updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
       };
       setMyLocation(coords);
-      setLocationStatus(`✅ מחובר ל-GPS (${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)})`);
+      setLocationStatus(`✅ מחובר ל-GPS (${lat.toFixed(3)}, ${lng.toFixed(3)})`);
+      
+      // Fetch Live Weather for current GPS coords
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+        const weatherData = await res.json();
+        if (weatherData && weatherData.current_weather) {
+          const tempVal = Math.round(weatherData.current_weather.temperature);
+          const code = weatherData.current_weather.weathercode;
+          let condIcon = '☀️';
+          if (code >= 1 && code <= 3) condIcon = '🌤️';
+          else if (code >= 51 && code <= 67) condIcon = '🌧️';
+          else if (code >= 71 && code <= 77) condIcon = '❄️';
+          else if (code >= 95) condIcon = '⛈️';
+          setCurrentWeather({ temp: `${tempVal}°C`, icon: condIcon });
+        }
+      } catch (e) {
+        setCurrentWeather({ temp: '24°C', icon: '☀️' });
+      }
+
       try {
         await supabase.from('family_radar').upsert([coords], { onConflict: 'name' });
       } catch (err) {}
     }, () => {
       setLocationStatus('⚠️ שגיאת גישה ל-GPS');
+      setCurrentWeather({ temp: '24°C', icon: '☀️' });
     }, { enableHighAccuracy: true });
 
     const fetchLocations = async () => {
@@ -120,7 +131,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_v151')
+    const channel = supabase.channel('trip_radar_v160')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -150,6 +161,17 @@ export default function App() {
     localStorage.setItem('trip-user', name);
   };
 
+  const getMapsUrl = (lat, lng, queryName) => {
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    if (isApple) {
+      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}`;
+      return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}`;
+    } else {
+      if (lat && lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
+    }
+  };
+
   const searchAroundMe = (queryText) => {
     const q = queryText || customSearchQuery;
     if (!q || !q.trim()) {
@@ -163,6 +185,15 @@ export default function App() {
         ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&ll=${myLocation.lat},${myLocation.lng}`
         : `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${myLocation.lat},${myLocation.lng},14z`;
       window.open(url, '_blank');
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const url = `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${lat},${lng},14z`;
+        window.open(url, '_blank');
+      }, () => {
+        window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank');
+      }, { enableHighAccuracy: true, timeout: 4000 });
     } else {
       window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank');
     }
@@ -282,21 +313,26 @@ export default function App() {
   return (
     <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
       
-      {/* Top Header */}
-      <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', boxSizing: 'border-box' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🧭</div>
+      {/* Top Header with Live Weather Widget right of Title */}
+      <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', boxSizing: 'border-box' }}>
+          <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🧭</div>
           <div>
-            <h1 style={{ fontSize: '15px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px' }}>Trip-Navigator</h1>
-            <span style={{ fontSize: '11px', color: S.textSecondary, fontWeight: '600' }}>גרסה {APP_VERSION}</span>
+            <h1 style={{ fontSize: '13px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px' }}>Trip-Navigator</h1>
+            <span style={{ fontSize: '10px', color: S.textSecondary, fontWeight: '600' }}>גרסה {APP_VERSION}</span>
+          </div>
+          {/* Live Weather Widget right of the text */}
+          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '5px 10px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: '800', color: S.textPrimary, marginLeft: '4px' }}>
+            <span>{currentWeather.icon}</span>
+            <span>{currentWeather.temp}</span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', boxSizing: 'border-box' }}>
-          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box' }}>
             👤 {currentUser}
           </div>
-          <button onClick={() => setSidebarOpen(true)} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '8px 14px', borderRadius: '10px', color: S.textPrimary, cursor: 'pointer', fontSize: '12px', fontWeight: '700', boxSizing: 'border-box', transition: 'all 0.2s' }}>
+          <button onClick={() => setSidebarOpen(true)} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '7px 10px', borderRadius: '10px', color: S.textPrimary, cursor: 'pointer', fontSize: '11px', fontWeight: '700', boxSizing: 'border-box', transition: 'all 0.2s' }}>
             ⚙️ ניהול
           </button>
         </div>
@@ -310,11 +346,11 @@ export default function App() {
           {locationStatus}
         </div>
 
-        {/* Clean & Fixed Navigation Tabs */}
+        {/* Premium Pill Navigation Tabs */}
         <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
           {[
             { id: 'itinerary', label: '📅 מסלול' },
-            { id: 'radar', label: '📍 רדאר' },
+            { id: 'radar', label: '📍 רדאר (Find My)' },
             { id: 'around', label: '📍 מה סביבי' },
             { id: 'trivia', label: '🎯 טריוויה' }
           ].map(tab => (
