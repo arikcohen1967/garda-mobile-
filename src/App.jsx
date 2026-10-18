@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.7.1 (Larger Red Pin Map & Compact Users List) ---
-const APP_VERSION = 'v1.7.1';
+// --- TRIP-NAVIGATOR v1.7.2 (GPS Status Button in Top Header) ---
+const APP_VERSION = 'v1.7.2';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -64,7 +64,7 @@ export default function App() {
   });
 
   const [myLocation, setMyLocation] = useState(null);
-  const [locationStatus, setLocationStatus] = useState('ממתין לאישור מיקום GPS...');
+  const [gpsConnected, setGpsConnected] = useState(false);
   const [allUsersLocations, setAllUsersLocations] = useState({});
   const [currentWeather, setCurrentWeather] = useState({ temp: '... ', icon: '⏳' });
   const [incomingPing, setIncomingPing] = useState(null);
@@ -169,7 +169,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v171')
+    const channel = supabase.channel('trip_sync_v172')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -193,7 +193,7 @@ export default function App() {
           updated_at: timeStr
         };
         setMyLocation(coords);
-        setLocationStatus(`✅ מחובר ל-GPS (${lat.toFixed(3)}, ${lng.toFixed(3)})`);
+        setGpsConnected(true);
         
         try {
           const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
@@ -216,7 +216,7 @@ export default function App() {
           await supabase.from('family_radar').upsert([coords], { onConflict: 'name' });
         } catch (err) {}
       }, () => {
-        setLocationStatus('⚠️ שגיאת גישה ל-GPS');
+        setGpsConnected(false);
         setCurrentWeather({ temp: '24°C', icon: '☀️' });
       }, { enableHighAccuracy: true });
     }
@@ -419,19 +419,27 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header - Clickable Weather Widget */}
-      <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+      {/* Top Header - Compact GPS Status Button Included */}
+      <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', boxSizing: 'border-box' }}>
-          <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧭</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', boxSizing: 'border-box' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', flexShrink: 0 }}>🧭</div>
           <div style={{ lineHeight: '1.2' }}>
-            <h1 style={{ fontSize: '14px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px' }}>Trip-Navigator</h1>
-            <span style={{ fontSize: '10px', color: S.textSecondary, fontWeight: '600' }}>גרסה {APP_VERSION}</span>
+            <h1 style={{ fontSize: '13px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px' }}>Trip-Navigator</h1>
+            <span style={{ fontSize: '9px', color: S.textSecondary, fontWeight: '600' }}>{APP_VERSION}</span>
           </div>
+
+          {/* GPS Status Compact Button */}
+          <div style={{ background: gpsConnected ? '#f0fdf4' : '#fef2f2', border: `1px solid ${gpsConnected ? '#bbf7d0' : '#fecaca'}`, padding: '6px 8px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: '800', color: gpsConnected ? '#166534' : '#dc2626', marginLeft: '4px', flexShrink: 0 }}>
+            <span>{gpsConnected ? '🟢' : '🔴'}</span>
+            <span>{gpsConnected ? 'GPS: מחובר' : 'GPS: מנותק'}</span>
+          </div>
+
+          {/* Weather Widget Button */}
           <button 
             onClick={openWeatherApp}
             title="פתח אפליקציית מזג אוויר"
-            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 10px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '800', color: S.textPrimary, marginLeft: '6px', flexShrink: '0', cursor: 'pointer', transition: 'background 0.2s' }}
+            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 8px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: '800', color: S.textPrimary, flexShrink: 0, cursor: 'pointer', transition: 'background 0.2s' }}
           >
             <span>{currentWeather.icon}</span>
             <span>{currentWeather.temp}</span>
@@ -451,10 +459,6 @@ export default function App() {
 
       {/* Main Container */}
       <main style={{ padding: '18px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box', width: '100%' }}>
-        
-        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', padding: '10px 14px', borderRadius: '10px', fontSize: '12px', color: '#1e40af', marginBottom: '16px', textAlign: 'center', fontWeight: '700', boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-          {locationStatus}
-        </div>
 
         <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
           {[
