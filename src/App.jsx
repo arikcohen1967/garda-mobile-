@@ -920,3 +920,18 @@ export default function App() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '50vh', background: 'rgba(239, 68, 68, 0.95)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px', textAlign: 'center', color: '#fff', borderBottomLeftRadius: '28px', borderBottomRightRadius: '28px', boxShadow: '0 15px 40px rgba(0,0,0,0.6)' }}>
           <span style={{ fontSize: '44px', marginBottom: '8px' }}>🚨</span>
           <h2 style={{ fontSize: '22px', fontWeight: '900', margin: '0 0 6px' }}>התרעת חירום SOS פעילה!</h2>
+          <p style={{ fontSize: '15px', fontWeight: '800', marginBottom: '10px' }}>משתמש/ת: {activeSosAlert.name} זקוק/ה לעזרה מיידית!</p>
+          <button onClick={dismissSos} style={{ padding: '12px 24px', background: '#0f172a', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: '900', cursor: 'pointer', fontSize: '13px' }}>
+            בטל אזעקה ✓
+          </button>
+        </div>
+      )}
+
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h2>Garda-Mobile {APP_VERSION}</h2>
+        <p>האפליקציה פעילה ומעודכנת בהצלחה מלאה!</p>
+      </div>
+
+    </div>
+  );
+}
