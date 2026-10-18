@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.5.0 (Apple "Find My" iOS Exact UI Edition) ---
-const APP_VERSION = 'v1.5.0';
+// --- TRIP-NAVIGATOR v1.5.1 (Apple Maps & Clean Tabs Edition) ---
+const APP_VERSION = 'v1.5.1';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -77,6 +77,18 @@ export default function App() {
   const [triviaScore, setTriviaScore] = useState(() => Number(localStorage.getItem('trip-trivia-score')) || 0);
   const [selectedOpt, setSelectedOpt] = useState(null);
 
+  // Smart Maps URL builder (Opens Apple Maps on iOS/Mac, Google Maps elsewhere)
+  const getMapsUrl = (lat, lng, queryName) => {
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    if (isApple) {
+      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}`;
+      return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}`;
+    } else {
+      if (lat && lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
+    }
+  };
+
   // Sync Location & Users
   useEffect(() => {
     if (!currentUser || !navigator.geolocation) return;
@@ -108,7 +120,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_v150')
+    const channel = supabase.channel('trip_radar_v151')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -146,17 +158,11 @@ export default function App() {
     }
 
     if (myLocation && myLocation.lat && myLocation.lng) {
-      const url = `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${myLocation.lat},${myLocation.lng},14z`;
+      const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+      const url = isApple 
+        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&ll=${myLocation.lat},${myLocation.lng}`
+        : `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${myLocation.lat},${myLocation.lng},14z`;
       window.open(url, '_blank');
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        const url = `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${lat},${lng},14z`;
-        window.open(url, '_blank');
-      }, () => {
-        window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank');
-      }, { enableHighAccuracy: true, timeout: 4000 });
     } else {
       window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank');
     }
@@ -304,11 +310,11 @@ export default function App() {
           {locationStatus}
         </div>
 
-        {/* Premium Pill Navigation Tabs */}
+        {/* Clean & Fixed Navigation Tabs */}
         <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
           {[
             { id: 'itinerary', label: '📅 מסלול' },
-            { id: 'radar', label: '📍 רדאר (Find My)' },
+            { id: 'radar', label: '📍 רדאר' },
             { id: 'around', label: '📍 מה סביבי' },
             { id: 'trivia', label: '🎯 טריוויה' }
           ].map(tab => (
@@ -373,8 +379,8 @@ export default function App() {
                       <a href={`https://waze.com/ul?q=${encodeURIComponent(stop.dest || stop.name)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#0284c7', color: '#fff', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}>
                         🚗 ניווט ב-Waze
                       </a>
-                      <a href={`https://www.google.com/maps/search/?api=1&query=${stop.lat},${stop.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#475569', color: '#fff', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}>
-                        🗺️ Google Maps
+                      <a href={getMapsUrl(stop.lat, stop.lng, stop.dest || stop.name)} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#475569', color: '#fff', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}>
+                        🗺️ מפות (Apple/Google)
                       </a>
                     </div>
                   </div>
@@ -384,17 +390,15 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 2: Radar - Exact Apple "Find My" Dark Glassmorphism iOS Style */}
+        {/* Tab 2: Radar (iOS "Find My" Style Cards) */}
         {activeTab === 'radar' && (
           <div style={{ background: '#18181b', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', padding: '24px 20px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}>
             
-            {/* Header style Apple Find My */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '14px' }}>
               <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '0', letterSpacing: '-0.5px' }}>People</h2>
               <span style={{ fontSize: '12px', background: '#27272a', color: '#a1a1aa', padding: '4px 10px', borderRadius: '12px', fontWeight: '700' }}>Live GPS</span>
             </div>
             
-            {/* Cards List matching iOS Find My */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box', width: '100%' }}>
               {Object.values(allUsersLocations).map((loc, idx) => (
                 <div key={idx} style={{ background: '#27272a', border: '1px solid rgba(255,255,255,0.08)', padding: '16px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%', transition: 'all 0.2s' }}>
@@ -404,7 +408,6 @@ export default function App() {
                       <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#3f3f46', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '18px', border: '2px solid rgba(255,255,255,0.2)' }}>
                         {loc.name ? loc.name[0] : '👤'}
                       </div>
-                      {/* Active green dot */}
                       <span style={{ position: 'absolute', bottom: '2px', right: '2px', width: '12px', height: '12px', background: '#22c55e', borderRadius: '50%', border: '2px solid #27272a' }}></span>
                     </div>
 
@@ -418,7 +421,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <a href={`https://maps.google.com/?q=${loc.lat},${loc.lng}`} target="_blank" rel="noreferrer" style={{ background: '#3b82f6', color: '#ffffff', padding: '10px 16px', borderRadius: '12px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}>
+                  <a href={getMapsUrl(loc.lat, loc.lng, loc.name)} target="_blank" rel="noreferrer" style={{ background: '#3b82f6', color: '#ffffff', padding: '10px 16px', borderRadius: '12px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}>
                     נווט ➔
                   </a>
                 </div>
