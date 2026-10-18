@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.7.3 (Fixed Header Layout) ---
-const APP_VERSION = 'v1.7.3';
+// --- TRIP-NAVIGATOR v1.7.4 (Uniform Header Buttons & No Version Clock) ---
+const APP_VERSION = 'v1.7.4';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -169,7 +169,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v173')
+    const channel = supabase.channel('trip_sync_v174')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -419,40 +419,47 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Header - Compact Optimized Layout */}
+      {/* Top Header - Uniform Compact Elements */}
       <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', boxSizing: 'border-box', minWidth: 0 }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>🧭</div>
-          <div style={{ lineHeight: '1.1', flexShrink: 0 }}>
-            <h1 style={{ fontSize: '12px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px' }}>Trip-Nav</h1>
-            <span style={{ fontSize: '8px', color: S.textSecondary, fontWeight: '600' }}>{APP_VERSION}</span>
-          </div>
+        {/* Right Side: Logo + Title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', boxSizing: 'border-box', minWidth: 0 }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>🧭</div>
+          <h1 style={{ fontSize: '13px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>Trip-Nav</h1>
+        </div>
 
-          {/* GPS Status Compact Button */}
-          <div style={{ background: gpsConnected ? '#f0fdf4' : '#fef2f2', border: `1px solid ${gpsConnected ? '#bbf7d0' : '#fecaca'}`, padding: '4px 6px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '800', color: gpsConnected ? '#166534' : '#dc2626', flexShrink: 0 }}>
+        {/* Left Side: 4 Uniform Control Buttons/Badges */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', boxSizing: 'border-box', flexShrink: 0 }}>
+          
+          {/* 1. GPS Status Badge */}
+          <div style={{ background: gpsConnected ? '#f0fdf4' : '#fef2f2', border: `1px solid ${gpsConnected ? '#bbf7d0' : '#fecaca'}`, height: '28px', padding: '0 6px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '800', color: gpsConnected ? '#166534' : '#dc2626', boxSizing: 'border-box' }}>
             <span>{gpsConnected ? '🟢' : '🔴'}</span>
             <span>{gpsConnected ? 'GPS' : 'אין GPS'}</span>
           </div>
 
-          {/* Weather Widget Button */}
+          {/* 2. Weather Button */}
           <button 
             onClick={openWeatherApp}
             title="פתח אפליקציית מזג אוויר"
-            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '4px 6px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '2px', fontSize: '9px', fontWeight: '800', color: S.textPrimary, flexShrink: 0, cursor: 'pointer' }}
+            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 6px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '2px', fontSize: '9px', fontWeight: '800', color: S.textPrimary, boxSizing: 'border-box', cursor: 'pointer' }}
           >
             <span>{currentWeather.icon}</span>
             <span>{currentWeather.temp}</span>
           </button>
-        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', boxSizing: 'border-box', flexShrink: 0 }}>
-          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '4px 8px', borderRadius: '16px', fontSize: '10px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box', whiteSpace: 'nowrap', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {/* 3. User Badge */}
+          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 8px', borderRadius: '8px', display: 'flex', alignItems: 'center', fontSize: '10px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box', whiteSpace: 'nowrap', maxWidth: '75px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             👤 {currentUser}
           </div>
-          <button onClick={() => setSidebarOpen(true)} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '5px 8px', borderRadius: '8px', color: S.textPrimary, cursor: 'pointer', fontSize: '10px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
+
+          {/* 4. Admin / Settings Button */}
+          <button 
+            onClick={() => setSidebarOpen(true)} 
+            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 8px', borderRadius: '8px', display: 'flex', alignItems: 'center', color: S.textPrimary, cursor: 'pointer', fontSize: '10px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}
+          >
             ⚙️ ניהול
           </button>
+
         </div>
 
       </header>
