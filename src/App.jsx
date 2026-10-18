@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.2 (Fixed Syntax Edition) ---
-const APP_VERSION = 'v1.8.2';
+// --- TRIP-NAVIGATOR v1.8.3 (Complete Edition) ---
+const APP_VERSION = 'v1.8.3';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -190,7 +190,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v182')
+    const channel = supabase.channel('trip_sync_v183')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -782,4 +782,41 @@ export default function App() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box', backdropFilter: 'blur(4px)' }}>
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '20px', width: '100%', maxWidth: '380px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
             <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '17px', fontWeight: '900' }}>📂 ניהול והוספת מסלולים</h3>
-            <p style={{ fontSize:
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '12px' }}>הזן קוד מנהל ({ADMIN_PIN}):</p>
+            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '13px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#0f172a', color: S.textPrimary, marginBottom: '18px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
+            
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '16px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary }}>הוספה ידנית של תחנה ליום הנבחר:</strong>
+              <input type="text" placeholder="שם היעד / תחנה" value={manualTitle} onChange={e => setManualTitle(e.target.value)} style={{ width: '100%', padding: '11px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, marginTop: '8px', marginBottom: '8px', boxSizing: 'border-box', fontSize: '14px', outline: 'none', background: '#0f172a', color: '#fff' }} />
+              <input type="text" placeholder="שעה (לדוגמה: 14:00)" value={manualTime} onChange={e => setManualTime(e.target.value)} style={{ width: '100%', padding: '11px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, marginBottom: '8px', boxSizing: 'border-box', fontSize: '14px', outline: 'none', background: '#0f172a', color: '#fff' }} />
+              <input type="text" placeholder="תיאור קצר / הערה" value={manualDesc} onChange={e => setManualDesc(e.target.value)} style={{ width: '100%', padding: '11px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, marginBottom: '12px', boxSizing: 'border-box', fontSize: '14px', outline: 'none', background: '#0f172a', color: '#fff' }} />
+              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '11px', background: S.success, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
+            </div>
+
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '16px', marginBottom: '18px', boxSizing: 'border-box', width: '100%' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary }}>או טעינה מקובץ (JSON):</strong>
+              <input type="file" accept=".json" onChange={file => handleFileUpload(file)} style={{ width: '100%', marginTop: '8px', fontSize: '12px', boxSizing: 'border-box', color: S.textSecondary }} />
+            </div>
+
+            <button onClick={() => setAdminModal(false)} style={{ width: '100%', padding: '12px', background: '#334155', color: S.textPrimary, border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+          </div>
+        </div>
+      )}
+
+      {backupModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '20px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '17px', fontWeight: '900' }}>💾 גיבוי ושחזור מערכת</h3>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '12px' }}>הזן קוד מנהל ({ADMIN_PIN}) להורדת גיבוי:</p>
+            <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '13px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#0f172a', color: S.textPrimary, marginBottom: '18px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
+            <div style={{ display: 'flex', gap: '10px', boxSizing: 'border-box' }}>
+              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '12px', background: S.success, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>הורד גיבוי</button>
+              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '12px', background: '#334155', color: S.textPrimary, border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
