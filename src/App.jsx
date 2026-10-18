@@ -912,6 +912,108 @@ export default function App() {
   const textColor = isDark ? '#f3f4f6' : '#0f172a';
   const textSub = isDark ? '#9ca3af' : '#64748b';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.15)' : '#cbd5e1';
+  const accentGradient = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+
+  const itineraryStopCardStyle = {
+    background: isDark ? 'linear-gradient(180deg, rgba(17, 24, 39, 0.98) 0%, rgba(11, 15, 25, 0.98) 100%)' : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+    borderRadius: '16px',
+    padding: '18px',
+    border: `1px solid ${borderColor}`,
+    borderRight: '3.5px solid #475569',
+    boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.06)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '14px',
+    boxSizing: 'border-box'
+  };
+
+  const headerBg = isDark 
+    ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(11, 15, 25, 0.95) 100%)' 
+    : 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%)';
+
+  const day = INITIAL_TRIP_DAYS[activeDay];
+
+  const formatClock = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
+  const broadcastMyLocation = async (coords) => {
+    const locObj = { name: currentUser, lat: coords.latitude, lng: coords.longitude, updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }), is_sos: false };
+    setMyLocation({ lat: coords.latitude, lng: lng: coords.longitude });
+    setFamilyLocations(prev => ({ ...prev, [currentUser]: locObj }));
+    try { await supabase.from('family_radar').upsert([locObj], { onConflict: 'name' }); } catch (e) {}
+  };
+
+  const routeMapHTML = useMemo(() => {
+    const currentLat = myLocation?.lat || 45.4384;
+    const currentLng = myLocation?.lng || 10.6816;
+
+    const targetDayObj = INITIAL_TRIP_DAYS[activeDay] || INITIAL_TRIP_DAYS[0];
+    const firstStop = targetDayObj.stops[0];
+    const destLat = firstStop?.lat || 45.4192;
+    const destLng = firstStop?.lng || 10.6908;
+    const destName = firstStop?.name || targetDayObj.title;
+
+    const { dist, duration } = calculateDistanceAndDuration(currentLat, currentLng, destLat, destLng);
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <style>
+          body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: ${isDark ? '#0b0f19' : '#ffffff'}; }
+          #map { width: 100%; height: 100%; }
+          .route-badge {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            background: ${isDark ? 'rgba(15, 23, 42, 0.92)' : 'rgba(255, 255, 255, 0.95)'};
+            color: ${isDark ? '#f8fafc' : '#0f172a'};
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid ${isDark ? 'rgba(255,255,255,0.2)' : '#cbd5e1'};
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            direction: rtl;
+          }
+          .route-badge span { color: #2563eb; }
+        </style>
+      </head>
+      <body>
+        <div class="route-badge">
+          <span>🚗 יעד:</span> ${destName} | <span>📏 מרחק:</span> ${dist} | <span>⏱️ זמן:</span> ${duration}
+        </div>
+        <div id="map"></div>
+        <script>
+          const map = L.map('map').setView([${currentLat}, ${currentLng}], 11);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+          L.marker([${currentLat}, ${currentLng}]).addTo(map).bindPopup('📍 המיקום הנוכחי שלך (GPS)').openPopup();
+          L.marker([${destLat}, ${destLng}]).addTo(map).bindPopup('🏁 <b>יעד המסלול:</b> ' + "${destName}");
+
+          const latlngs = [
+            [${currentLat}, ${currentLng}],
+            [${destLat}, ${destLng}]
+          ];
+          L.polyline(latlngs, {color: '#ef4444', weight: 5, opacity: 0.85, dashArray: '10, 10'}).addTo(map);
+        </script>
+      </body>
+      </html>
+    `;
+  }, [myLocation, activeDay, isDark]);
 
   return (
     <div style={{ background: bgMain, minHeight: '100vh', color: textColor, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box' }}>
