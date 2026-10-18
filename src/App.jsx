@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.6.5 (Enhanced Live Radar & Clickable Weather) ---
-const APP_VERSION = 'v1.6.5';
+// --- TRIP-NAVIGATOR v1.6.6 (Fixed Build & Enhanced Live Radar) ---
+const APP_VERSION = 'v1.6.6';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -101,7 +101,7 @@ export default function App() {
     };
     fetchTriviaGlobal();
 
-    const triviaChannel = supabase.channel('trip_trivia_sync_v165')
+    const triviaChannel = supabase.channel('trip_trivia_sync_v166')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
         if (payload.new && payload.new.id === 999 && payload.new.trivia_data) {
           setTriviaState(payload.new.trivia_data);
@@ -154,7 +154,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_v165')
+    const channel = supabase.channel('trip_radar_v166')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -225,4 +225,15 @@ export default function App() {
       if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}`;
       return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}`;
     } else {
-      if (lat && lng) return `
+      if (lat && lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
+    }
+  };
+
+  const openWeatherApp = () => {
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    if (isApple) {
+      window.location.href = 'weather://';
+    } else {
+      if (myLocation && myLocation.lat && myLocation.lng) {
+        window.open(`
