@@ -1,35 +1,302 @@
-{activeTab === 'around' && (
-          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
-            <h2 style={{ fontSize: '17px', fontWeight: '900', color: S.textPrimary, marginBottom: '6px' }}>מה יש סביבי?</h2>
-            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '18px' }}>מצא מקומות בקרבת המיקום הנוכחי שלך בלחיצת כפתור:</p>
+import React, { useState, useEffect, useRef } from 'react';
+import { createClient } from '@supabase/supabase-js';
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
-              <button type="button" onClick={() => searchAroundMe('מסעדות')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
-                🍽️ מסעדות
-              </button>
-              <button type="button" onClick={() => searchAroundMe('מוזיאונים')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
-                🏛️ מוזיאונים
-              </button>
-              <button type="button" onClick={() => searchAroundMe('אטרקציות תיירותיות')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
-                🎢 אטרקציות
-              </button>
-              <button type="button" onClick={() => searchAroundMe('בתי קפה')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
-                ☕ בתי קפה
-              </button>
-            </div>
+// --- TRIP-NAVIGATOR v1.8.1 (Satellite View Edition) ---
+const APP_VERSION = 'v1.8.1';
+const ADMIN_PIN = '1967';
 
-            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box', width: '100%', flexShrink: 0 }}>
-              <input 
-                type="text" 
-                placeholder="הקלד כל דבר (לדוגמה: סופרמרקט...)" 
-                value={customSearchQuery} 
-                onChange={e => setCustomSearchQuery(e.target.value)}
-                style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, fontSize: '16px', boxSizing: 'border-box', outline: 'none', background: '#ffffff', color: '#0f172a' }}
-              />
-              <button type="button" onClick={() => searchAroundMe(customSearchQuery)} style={{ padding: '12px 18px', background: S.accent, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box', flexShrink: 0 }}>
-                חפש 🔍
-              </button>
-            </div>
-          </div>
-        )}
+const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Ov14SZJ4k0-4UeqQNEQ6CQ_N4da5ABY';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const S = {
+  bg: '#0f172a',
+  cardBg: '#1e293b',
+  cardBorder: '#334155',
+  textPrimary: '#f8fafc',
+  textSecondary: '#94a3b8',
+  accent: '#3b82f6',
+  accentGradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+  success: '#10b981',
+  danger: '#ef4444',
+  radius: '20px'
+};
+
+const INITIAL_TRIP_DAYS = [
+  {
+    date: "2026-09-30", label: "יום 1 · נחיתה", title: "נחיתה והגעה למלון", icon: "✈️",
+    stops: [
+      { time: "16:00", name: "נחיתה בשדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף רכב וקבלת פנים ראשונה." },
+      { time: "18:00", name: "הגעה למלון Bio Agriturismo Vojon", dest: "Peschiera del Garda, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין והתארגנות." }
+    ]
+  },
+  {
+    date: "2026-10-01", label: "יום 2 · פארק", title: "Gardaland – יום פארק מלא", icon: "🎢",
+    stops: [
+      { time: "09:00", name: "Gardaland Resort", dest: "Gardaland Resort, Castelnuovo del Garda", lat: 45.4526, lng: 10.7153, note: "יום מתקנים ואטרקציות בפארק." }
+    ]
+  }
+];
+
+const TRIVIA_BANK = Array.from({ length: 1500 }, (_, i) => {
+  const id = i + 1;
+  const questionsList = [
+    { q: `שאלה #${id}: באיזו מדינה באירופאית נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פדובה"], correct: 2 },
+    { q: `שאלה #${id}: איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?`, options: ["דיסנילנד", "גארדלנד", "פורט אבנטורה", "אסטריקס"], correct: 1 },
+    { q: `שאלה #${id}: מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?`, options: ["ורונה", "מנטובה", "בולוניה", "גנואה"], correct: 0 },
+    { q: `שאלה #${id}: איזה מאכל איטלקי מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?`, options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 }
+  ];
+  return questionsList[i % questionsList.length];
+});
+
+export default function App() {
+  const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('trip-user') || '');
+  const [loginInput, setLoginInput] = useState('');
+  const [activeTab, setActiveTab] = useState('itinerary'); 
+  const [activeDay, setActiveDay] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const [tripDays, setTripDays] = useState(() => {
+    try {
+      const saved = localStorage.getItem('trip-custom-days');
+      return saved ? JSON.parse(saved) : INITIAL_TRIP_DAYS;
+    } catch (e) { return INITIAL_TRIP_DAYS; }
+  });
+
+  const [myLocation, setMyLocation] = useState(null);
+  const [gpsConnected, setGpsConnected] = useState(false);
+  const [allUsersLocations, setAllUsersLocations] = useState({});
+  const [currentWeather, setCurrentWeather] = useState({ temp: '... ', icon: '⏳' });
+  const [incomingPing, setIncomingPing] = useState(null);
+
+  const [customSearchQuery, setCustomSearchQuery] = useState('');
+
+  const [adminModal, setAdminModal] = useState(false);
+  const [adminPinInput, setAdminPinInput] = useState('');
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualDesc, setManualDesc] = useState('');
+  const [manualTime, setManualTime] = useState('10:00');
+
+  const [backupModal, setBackupModal] = useState(false);
+  const [backupPinInput, setBackupPinInput] = useState('');
+
+  const [triviaState, setTriviaState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('trip-trivia-state');
+      return saved ? JSON.parse(saved) : { idx: 0, scores: {}, isPaused: false };
+    } catch (e) { return { idx: 0, scores: {}, isPaused: false }; }
+  });
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [selectedOpt, setSelectedOpt] = useState(null);
+  const [adminTriviaPin, setAdminTriviaPin] = useState('');
+
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  const updateTriviaInCloud = async (newState) => {
+    setTriviaState(newState);
+    localStorage.setItem('trip-trivia-state', JSON.stringify(newState));
+    try {
+      await supabase.from('family_radar').upsert([{
+        name: currentUser,
+        lat: myLocation?.lat || 45.43,
+        lng: myLocation?.lng || 10.68,
+        updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        trivia_state: newState
+      }], { onConflict: 'name' });
+    } catch (err) {}
+  };
+
+  useEffect(() => {
+    if (document.getElementById('leaflet-script')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
+
+    const script = document.createElement('script');
+    script.id = 'leaflet-script';
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    document.body.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab !== 'radar') return;
+    const timer = setTimeout(() => {
+      if (!window.L || !mapContainerRef.current) return;
+
+      const defaultLat = myLocation?.lat || 45.4384;
+      const defaultLng = myLocation?.lng || 10.6816;
+
+      if (!mapInstanceRef.current) {
+        mapInstanceRef.current = window.L.map(mapContainerRef.current, {
+          dragging: true,
+          touchZoom: true,
+          scrollWheelZoom: true,
+          doubleClickZoom: true
+        }).setView([defaultLat, defaultLng], 12);
+
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(mapInstanceRef.current);
+      } else {
+        mapInstanceRef.current.setView([defaultLat, defaultLng], 12);
+        mapInstanceRef.current.invalidateSize();
+      }
+
+      mapInstanceRef.current.eachLayer((layer) => {
+        if (layer instanceof window.L.Marker) {
+          mapInstanceRef.current.removeLayer(layer);
+        }
+      });
+
+      const redPinIcon = window.L.divIcon({
+        className: 'custom-red-pin',
+        html: `<div style="background-color: #ef4444; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(239,68,68,0.5);"></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+
+      Object.values(allUsersLocations).forEach(loc => {
+        if (loc.lat && loc.lng) {
+          const marker = window.L.marker([loc.lat, loc.lng], { icon: redPinIcon }).addTo(mapInstanceRef.current);
+          marker.bindPopup(`<b>${loc.name}</b><br/>עדכון: ${loc.updated_at || 'לפני רגע'}`);
+        }
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [activeTab, allUsersLocations, myLocation]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const fetchInitialData = async () => {
+      try {
+        const { data } = await supabase.from('family_radar').select('*');
+        if (data) {
+          const map = {};
+          data.forEach(item => { 
+            map[item.name] = item; 
+            if (item.trivia_state && item.name === currentUser) {
+              setTriviaState(item.trivia_state);
+            }
+          });
+          setAllUsersLocations(map);
+        }
+      } catch (err) {}
+    };
+    fetchInitialData();
+
+    const channel = supabase.channel('trip_sync_v181')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
+        if (payload.new && payload.new.name) {
+          setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
+          if (payload.new.trivia_state) {
+            setTriviaState(payload.new.trivia_state);
+          }
+          if (payload.new.name === currentUser && payload.new.ping_target && payload.new.ping_target === currentUser) {
+            setIncomingPing({ from: payload.new.ping_from, msg: payload.new.ping_msg || 'חזור אלי בדחיפות!' });
+          }
+        }
+      })
+      .subscribe();
+
+    let watchId = null;
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const timeStr = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const coords = {
+          name: currentUser,
+          lat: lat,
+          lng: lng,
+          updated_at: timeStr
+        };
+        setMyLocation(coords);
+        setGpsConnected(true);
+        
+        try {
+          const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+          const weatherData = await res.json();
+          if (weatherData && weatherData.current_weather) {
+            const tempVal = Math.round(weatherData.current_weather.temperature);
+            const code = weatherData.current_weather.weathercode;
+            let condIcon = '☀️';
+            if (code >= 1 && code <= 3) condIcon = '🌤️';
+            else if (code >= 51 && code <= 67) condIcon = '🌧️';
+            else if (code >= 71 && code <= 77) condIcon = '❄️';
+            else if (code >= 95) condIcon = '⛈️';
+            setCurrentWeather({ temp: `${tempVal}°C`, icon: condIcon });
+          }
+        } catch (e) {
+          setCurrentWeather({ temp: '24°C', icon: '☀️' });
+        }
+
+        try {
+          await supabase.from('family_radar').upsert([coords], { onConflict: 'name' });
+        } catch (err) {}
+      }, () => {
+        setGpsConnected(false);
+        setCurrentWeather({ temp: '24°C', icon: '☀️' });
+      }, { enableHighAccuracy: true });
+    }
+
+    return () => {
+      if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      supabase.removeChannel(channel);
+    };
+  }, [currentUser]);
+
+  const sendPingToUser = async (targetName) => {
+    const customMsg = prompt(`שלח הודעת PING אל ${targetName}:`, "היי, איפה אתה? חזור אלי בבקשה!");
+    if (customMsg === null) return;
+
+    try {
+      const targetUserObj = allUsersLocations[targetName] || { name: targetName, lat: 45.43, lng: 10.68 };
+      await supabase.from('family_radar').upsert([{
+        ...targetUserObj,
+        ping_target: targetName,
+        ping_from: currentUser,
+        ping_msg: customMsg
+      }], { onConflict: 'name' });
+
+      alert(`✅ ה-PING נשלח בהצלחה אל ${targetName}!`);
+    } catch (e) {
+      alert('❌ שגיאה בשליחת ה-PING');
+    }
+  };
+
+  const clearIncomingPing = async () => {
+    if (!myLocation) return;
+    try {
+      await supabase.from('family_radar').upsert([{
+        ...myLocation,
+        ping_target: null,
+        ping_from: null,
+        ping_msg: null
+      }], { onConflict: 'name' });
+      setIncomingPing(null);
+    } catch (e) {
+      setIncomingPing(null);
+    }
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (!loginInput.trim()) return;
+    const name = loginInput.trim();
+    setCurrentUser(name);
+    localStorage.setItem('trip-user', name);
+  };
+
+  // מעודכן לתצוגת לוויין (Satellite) במפות אפל וגוגל
+  const getSatelliteMapsUrl = (lat, lng, queryName) => {
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    if (isApple) {
+      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}&t=h`;
