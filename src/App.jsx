@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.3.8 (Rock-Solid Input Stability Edition) ---
-const APP_VERSION = 'v1.3.8';
+// --- TRIP-NAVIGATOR v1.3.9 (No-Zoom Mobile Input & Rock-Solid UI) ---
+const APP_VERSION = 'v1.3.9';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -108,7 +108,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_v138')
+    const channel = supabase.channel('trip_radar_v139')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -260,9 +260,9 @@ export default function App() {
             placeholder="הכנס את שמך המלא (לדוגמה: אריק)" 
             value={loginInput} 
             onChange={e => setLoginInput(e.target.value)}
-            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#ffffff', color: S.textPrimary, marginBottom: '14px', fontSize: '14px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }}
+            style={{ width: '100%', padding: '14px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#ffffff', color: S.textPrimary, marginBottom: '14px', fontSize: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }}
           />
-          <button type="submit" style={{ width: '100%', padding: '12px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+          <button type="submit" style={{ width: '100%', padding: '14px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}>
             התחל מסע ➔
           </button>
         </form>
@@ -405,7 +405,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3: What's Around Me (Rock-Solid UI & Fixed Input Layout) */}
+        {/* Tab 3: What's Around Me (Strict 16px+ font to prevent Mobile Zoom) */}
         {activeTab === 'around' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
@@ -433,9 +433,9 @@ export default function App() {
                 placeholder="הקלד כל דבר (לדוגמה: סופרמרקט...)" 
                 value={customSearchQuery} 
                 onChange={e => setCustomSearchQuery(e.target.value)}
-                style={{ flex: 1, minWidth: 0, padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, fontSize: '12px', boxSizing: 'border-box', outline: 'none' }}
+                style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, fontSize: '16px', boxSizing: 'border-box', outline: 'none', background: '#ffffff' }}
               />
-              <button type="button" onClick={() => searchAroundMe()} style={{ padding: '10px 16px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box', flexShrink: 0 }}>
+              <button type="button" onClick={() => searchAroundMe()} style={{ padding: '12px 16px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box', flexShrink: 0 }}>
                 חפש 🔍
               </button>
             </div>
@@ -511,14 +511,14 @@ export default function App() {
           <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '24px', borderRadius: '14px', width: '100%', maxWidth: '380px', textAlign: 'right', boxSizing: 'border-box' }}>
             <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '15px', fontWeight: '900' }}>📂 ניהול והוספת מסלולים</h3>
             <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '10px' }}>הזן קוד מנהל ({ADMIN_PIN}):</p>
-            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '12px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }} />
+            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '12px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
             
             <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '12px', marginBottom: '12px', boxSizing: 'border-box', width: '100%' }}>
               <strong style={{ fontSize: '12px', color: S.textPrimary }}>הוספה ידנית של תחנה ליום הנבחר:</strong>
-              <input type="text" placeholder="שם היעד / תחנה" value={manualTitle} onChange={e => setManualTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginTop: '6px', marginBottom: '6px', boxSizing: 'border-box', fontSize: '12px', outline: 'none' }} />
-              <input type="text" placeholder="שעה (לדוגמה: 14:00)" value={manualTime} onChange={e => setManualTime(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginBottom: '6px', boxSizing: 'border-box', fontSize: '12px', outline: 'none' }} />
-              <input type="text" placeholder="תיאור קצר / הערה" value={manualDesc} onChange={e => setManualDesc(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginBottom: '8px', boxSizing: 'border-box', fontSize: '12px', outline: 'none' }} />
-              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '8px', background: S.success, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
+              <input type="text" placeholder="שם היעד / תחנה" value={manualTitle} onChange={e => setManualTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginTop: '6px', marginBottom: '6px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
+              <input type="text" placeholder="שעה (לדוגמה: 14:00)" value={manualTime} onChange={e => setManualTime(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginBottom: '6px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
+              <input type="text" placeholder="תיאור קצר / הערה" value={manualDesc} onChange={e => setManualDesc(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginBottom: '8px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
+              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '10px', background: S.success, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
             </div>
 
             <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '12px', marginBottom: '14px', boxSizing: 'border-box', width: '100%' }}>
@@ -531,21 +531,4 @@ export default function App() {
         </div>
       )}
 
-      {/* Backup Modal */}
-      {backupModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
-          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '24px', borderRadius: '14px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box' }}>
-            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '15px', fontWeight: '900' }}>💾 גיבוי ושחזור מערכת</h3>
-            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '10px' }}>הזן קוד מנהל ({ADMIN_PIN}) להורדת גיבוי:</p>
-            <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '14px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }} />
-            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box' }}>
-              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '10px', background: S.success, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>הורד גיבוי</button>
-              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
-}
+      {/* Backup Modal
