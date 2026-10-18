@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.4.2 (Gorgeous Premium Header & Tabs Edition) ---
-const APP_VERSION = 'v1.4.2';
+// --- TRIP-NAVIGATOR v1.5.0 (Apple "Find My" iOS Exact UI Edition) ---
+const APP_VERSION = 'v1.5.0';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -12,9 +12,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const S = {
   bg: '#f8fafc',
   cardBg: '#ffffff',
-  cardBorder: '#e2e8f0',
+  cardBorder: '#cbd5e1',
   textPrimary: '#0f172a',
-  textSecondary: '#64748b',
+  textSecondary: '#475569',
   accent: '#2563eb',
   success: '#059669',
   danger: '#dc2626',
@@ -108,7 +108,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_v142')
+    const channel = supabase.channel('trip_radar_v150')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -304,11 +304,11 @@ export default function App() {
           {locationStatus}
         </div>
 
-        {/* Gorgeous Premium Pill Navigation Tabs */}
+        {/* Premium Pill Navigation Tabs */}
         <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
           {[
             { id: 'itinerary', label: '📅 מסלול' },
-            { id: 'radar', label: '📍 רדאר' },
+            { id: 'radar', label: '📍 רדאר (Find My)' },
             { id: 'around', label: '📍 מה סביבי' },
             { id: 'trivia', label: '🎯 טריוויה' }
           ].map(tab => (
@@ -384,21 +384,42 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 2: Radar */}
+        {/* Tab 2: Radar - Exact Apple "Find My" Dark Glassmorphism iOS Style */}
         {activeTab === 'radar' && (
-          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
-            <h2 style={{ fontSize: '17px', fontWeight: '900', color: S.textPrimary, marginBottom: '6px' }}>📍 רדאר משפחתי (Find My)</h2>
-            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '18px' }}>מעקב חי אחר כל המשתמשים במערכת בזמן אמת</p>
+          <div style={{ background: '#18181b', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', padding: '24px 20px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+            {/* Header style Apple Find My */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '14px' }}>
+              <h2 style={{ fontSize: '22px', fontWeight: '800', margin: '0', letterSpacing: '-0.5px' }}>People</h2>
+              <span style={{ fontSize: '12px', background: '#27272a', color: '#a1a1aa', padding: '4px 10px', borderRadius: '12px', fontWeight: '700' }}>Live GPS</span>
+            </div>
+            
+            {/* Cards List matching iOS Find My */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box', width: '100%' }}>
               {Object.values(allUsersLocations).map((loc, idx) => (
-                <div key={idx} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '14px 16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
-                  <div>
-                    <strong style={{ fontSize: '14px', color: S.textPrimary, fontWeight: '800' }}>👤 {loc.name} {loc.name === currentUser ? '(אתה)' : ''}</strong>
-                    <div style={{ fontSize: '11px', color: S.textSecondary, marginTop: '2px' }}>עדכון GPS: {loc.updated_at || 'עכשיו'}</div>
+                <div key={idx} style={{ background: '#27272a', border: '1px solid rgba(255,255,255,0.08)', padding: '16px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%', transition: 'all 0.2s' }}>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{ position: 'relative' }}>
+                      <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#3f3f46', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '18px', border: '2px solid rgba(255,255,255,0.2)' }}>
+                        {loc.name ? loc.name[0] : '👤'}
+                      </div>
+                      {/* Active green dot */}
+                      <span style={{ position: 'absolute', bottom: '2px', right: '2px', width: '12px', height: '12px', background: '#22c55e', borderRadius: '50%', border: '2px solid #27272a' }}></span>
+                    </div>
+
+                    <div>
+                      <strong style={{ fontSize: '15px', color: '#ffffff', fontWeight: '700', display: 'block', marginBottom: '2px' }}>
+                        {loc.name} {loc.name === currentUser ? '(אתה)' : ''}
+                      </strong>
+                      <span style={{ fontSize: '12px', color: '#a1a1aa', display: 'block' }}>
+                        פעיל · עודכן לפני כמה רגעים
+                      </span>
+                    </div>
                   </div>
-                  <a href={`https://maps.google.com/?q=${loc.lat},${loc.lng}`} target="_blank" rel="noreferrer" style={{ background: S.accent, color: '#fff', padding: '8px 14px', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', boxSizing: 'border-box' }}>
-                    נווט אליו ➔
+
+                  <a href={`https://maps.google.com/?q=${loc.lat},${loc.lng}`} target="_blank" rel="noreferrer" style={{ background: '#3b82f6', color: '#ffffff', padding: '10px 16px', borderRadius: '12px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', boxSizing: 'border-box', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}>
+                    נווט ➔
                   </a>
                 </div>
               ))}
@@ -512,14 +533,14 @@ export default function App() {
           <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '380px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
             <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '16px', fontWeight: '900' }}>📂 ניהול והוספת מסלולים</h3>
             <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '12px' }}>הזן קוד מנהל ({ADMIN_PIN}):</p>
-            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '14px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
+            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
             
             <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', marginBottom: '14px', boxSizing: 'border-box', width: '100%' }}>
               <strong style={{ fontSize: '12px', color: S.textPrimary }}>הוספה ידנית של תחנה ליום הנבחר:</strong>
               <input type="text" placeholder="שם היעד / תחנה" value={manualTitle} onChange={e => setManualTitle(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginTop: '8px', marginBottom: '8px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
               <input type="text" placeholder="שעה (לדוגמה: 14:00)" value={manualTime} onChange={e => setManualTime(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '8px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
               <input type="text" placeholder="תיאור קצר / הערה" value={manualDesc} onChange={e => setManualDesc(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '10px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
-              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '10px', background: S.success, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
+              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '8px', background: S.success, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
             </div>
 
             <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
