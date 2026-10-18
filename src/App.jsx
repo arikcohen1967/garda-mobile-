@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.6.3 (Clean Non-Clickable Weather Widget) ---
-const APP_VERSION = 'v1.6.3';
+// --- TRIP-NAVIGATOR v1.6.4 (Clickable Weather Widget) ---
+const APP_VERSION = 'v1.6.4';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -101,7 +101,7 @@ export default function App() {
     };
     fetchTriviaGlobal();
 
-    const triviaChannel = supabase.channel('trip_trivia_sync_v163')
+    const triviaChannel = supabase.channel('trip_trivia_sync_v164')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
         if (payload.new && payload.new.id === 999 && payload.new.trivia_data) {
           setTriviaState(payload.new.trivia_data);
@@ -190,7 +190,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_v163')
+    const channel = supabase.channel('trip_radar_v164')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -220,6 +220,21 @@ export default function App() {
     } else {
       if (lat && lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
       return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
+    }
+  };
+
+  const openWeatherApp = () => {
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    if (isApple) {
+      // Opens Apple Weather app on iOS/Mac
+      window.location.href = 'weather://';
+    } else {
+      // Opens Google Weather / browser search on Android/other
+      if (myLocation && myLocation.lat && myLocation.lng) {
+        window.open(`https://www.google.com/search?q=weather+${myLocation.lat},${myLocation.lng}`, '_blank');
+      } else {
+        window.open('https://www.google.com/search?q=weather', '_blank');
+      }
     }
   };
 
@@ -330,20 +345,24 @@ export default function App() {
   return (
     <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
       
-      {/* Top Header - Pure Static Weather Indicator */}
+      {/* Top Header - Clickable Weather Widget */}
       <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
         
-        {/* Right Side: Logo + Title + Weather Static Widget */}
+        {/* Right Side: Logo + Title + Weather Clickable Widget */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', boxSizing: 'border-box' }}>
           <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧭</div>
           <div style={{ lineHeight: '1.2' }}>
             <h1 style={{ fontSize: '14px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px' }}>Trip-Navigator</h1>
             <span style={{ fontSize: '10px', color: S.textSecondary, fontWeight: '600' }}>גרסה {APP_VERSION}</span>
           </div>
-          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 10px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '800', color: S.textPrimary, marginLeft: '6px', flexShrink: 0 }}>
+          <button 
+            onClick={openWeatherApp}
+            title="פתח אפליקציית מזג אוויר"
+            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 10px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '800', color: S.textPrimary, marginLeft: '6px', flexShrink: '0', cursor: 'pointer', transition: 'background 0.2s' }}
+          >
             <span>{currentWeather.icon}</span>
             <span>{currentWeather.temp}</span>
-          </div>
+          </button>
         </div>
 
         {/* Left Side: User + Admin Management */}
