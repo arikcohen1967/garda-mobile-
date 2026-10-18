@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.7.0 (Interactive Map, Live Ping & Navigation) ---
-const APP_VERSION = 'v1.7.0';
+// --- TRIP-NAVIGATOR v1.7.1 (Larger Red Pin Map & Compact Users List) ---
+const APP_VERSION = 'v1.7.1';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -90,11 +90,10 @@ export default function App() {
   const [selectedOpt, setSelectedOpt] = useState(null);
   const [adminTriviaPin, setAdminTriviaPin] = useState('');
 
-  // Leaflet Map Ref for embedded map rendering
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
 
-  // Load Leaflet scripts dynamically for embedded interactive map
+  // Load Leaflet scripts
   useEffect(() => {
     if (document.getElementById('leaflet-script')) return;
     const link = document.createElement('link');
@@ -108,7 +107,7 @@ export default function App() {
     document.body.appendChild(script);
   }, []);
 
-  // Render Leaflet Map when in Radar tab
+  // Render Red Pins Map
   useEffect(() => {
     if (activeTab !== 'radar') return;
     const timer = setTimeout(() => {
@@ -128,17 +127,24 @@ export default function App() {
         mapInstanceRef.current.invalidateSize();
       }
 
-      // Clear existing markers layers if any
+      // Clear layers
       mapInstanceRef.current.eachLayer((layer) => {
         if (layer instanceof window.L.Marker) {
           mapInstanceRef.current.removeLayer(layer);
         }
       });
 
-      // Add markers for all users
+      // Custom Red Pin Icon
+      const redPinIcon = window.L.divIcon({
+        className: 'custom-red-pin',
+        html: `<div style="background-color: #dc2626; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.4);"></div>`,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      });
+
       Object.values(allUsersLocations).forEach(loc => {
         if (loc.lat && loc.lng) {
-          const marker = window.L.marker([loc.lat, loc.lng]).addTo(mapInstanceRef.current);
+          const marker = window.L.marker([loc.lat, loc.lng], { icon: redPinIcon }).addTo(mapInstanceRef.current);
           marker.bindPopup(`<b>${loc.name}</b><br/>עדכון: ${loc.updated_at || 'לפני רגע'}`);
         }
       });
@@ -147,7 +153,7 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [activeTab, allUsersLocations, myLocation]);
 
-  // Sync Trivia, Radar & Pings with Supabase
+  // Sync Supabase & GPS
   useEffect(() => {
     if (!currentUser) return;
 
@@ -163,13 +169,10 @@ export default function App() {
     };
     fetchInitialData();
 
-    // Listen to Radar & Pings changes
-    const channel = supabase.channel('trip_sync_v170')
+    const channel = supabase.channel('trip_sync_v171')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
-          
-          // Check if there is a ping for current user
           if (payload.new.name === currentUser && payload.new.ping_target && payload.new.ping_target === currentUser) {
             setIncomingPing({ from: payload.new.ping_from, msg: payload.new.ping_msg || 'חזור אלי בדחיפות!' });
           }
@@ -210,7 +213,6 @@ export default function App() {
         }
 
         try {
-          // Keep existing ping data if present when upserting location
           await supabase.from('family_radar').upsert([coords], { onConflict: 'name' });
         } catch (err) {}
       }, () => {
@@ -232,7 +234,6 @@ export default function App() {
     if (customMsg === null) return;
 
     try {
-      // Fetch target record first to avoid overwriting their lat/lng with nulls
       const targetUserObj = allUsersLocations[targetName] || { name: targetName, lat: 45.43, lng: 10.68 };
       await supabase.from('family_radar').upsert([{
         ...targetUserObj,
@@ -421,7 +422,6 @@ export default function App() {
       {/* Top Header - Clickable Weather Widget */}
       <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
         
-        {/* Right Side: Logo + Title + Weather Clickable Widget */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', boxSizing: 'border-box' }}>
           <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧭</div>
           <div style={{ lineHeight: '1.2' }}>
@@ -438,7 +438,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* Left Side: User + Admin Management */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', boxSizing: 'border-box' }}>
           <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
             👤 {currentUser}
@@ -453,12 +452,10 @@ export default function App() {
       {/* Main Container */}
       <main style={{ padding: '18px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box', width: '100%' }}>
         
-        {/* GPS Status Banner */}
         <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', padding: '10px 14px', borderRadius: '10px', fontSize: '12px', color: '#1e40af', marginBottom: '16px', textAlign: 'center', fontWeight: '700', boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
           {locationStatus}
         </div>
 
-        {/* Clean & Responsive Navigation Tabs */}
         <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
           {[
             { id: 'itinerary', label: '📅 מסלול' },
@@ -538,43 +535,44 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 2: Radar & Interactive Map */}
+        {/* Tab 2: Radar & Larger Red Pin Map */}
         {activeTab === 'radar' && (
           <div style={{ background: '#18181b', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', padding: '20px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>
               <div>
-                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 2px', letterSpacing: '-0.5px' }}>מפה ורדאר חַי</h2>
-                <span style={{ fontSize: '11px', color: '#a1a1aa' }}>מעקב מיקום אינטראקטיבי בזמן אמת</span>
+                <h2 style={{ fontSize: '17px', fontWeight: '800', margin: '0 0 2px', letterSpacing: '-0.5px' }}>מפה חיה ורדאר משתמשים</h2>
+                <span style={{ fontSize: '10px', color: '#a1a1aa' }}>סיכות אדומות מציגות את מיקום בני המשפחה בזמן אמת</span>
               </div>
-              <span style={{ fontSize: '12px', background: '#27272a', color: '#22c55e', padding: '4px 10px', borderRadius: '12px', fontWeight: '700', border: '1px solid rgba(34, 197, 94, 0.3)' }}>● Live</span>
+              <span style={{ fontSize: '11px', background: '#27272a', color: '#22c55e', padding: '3px 8px', borderRadius: '10px', fontWeight: '700', border: '1px solid rgba(34, 197, 94, 0.3)' }}>● Live</span>
             </div>
 
-            {/* Embedded Interactive Map Container */}
-            <div ref={mapContainerRef} style={{ width: '100%', height: '260px', borderRadius: '16px', marginBottom: '16px', zIndex: 1, border: '1px solid rgba(255,255,255,0.15)' }}></div>
+            {/* Larger Interactive Map Container */}
+            <div ref={mapContainerRef} style={{ width: '100%', height: '380px', borderRadius: '16px', marginBottom: '14px', zIndex: 1, border: '1px solid rgba(255,255,255,0.15)' }}></div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', boxSizing: 'border-box', width: '100%' }}>
+            {/* Compact Users List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
               {Object.keys(allUsersLocations).length === 0 ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#a1a1aa', fontSize: '13px' }}>
+                <div style={{ padding: '15px', textAlign: 'center', color: '#a1a1aa', fontSize: '12px' }}>
                   ממתין לנתוני מיקום מהמשתמשים...
                 </div>
               ) : (
                 Object.values(allUsersLocations).map((loc, idx) => (
-                  <div key={idx} style={{ background: '#27272a', border: '1px solid rgba(255,255,255,0.08)', padding: '14px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div key={idx} style={{ background: '#27272a', border: '1px solid rgba(255,255,255,0.08)', padding: '10px 14px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ position: 'relative' }}>
-                        <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#3f3f46', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '16px', border: '2px solid rgba(255,255,255,0.2)' }}>
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#3f3f46', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '13px', border: '1.5px solid rgba(255,255,255,0.2)' }}>
                           {loc.name ? loc.name[0] : '👤'}
                         </div>
-                        <span style={{ position: 'absolute', bottom: '2px', right: '2px', width: '10px', height: '10px', background: '#22c55e', borderRadius: '50%', border: '2px solid #27272a' }}></span>
+                        <span style={{ position: 'absolute', bottom: '0px', right: '0px', width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', border: '1.5px solid #27272a' }}></span>
                       </div>
                       <div>
-                        <strong style={{ fontSize: '14px', color: '#ffffff', fontWeight: '700', display: 'block', marginBottom: '2px' }}>
+                        <strong style={{ fontSize: '13px', color: '#ffffff', fontWeight: '700', display: 'inline-block', marginLeft: '6px' }}>
                           {loc.name} {loc.name === currentUser ? '(אתה)' : ''}
                         </strong>
                         {loc.updated_at && (
-                          <span style={{ fontSize: '10px', color: '#a1a1aa', display: 'block' }}>
-                            עדכון: {loc.updated_at}
+                          <span style={{ fontSize: '10px', color: '#a1a1aa' }}>
+                            ({loc.updated_at})
                           </span>
                         )}
                       </div>
@@ -582,11 +580,11 @@ export default function App() {
                     
                     <div style={{ display: 'flex', gap: '6px' }}>
                       {loc.name !== currentUser && (
-                        <button onClick={() => sendPingToUser(loc.name)} style={{ background: '#f59e0b', color: '#ffffff', border: 'none', padding: '8px 10px', borderRadius: '10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }} title="שלח פינג התראה">
+                        <button onClick={() => sendPingToUser(loc.name)} style={{ background: '#f59e0b', color: '#ffffff', border: 'none', padding: '6px 8px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }} title="שלח פינג התראה">
                           🔔 PING
                         </button>
                       )}
-                      <a href={getMapsUrl(loc.lat, loc.lng, loc.name)} target="_blank" rel="noreferrer" style={{ background: '#3b82f6', color: '#ffffff', padding: '8px 12px', borderRadius: '10px', textDecoration: 'none', fontSize: '11px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
+                      <a href={getMapsUrl(loc.lat, loc.lng, loc.name)} target="_blank" rel="noreferrer" style={{ background: '#3b82f6', color: '#ffffff', padding: '6px 10px', borderRadius: '8px', textDecoration: 'none', fontSize: '11px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
                         נווט ➔
                       </a>
                     </div>
