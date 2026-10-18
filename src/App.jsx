@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.7.7 (Fixed Missing Closing Brackets) ---
-const APP_VERSION = 'v1.7.7';
+// --- TRIP-NAVIGATOR v1.7.8 (Fully Fixed & Complete Code) ---
+const APP_VERSION = 'v1.7.8';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -175,7 +175,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v177')
+    const channel = supabase.channel('trip_sync_v178')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
