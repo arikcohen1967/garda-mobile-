@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.4.0 (Anti-Zoom Mobile Input & Rock-Solid Layout) ---
-const APP_VERSION = 'v1.4.0';
+// --- TRIP-NAVIGATOR v1.4.1 (Premium Tab Navigation Edition) ---
+const APP_VERSION = 'v1.4.1';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -18,7 +18,7 @@ const S = {
   accent: '#2563eb',
   success: '#059669',
   danger: '#dc2626',
-  radius: '12px'
+  radius: '14px'
 };
 
 const INITIAL_TRIP_DAYS = [
@@ -108,7 +108,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_v140')
+    const channel = supabase.channel('trip_radar_v141')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -260,9 +260,9 @@ export default function App() {
             placeholder="הכנס את שמך המלא (לדוגמה: אריק)" 
             value={loginInput} 
             onChange={e => setLoginInput(e.target.value)}
-            style={{ width: '100%', padding: '14px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#ffffff', color: S.textPrimary, marginBottom: '14px', fontSize: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }}
+            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#ffffff', color: S.textPrimary, marginBottom: '14px', fontSize: '14px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }}
           />
-          <button type="submit" style={{ width: '100%', padding: '14px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer' }}>
+          <button type="submit" style={{ width: '100%', padding: '12px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
             התחל מסע ➔
           </button>
         </form>
@@ -274,7 +274,7 @@ export default function App() {
   const activeQ = TRIVIA_BANK[triviaIdx % TRIVIA_BANK.length];
 
   return (
-    <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
+    <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', overflowX: 'hidden' }}>
       
       {/* Top Header */}
       <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%' }}>
@@ -304,8 +304,8 @@ export default function App() {
           {locationStatus}
         </div>
 
-        {/* Navigation Tabs */}
-        <nav style={{ background: '#e2e8f0', padding: '4px', borderRadius: '12px', display: 'flex', gap: '4px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
+        {/* Premium Navigation Tabs (Pill Style Banner) */}
+        <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '18px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
           {[
             { id: 'itinerary', label: '📅 מסלול' },
             { id: 'radar', label: '📍 רדאר' },
@@ -316,12 +316,12 @@ export default function App() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               style={{
-                flex: 1, padding: '10px 2px', borderRadius: '10px', border: 'none',
+                flex: 1, padding: '10px 4px', borderRadius: '12px', border: 'none',
                 background: activeTab === tab.id ? '#ffffff' : 'transparent',
                 color: activeTab === tab.id ? S.accent : S.textSecondary,
-                fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', boxSizing: 'border-box',
-                boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                textAlign: 'center', whiteSpace: 'nowrap'
+                fontWeight: '800', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box',
+                boxShadow: activeTab === tab.id ? '0 4px 12px rgba(37,99,235,0.12)' : 'none',
+                textAlign: 'center', whiteSpace: 'nowrap', transition: 'all 0.2s ease'
               }}
             >
               {tab.label}
@@ -405,7 +405,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3: What's Around Me (Strict 16px input font size prevents mobile screen zooming) */}
+        {/* Tab 3: What's Around Me */}
         {activeTab === 'around' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
