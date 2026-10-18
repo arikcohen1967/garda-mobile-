@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.1.2 (Stable UI Edition) ---
-const APP_VERSION = 'v1.1.2';
+// --- TRIP-NAVIGATOR v1.2.0 (Excel & Manual Edit Edition) ---
+const APP_VERSION = 'v1.2.0';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -50,6 +50,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('itinerary'); 
   const [activeDay, setActiveDay] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
   const [tripDays, setTripDays] = useState(() => {
     try {
       const saved = localStorage.getItem('trip-custom-days');
@@ -60,9 +61,12 @@ export default function App() {
   const [myLocation, setMyLocation] = useState(null);
   const [allUsersLocations, setAllUsersLocations] = useState({});
 
+  // Admin & Excel Upload State
   const [adminModal, setAdminModal] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState('');
-  const [excelInputText, setExcelInputText] = useState('');
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualDesc, setManualDesc] = useState('');
+  const [manualTime, setManualTime] = useState('10:00');
 
   const [backupModal, setBackupModal] = useState(false);
   const [backupPinInput, setBackupPinInput] = useState('');
@@ -99,7 +103,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_stable')
+    const channel = supabase.channel('trip_radar_v12')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -129,16 +133,81 @@ export default function App() {
     localStorage.setItem('trip-user', name);
   };
 
-  const handleAdminExcelUpload = () => {
+  // Handle Manual Stop Add
+  const handleAddManualStop = () => {
     if (adminPinInput !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
-    try {
-      alert('✅ הנתונים נקלטו בהצלחה למערכת!');
-      setAdminModal(false);
-      setAdminPinInput('');
-      setExcelInputText('');
-    } catch (err) {
-      alert('❌ שגיאה בקריאת הנתונים.');
+    if (!manualTitle.trim()) return alert('נא להזין כותרת לתחנה');
+
+    const updatedDays = [...tripDays];
+    if (!updatedDays[activeDay]) return;
+
+    updatedDays[activeDay].stops.push({
+      time: manualTime || '12:00',
+      name: manualTitle,
+      dest: manualTitle,
+      lat: 45.4384,
+      lng: 10.6816,
+      note: manualDesc || 'הוספה ידנית מהמערכת'
+    });
+
+    setTripDays(updatedDays);
+    setManualTitle('');
+    setManualDesc('');
+    alert('✅ התחנה נוספה בהצלחה למסלול!');
+  };
+
+  // Handle File Upload (Excel / CSV / JSON)
+  const handleFileUpload = (e) => {
+    if (adminPinInput !== ADMIN_PIN) {
+      alert('❌ נא להזין קוד מנהל תקין (1967) תחילה!');
+      e.target.value = '';
+      return;
     }
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target.result;
+        // If JSON Backup / Custom Format
+        if (file.name.endsWith('.json')) {
+          const parsed = JSON.parse(content);
+          if (parsed.tripDays) {
+            setTripDays(parsed.tripDays);
+            alert('✅ המסלולים נטענו בהצלחה מקובץ הגיבוי!');
+            setAdminModal(false);
+          }
+        } else {
+          // Simple CSV / Text lines parsing: יום,שעה,שם,תיאור
+          const lines = content.split('\n').filter(l => l.trim() !== '');
+          const newStops = lines.map(line => {
+            const parts = line.split(',');
+            return {
+              time: parts[1] || '10:00',
+              name: parts[2] || parts[0] || 'יעד חדש',
+              dest: parts[2] || parts[0] || 'יעד חדש',
+              lat: 45.4384,
+              lng: 10.6816,
+              note: parts[3] || 'יובא מקובץ חיצוני'
+            };
+          });
+
+          if (newStops.length > 0) {
+            const updatedDays = [...tripDays];
+            if (updatedDays[0]) {
+              updatedDays[0].stops = [...updatedDays[0].stops, ...newStops];
+              setTripDays(updatedDays);
+              alert('✅ קובץ הנתונים נטען והתווסף ליום הראשון בהצלחה!');
+              setAdminModal(false);
+            }
+          }
+        }
+      } catch (err) {
+        alert('❌ שגיאה בקריאת הקובץ.');
+      }
+    };
+    reader.readAsText(file);
   };
 
   const handleDownloadBackup = () => {
@@ -328,79 +397,4 @@ export default function App() {
                     setTimeout(() => {
                       setSelectedOpt(null);
                       setTriviaIdx(prev => prev + 1);
-                    }, 1000);
-                  }}
-                  style={{
-                    padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, boxSizing: 'border-box',
-                    background: selectedOpt === null ? '#ffffff' : (oIdx === activeQ.correct ? S.success : (selectedOpt === oIdx ? S.danger : '#ffffff')),
-                    color: selectedOpt !== null && (oIdx === activeQ.correct || selectedOpt === oIdx) ? '#ffffff' : S.textPrimary,
-                    fontWeight: 'bold', fontSize: '13px', cursor: 'pointer'
-                  }}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-      </main>
-
-      {/* Sidebar Modal */}
-      {sidebarOpen && (
-        <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', justifyContent: 'flex-start', boxSizing: 'border-box' }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: '#ffffff', borderRight: `1px solid ${S.cardBorder}`, width: '85%', maxWidth: '300px', height: '100%', padding: '20px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'right' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '10px' }}>
-              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: S.textPrimary }}>⚙️ ניהול ומערכת</h3>
-              <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: S.textSecondary, fontSize: '16px', cursor: 'pointer' }}>✕</button>
-            </div>
-
-            <button onClick={() => setAdminModal(true)} style={{ padding: '10px 14px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right' }}>
-              📂 טעינת מסלולים מאקסל (מנהל)
-            </button>
-
-            <button onClick={() => setBackupModal(true)} style={{ padding: '10px 14px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right' }}>
-              💾 גיבוי ושחזור נתונים (מנהל)
-            </button>
-            
-            <div style={{ marginTop: 'auto', fontSize: '11px', color: S.textSecondary, textAlign: 'center', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '10px' }}>
-              Trip-Navigator גרסה {APP_VERSION}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Admin Excel Modal */}
-      {adminModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
-          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '24px', borderRadius: '14px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box' }}>
-            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '15px', fontWeight: '900' }}>📂 טעינת מסלולים מאקסל</h3>
-            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '10px' }}>הזן קוד מנהל ({ADMIN_PIN}) והדבק נתונים:</p>
-            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '10px', boxSizing: 'border-box', textAlign: 'center' }} />
-            <textarea placeholder="הדבק נתונים כאן..." value={excelInputText} onChange={e => setExcelInputText(e.target.value)} style={{ width: '100%', height: '90px', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '14px', boxSizing: 'border-box', outline: 'none' }} />
-            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box' }}>
-              <button onClick={handleAdminExcelUpload} style={{ flex: 1, padding: '10px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>טען נתונים</button>
-              <button onClick={() => setAdminModal(false)} style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>ביטול</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Backup Modal */}
-      {backupModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
-          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '24px', borderRadius: '14px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box' }}>
-            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '15px', fontWeight: '900' }}>💾 גיבוי ושחזור מערכת</h3>
-            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '10px' }}>הזן קוד מנהל ({ADMIN_PIN}) להורדת גיבוי:</p>
-            <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '14px', boxSizing: 'border-box', textAlign: 'center' }} />
-            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box' }}>
-              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '10px', background: S.success, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>הורד גיבוי</button>
-              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>סגור</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
-}
+                    }, 1
