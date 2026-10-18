@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.6.1 (Advanced Persistent Trivia & Live Leaderboard) ---
-const APP_VERSION = 'v1.6.1';
+// --- TRIP-NAVIGATOR v1.6.2 (Professional Clean Header & Tabs Edition) ---
+const APP_VERSION = 'v1.6.2';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -40,10 +40,10 @@ const INITIAL_TRIP_DAYS = [
 const TRIVIA_BANK = Array.from({ length: 1500 }, (_, i) => {
   const id = i + 1;
   const questionsList = [
-    { q: `שאלה #${id}: באיזו מדינה אירופאית נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
-    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פירנצה"], correct: 2 },
+    { q: `שאלה #${id}: באיזו מדינה באירופאית נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פדובה"], correct: 2 },
     { q: `שאלה #${id}: איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?`, options: ["דיסנילנד", "גארדלנד", "פורט אבנטורה", "אסטריקס"], correct: 1 },
-    { q: `שאלה #${id}: מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?`, options: ["ורונה", "בטובה", "בולוניה", "גנואה"], correct: 0 },
+    { q: `שאלה #${id}: מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?`, options: ["ורונה", "מנטובה", "בולוניה", "גנואה"], correct: 0 },
     { q: `שאלה #${id}: איזה מאכל איטלקי מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?`, options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 }
   ];
   return questionsList[i % questionsList.length];
@@ -70,7 +70,6 @@ export default function App() {
 
   const [customSearchQuery, setCustomSearchQuery] = useState('');
 
-  // Admin & Modals State
   const [adminModal, setAdminModal] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState('');
   const [manualTitle, setManualTitle] = useState('');
@@ -80,7 +79,6 @@ export default function App() {
   const [backupModal, setBackupModal] = useState(false);
   const [backupPinInput, setBackupPinInput] = useState('');
 
-  // Advanced Trivia State (Persistent & Synchronized)
   const [triviaState, setTriviaState] = useState(() => {
     try {
       const saved = localStorage.getItem('trip-trivia-state');
@@ -103,7 +101,7 @@ export default function App() {
     };
     fetchTriviaGlobal();
 
-    const triviaChannel = supabase.channel('trip_trivia_sync')
+    const triviaChannel = supabase.channel('trip_trivia_sync_v162')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
         if (payload.new && payload.new.id === 999 && payload.new.trivia_data) {
           setTriviaState(payload.new.trivia_data);
@@ -127,7 +125,6 @@ export default function App() {
     if (activeTab !== 'trivia' || triviaState.isPaused || selectedOpt !== null) return;
 
     if (timeLeft <= 0) {
-      // Time's up -> move to next question automatically
       setTimeLeft(30);
       const nextIdx = triviaState.idx + 1;
       updateTriviaInCloud({ ...triviaState, idx: nextIdx });
@@ -193,7 +190,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_v161')
+    const channel = supabase.channel('trip_radar_v162')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -341,32 +338,37 @@ export default function App() {
   return (
     <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
       
-      {/* Top Header */}
+      {/* Top Header - Strictly Clean & Professional Layout */}
       <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+        
+        {/* Right Side: Logo + Title + Weather Widget */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', boxSizing: 'border-box' }}>
-          <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🧭</div>
-          <div>
-            <h1 style={{ fontSize: '13px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px' }}>Trip-Navigator</h1>
+          <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧭</div>
+          <div style={{ lineHeight: '1.2' }}>
+            <h1 style={{ fontSize: '14px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px' }}>Trip-Navigator</h1>
             <span style={{ fontSize: '10px', color: S.textSecondary, fontWeight: '600' }}>גרסה {APP_VERSION}</span>
           </div>
           <button 
             type="button" 
             onClick={openWeatherForecast} 
-            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '5px 10px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '800', color: S.textPrimary, cursor: 'pointer', boxSizing: 'border-box', marginLeft: '4px' }}
+            title="לחץ לתחזית מלאה"
+            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 10px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '800', color: S.textPrimary, cursor: 'pointer', boxSizing: 'border-box', marginLeft: '6px', flexShrink: 0 }}
           >
             <span>{currentWeather.icon}</span>
             <span>{currentWeather.temp}</span>
           </button>
         </div>
 
+        {/* Left Side: User + Admin Management */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', boxSizing: 'border-box' }}>
-          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box' }}>
+          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '6px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
             👤 {currentUser}
           </div>
-          <button onClick={() => setSidebarOpen(true)} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '7px 10px', borderRadius: '10px', color: S.textPrimary, cursor: 'pointer', fontSize: '11px', fontWeight: '700', boxSizing: 'border-box' }}>
+          <button onClick={() => setSidebarOpen(true)} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '7px 10px', borderRadius: '10px', color: S.textPrimary, cursor: 'pointer', fontSize: '11px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
             ⚙️ ניהול
           </button>
         </div>
+
       </header>
 
       {/* Main Container */}
@@ -377,7 +379,7 @@ export default function App() {
           {locationStatus}
         </div>
 
-        {/* Navigation Tabs */}
+        {/* Clean & Responsive Navigation Tabs */}
         <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
           {[
             { id: 'itinerary', label: '📅 מסלול' },
@@ -498,21 +500,21 @@ export default function App() {
             <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '18px' }}>מצא מקומות בקרבת המיקום הנוכחי שלך בלחיצת כפתור:</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
-              <button type="button" onClick={() => searchAroundMe('מסעדות')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}>
+              <button type="button" onClick={() => searchAroundMe('מסעדות')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
                 🍽️ מסעדות
               </button>
-              <button type="button" onClick={() => searchAroundMe('מוזיאונים')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}>
+              <button type="button" onClick={() => searchAroundMe('מוזיאונים')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
                 🏛️ מוזיאונים
               </button>
-              <button type="button" onClick={() => searchAroundMe('אטרקציות תיירותיות')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}>
+              <button type="button" onClick={() => searchAroundMe('אטרקציות תיירותיות')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
                 🎢 אטרקציות
               </button>
-              <button type="button" onClick={() => searchAroundMe('בתי קפה')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}>
+              <button type="button" onClick={() => searchAroundMe('בתי קפה')} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
                 ☕ בתי קפה
               </button>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box', width: '100%', flexShrink: 0 }}>
               <input 
                 type="text" 
                 placeholder="הקלד כל דבר (לדוגמה: סופרמרקט...)" 
@@ -520,14 +522,14 @@ export default function App() {
                 onChange={e => setCustomSearchQuery(e.target.value)}
                 style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, fontSize: '16px', boxSizing: 'border-box', outline: 'none', background: '#ffffff', color: '#0f172a' }}
               />
-              <button type="button" onClick={() => searchAroundMe()} style={{ padding: '12px 18px', background: S.accent, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box' }}>
+              <button type="button" onClick={() => searchAroundMe()} style={{ padding: '12px 18px', background: S.accent, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box', flexShrink: 0 }}>
                 חפש 🔍
               </button>
             </div>
           </div>
         )}
 
-        {/* Tab 4: Trivia (Continuous, 30s Timer, Leaderboard & 1967 Admin Pause/Reset) */}
+        {/* Tab 4: Trivia */}
         {activeTab === 'trivia' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -537,7 +539,6 @@ export default function App() {
               </span>
             </div>
 
-            {/* Leaderboard */}
             <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', padding: '12px', marginBottom: '16px', textAlign: 'right' }}>
               <strong style={{ fontSize: '12px', color: S.textPrimary, display: 'block', marginBottom: '6px' }}>🏆 טבלת מובילים:</strong>
               {sortedScores.length === 0 ? (
@@ -600,7 +601,6 @@ export default function App() {
               </div>
             )}
 
-            {/* Admin Trivia Controls */}
             <div style={{ marginTop: '20px', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', display: 'flex', gap: '8px' }}>
               <input type="password" placeholder="קוד מנהל (1967)" value={adminTriviaPin} onChange={e => setAdminTriviaPin(e.target.value)} style={{ width: '120px', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, textAlign: 'center', fontSize: '12px', outline: 'none' }} />
               <button onClick={() => {
