@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.3.5 (Professional Fix for Around Me) ---
-const APP_VERSION = 'v1.3.5';
+// --- TRIP-NAVIGATOR v1.3.7 (Instant Direct Navigation for Around Me) ---
+const APP_VERSION = 'v1.3.7';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -59,6 +59,7 @@ export default function App() {
   });
 
   const [myLocation, setMyLocation] = useState(null);
+  const [locationStatus, setLocationStatus] = useState('ממתין לאישור מיקום GPS...');
   const [allUsersLocations, setAllUsersLocations] = useState({});
 
   const [customSearchQuery, setCustomSearchQuery] = useState('');
@@ -87,10 +88,13 @@ export default function App() {
         updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
       };
       setMyLocation(coords);
+      setLocationStatus(`✅ מחובר ל-GPS (${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)})`);
       try {
         await supabase.from('family_radar').upsert([coords], { onConflict: 'name' });
       } catch (err) {}
-    }, () => {}, { enableHighAccuracy: true });
+    }, () => {
+      setLocationStatus('⚠️ שגיאת גישה ל-GPS');
+    }, { enableHighAccuracy: true });
 
     const fetchLocations = async () => {
       try {
@@ -104,7 +108,7 @@ export default function App() {
     };
     fetchLocations();
 
-    const channel = supabase.channel('trip_radar_v135')
+    const channel = supabase.channel('trip_radar_v137')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -134,7 +138,7 @@ export default function App() {
     localStorage.setItem('trip-user', name);
   };
 
-  // Professional Around Me Handler with guaranteed mobile window opening
+  // Instant Direct Google Maps Opening
   const searchAroundMe = (queryText) => {
     const q = queryText || customSearchQuery;
     if (!q || !q.trim()) {
@@ -142,19 +146,20 @@ export default function App() {
       return;
     }
 
-    if (navigator.geolocation) {
+    if (myLocation && myLocation.lat && myLocation.lng) {
+      const url = `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${myLocation.lat},${myLocation.lng},14z`;
+      window.open(url, '_blank');
+    } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${lat},${lng},14z`;
-        window.location.href = mapsUrl; // Direct navigation ensures mobile opens app/browser successfully
+        const url = `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${lat},${lng},14z`;
+        window.open(url, '_blank');
       }, () => {
-        const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(q)}`;
-        window.location.href = mapsUrl;
-      }, { enableHighAccuracy: true, timeout: 5000 });
+        window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank');
+      }, { enableHighAccuracy: true, timeout: 4000 });
     } else {
-      const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(q)}`;
-      window.location.href = mapsUrl;
+      window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank');
     }
   };
 
@@ -169,8 +174,8 @@ export default function App() {
       time: manualTime || '12:00',
       name: manualTitle,
       dest: manualTitle,
-      lat: 45.4384,
-      lng: 10.6816,
+      lat: myLocation?.lat || 45.4384,
+      lng: myLocation?.lng || 10.6816,
       note: manualDesc || 'הוספה ידנית מהמערכת'
     });
 
@@ -295,6 +300,11 @@ export default function App() {
       {/* Main Container */}
       <main style={{ padding: '16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box', width: '100%' }}>
         
+        {/* GPS Status Banner */}
+        <div style={{ background: '#e0f2fe', border: '1px solid #bae6fd', padding: '8px 12px', borderRadius: '8px', fontSize: '11px', color: '#0369a1', marginBottom: '14px', textAlign: 'center', fontWeight: 'bold' }}>
+          {locationStatus}
+        </div>
+
         {/* Navigation Tabs */}
         <nav style={{ background: '#e2e8f0', padding: '4px', borderRadius: '12px', display: 'flex', gap: '4px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
           {[
@@ -384,8 +394,8 @@ export default function App() {
               {Object.values(allUsersLocations).map((loc, idx) => (
                 <div key={idx} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '12px 14px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
                   <div>
-                    <strong style={{ fontSize: '13px', color: S.textPrimary, fontWeight: 'bold' }}>👤 {loc.name}</strong>
-                    <div style={{ fontSize: '11px', color: S.textSecondary, marginTop: '2px' }}>עודכן לאחרונה: {loc.updated_at || 'עכשיו'}</div>
+                    <strong style={{ fontSize: '13px', color: S.textPrimary, fontWeight: 'bold' }}>👤 {loc.name} {loc.name === currentUser ? '(אתה)' : ''}</strong>
+                    <div style={{ fontSize: '11px', color: S.textSecondary, marginTop: '2px' }}>עדכון GPS: {loc.updated_at || 'עכשיו'}</div>
                   </div>
                   <a href={`https://maps.google.com/?q=${loc.lat},${loc.lng}`} target="_blank" rel="noreferrer" style={{ background: S.accent, color: '#fff', padding: '8px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '11px', fontWeight: 'bold', boxSizing: 'border-box' }}>
                     נווט אליו ➔
@@ -396,7 +406,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3: What's Around Me (Directly Clickable & Stable Grid) */}
+        {/* Tab 3: What's Around Me (Direct Instant Open UI) */}
         {activeTab === 'around' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
@@ -404,16 +414,32 @@ export default function App() {
             <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '16px' }}>מצא מקומות בקרבת המיקום הנוכחי שלך בלחיצת כפתור:</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
-              <button type="button" onClick={() => searchAroundMe('מסעדות')} style={{ padding: '14px 10px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textAlign: 'center' }}>
+              <button 
+                type="button" 
+                onClick={() => searchAroundMe('מסעדות')} 
+                style={{ padding: '14px 10px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
+              >
                 🍽️ מסעדות
               </button>
-              <button type="button" onClick={() => searchAroundMe('מוזיאונים')} style={{ padding: '14px 10px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textAlign: 'center' }}>
+              <button 
+                type="button" 
+                onClick={() => searchAroundMe('מוזיאונים')} 
+                style={{ padding: '14px 10px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
+              >
                 🏛️ מוזיאונים
               </button>
-              <button type="button" onClick={() => searchAroundMe('אטרקציות תיירותיות')} style={{ padding: '14px 10px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textAlign: 'center' }}>
+              <button 
+                type="button" 
+                onClick={() => searchAroundMe('אטרקציות תיירותיות')} 
+                style={{ padding: '14px 10px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
+              >
                 🎢 אטרקציות
               </button>
-              <button type="button" onClick={() => searchAroundMe('בתי קפה')} style={{ padding: '14px 10px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textAlign: 'center' }}>
+              <button 
+                type="button" 
+                onClick={() => searchAroundMe('בתי קפה')} 
+                style={{ padding: '14px 10px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
+              >
                 ☕ בתי קפה
               </button>
             </div>
@@ -426,7 +452,11 @@ export default function App() {
                 onChange={e => setCustomSearchQuery(e.target.value)}
                 style={{ flex: 1, padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, fontSize: '12px', boxSizing: 'border-box', outline: 'none' }}
               />
-              <button type="button" onClick={() => searchAroundMe()} style={{ padding: '10px 16px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box' }}>
+              <button 
+                type="button" 
+                onClick={() => searchAroundMe()} 
+                style={{ padding: '10px 16px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box' }}
+              >
                 חפש 🔍
               </button>
             </div>
