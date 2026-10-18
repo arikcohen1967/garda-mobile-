@@ -303,4 +303,243 @@ export default function App() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               style={{
-                flex: 1, padding: '10
+                flex: 1, padding: '10px 2px', borderRadius: '10px', border: 'none',
+                background: activeTab === tab.id ? '#ffffff' : 'transparent',
+                color: activeTab === tab.id ? S.accent : S.textSecondary,
+                fontWeight: 'bold', fontSize: '11px', cursor: 'pointer', boxSizing: 'border-box',
+                boxShadow: activeTab === tab.id ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                textAlign: 'center', whiteSpace: 'nowrap'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Tab 1: Itinerary */}
+        {activeTab === 'itinerary' && (
+          <div style={{ boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '16px', scrollbarWidth: 'none', boxSizing: 'border-box', width: '100%' }}>
+              {tripDays.map((d, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveDay(idx)}
+                  style={{
+                    flex: '0 0 auto', padding: '8px 14px', borderRadius: '10px',
+                    border: `1px solid ${activeDay === idx ? S.accent : S.cardBorder}`,
+                    background: activeDay === idx ? S.accent : '#ffffff',
+                    color: activeDay === idx ? '#ffffff' : S.textSecondary,
+                    fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box'
+                  }}
+                >
+                  {d.icon} {d.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '18px', boxSizing: 'border-box', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '12px', boxSizing: 'border-box' }}>
+                <span style={{ fontSize: '26px' }}>{currentDay.icon}</span>
+                <div>
+                  <h2 style={{ fontSize: '16px', fontWeight: '900', color: S.textPrimary, margin: '0 0 2px' }}>{currentDay.title}</h2>
+                  <span style={{ fontSize: '12px', color: S.accent, fontWeight: 'bold' }}>{currentDay.label} · {currentDay.date}</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box', width: '100%' }}>
+                {currentDay.stops.map((stop, sIdx) => (
+                  <div key={sIdx} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '10px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box' }}>
+                      <strong style={{ fontSize: '13px', color: S.textPrimary, fontWeight: 'bold' }}>{stop.name}</strong>
+                      <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold' }}>{stop.time}</span>
+                    </div>
+                    <p style={{ fontSize: '12px', color: S.textSecondary, margin: 0, lineHeight: '1.4' }}>{stop.note}</p>
+                    
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px', boxSizing: 'border-box', width: '100%' }}>
+                      <a href={`https://waze.com/ul?q=${encodeURIComponent(stop.dest || stop.name)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#0284c7', color: '#fff', padding: '8px', borderRadius: '8px', textDecoration: 'none', fontSize: '12px', fontWeight: 'bold', textAlign: 'center', boxSizing: 'border-box' }}>
+                        🚗 ניווט ב-Waze
+                      </a>
+                      <a href={`https://www.google.com/maps/search/?api=1&query=${stop.lat},${stop.lng}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#475569', color: '#fff', padding: '8px', borderRadius: '8px', textDecoration: 'none', fontSize: '12px', fontWeight: 'bold', textAlign: 'center', boxSizing: 'border-box' }}>
+                        🗺️ Google Maps
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: Radar */}
+        {activeTab === 'radar' && (
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '18px', textAlign: 'center', boxSizing: 'border-box', width: '100%' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: '900', color: S.textPrimary, marginBottom: '6px' }}>📍 רדאר משפחתי (Find My)</h2>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '16px' }}>מעקב חי אחר כל המשתמשים במערכת בזמן אמת</p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+              {Object.values(allUsersLocations).map((loc, idx) => (
+                <div key={idx} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '12px 14px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
+                  <div>
+                    <strong style={{ fontSize: '13px', color: S.textPrimary, fontWeight: 'bold' }}>👤 {loc.name}</strong>
+                    <div style={{ fontSize: '11px', color: S.textSecondary, marginTop: '2px' }}>עודכן לאחרונה: {loc.updated_at || 'עכשיו'}</div>
+                  </div>
+                  <a href={`https://maps.google.com/?q=${loc.lat},${loc.lng}`} target="_blank" rel="noreferrer" style={{ background: S.accent, color: '#fff', padding: '8px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '11px', fontWeight: 'bold', boxSizing: 'border-box' }}>
+                    נווט אליו ➔
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: What's Around Me */}
+        {activeTab === 'around' && (
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
+            <h2 style={{ fontSize: '16px', fontWeight: '900', color: S.textPrimary, marginBottom: '6px' }}>מה יש סביבי?</h2>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '16px' }}>מצא מקומות בקרבת המיקום הנוכחי שלך בלחיצת כפתור:</p>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
+              {[
+                { label: '🍽️ מסעדות', q: 'מסעדות' },
+                { label: '🏛️ מוזיאונים', q: 'מוזיאונים' },
+                { label: '🎢 אטרקציות', q: 'אטרקציות תיירותיות' },
+                { label: '☕ בתי קפה', q: 'בתי קפה' }
+              ].map((btn, bIdx) => (
+                <button
+                  key={bIdx}
+                  onClick={() => searchAroundMe(btn.q)}
+                  style={{
+                    flex: '1 1 45%', minWidth: '130px', padding: '12px', borderRadius: '10px',
+                    border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary,
+                    fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box',
+                    textAlign: 'center'
+                  }}
+                >
+                  {btn.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
+              <input 
+                type="text" 
+                placeholder="הקלד כל דבר (לדוגמה: סופרמרקט...)" 
+                value={customSearchQuery} 
+                onChange={e => setCustomSearchQuery(e.target.value)}
+                style={{ flex: 1, padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, fontSize: '12px', boxSizing: 'border-box', outline: 'none' }}
+              />
+              <button onClick={() => searchAroundMe()} style={{ padding: '10px 16px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box' }}>
+                חפש 🔍
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Trivia */}
+        {activeTab === 'trivia' && (
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: '900', color: S.textPrimary, marginBottom: '6px' }}>🎯 טריוויה בדרכים (1500 שאלות)</h2>
+            <p style={{ fontSize: '12px', color: S.accent, fontWeight: 'bold', marginBottom: '16px' }}>ניקוד כולל: {triviaScore} נקודות | שאלה {triviaIdx + 1} מתוך 1500</p>
+            
+            <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '16px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: 'bold', color: S.textPrimary, lineHeight: '1.4', boxSizing: 'border-box', width: '100%' }}>
+              {activeQ.q}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
+              {activeQ.options.map((opt, oIdx) => (
+                <button
+                  key={oIdx}
+                  onClick={() => {
+                    if (selectedOpt !== null) return;
+                    setSelectedOpt(oIdx);
+                    if (oIdx === activeQ.correct) setTriviaScore(prev => prev + 10);
+                    setTimeout(() => {
+                      setSelectedOpt(null);
+                      setTriviaIdx(prev => prev + 1);
+                    }, 1000);
+                  }}
+                  style={{
+                    padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, boxSizing: 'border-box', width: '100%',
+                    background: selectedOpt === null ? '#ffffff' : (oIdx === activeQ.correct ? S.success : (selectedOpt === oIdx ? S.danger : '#ffffff')),
+                    color: selectedOpt !== null && (oIdx === activeQ.correct || selectedOpt === oIdx) ? '#ffffff' : S.textPrimary,
+                    fontWeight: 'bold', fontSize: '13px', cursor: 'pointer'
+                  }}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* Sidebar Modal */}
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', justifyContent: 'flex-start', boxSizing: 'border-box' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#ffffff', borderRight: `1px solid ${S.cardBorder}`, width: '85%', maxWidth: '300px', height: '100%', padding: '20px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'right' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '10px', boxSizing: 'border-box', width: '100%' }}>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: S.textPrimary }}>⚙️ ניהול ומערכת</h3>
+              <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: S.textSecondary, fontSize: '16px', cursor: 'pointer' }}>✕</button>
+            </div>
+
+            <button onClick={() => setAdminModal(true)} style={{ padding: '10px 14px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+              📂 ניהול / טעינת מסלולים (מנהל)
+            </button>
+
+            <button onClick={() => setBackupModal(true)} style={{ padding: '10px 14px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+              💾 גיבוי ושחזור נתונים (מנהל)
+            </button>
+            
+            <div style={{ marginTop: 'auto', fontSize: '11px', color: S.textSecondary, textAlign: 'center', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '10px', boxSizing: 'border-box', width: '100%' }}>
+              Trip-Navigator גרסה {APP_VERSION}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Modal */}
+      {adminModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '24px', borderRadius: '14px', width: '100%', maxWidth: '380px', textAlign: 'right', boxSizing: 'border-box' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '15px', fontWeight: '900' }}>📂 ניהול והוספת מסלולים</h3>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '10px' }}>הזן קוד מנהל ({ADMIN_PIN}):</p>
+            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '12px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }} />
+            
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '12px', marginBottom: '12px', boxSizing: 'border-box', width: '100%' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary }}>הוספה ידנית של תחנה ליום הנבחר:</strong>
+              <input type="text" placeholder="שם היעד / תחנה" value={manualTitle} onChange={e => setManualTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginTop: '6px', marginBottom: '6px', boxSizing: 'border-box', fontSize: '12px', outline: 'none' }} />
+              <input type="text" placeholder="שעה (לדוגמה: 14:00)" value={manualTime} onChange={e => setManualTime(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginBottom: '6px', boxSizing: 'border-box', fontSize: '12px', outline: 'none' }} />
+              <input type="text" placeholder="תיאור קצר / הערה" value={manualDesc} onChange={e => setManualDesc(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginBottom: '8px', boxSizing: 'border-box', fontSize: '12px', outline: 'none' }} />
+              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '8px', background: S.success, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
+            </div>
+
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '12px', marginBottom: '14px', boxSizing: 'border-box', width: '100%' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary }}>או טעינה מקובץ (Excel / CSV / JSON):</strong>
+              <input type="file" accept=".csv, .json, .txt" onChange={file => handleFileUpload(file)} style={{ width: '100%', marginTop: '6px', fontSize: '12px', boxSizing: 'border-box' }} />
+            </div>
+
+            <button onClick={() => setAdminModal(false)} style={{ width: '100%', padding: '10px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+          </div>
+        </div>
+      )}
+
+      {/* Backup Modal */}
+      {backupModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '24px', borderRadius: '14px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '15px', fontWeight: '900' }}>💾 גיבוי ושחזור מערכת</h3>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '10px' }}>הזן קוד מנהל ({ADMIN_PIN}) להורדת גיבוי:</p>
+            <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '14px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }} />
+            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box' }}>
+              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '10px', background: S.success, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>הורד גיבוי</button>
+              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '10px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
