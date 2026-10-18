@@ -134,7 +134,6 @@ export default function App() {
     localStorage.setItem('trip-user', name);
   };
 
-  // Fixed Google Maps Around Me Search
   const searchAroundMe = (query) => {
     const searchQuery = query || customSearchQuery;
     if (!searchQuery.trim()) return alert('נא להקליד או לבחור קטגוריה לחיפוש');
@@ -143,7 +142,6 @@ export default function App() {
       navigator.geolocation.getCurrentPosition((pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        // Strict Google Maps search URL with coords
         const url = `https://www.google.com/maps/search/${encodeURIComponent(searchQuery)}/@${lat},${lng},14z`;
         window.open(url, '_blank');
       }, () => {
@@ -256,7 +254,7 @@ export default function App() {
             onChange={e => setLoginInput(e.target.value)}
             style={{ width: '100%', padding: '12px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#ffffff', color: S.textPrimary, marginBottom: '14px', fontSize: '14px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }}
           />
-          <button type="submit" style={{ width: '100%', padding: '12px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer', boxSizing: 'border-box' }}>
+          <button type="submit" style={{ width: '100%', padding: '12px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
             התחל מסע ➔
           </button>
         </form>
@@ -293,7 +291,7 @@ export default function App() {
       {/* Main Container */}
       <main style={{ padding: '16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box', width: '100%' }}>
         
-        {/* Navigation Tabs (Fixed Layout) */}
+        {/* Navigation Tabs */}
         <nav style={{ background: '#e2e8f0', padding: '4px', borderRadius: '12px', display: 'flex', gap: '4px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
           {[
             { id: 'itinerary', label: '📅 מסלול' },
@@ -394,7 +392,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 3: What's Around Me ("מה יש סביבי") - Fixed Stable Grid */}
+        {/* Tab 3: What's Around Me */}
         {activeTab === 'around' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
@@ -462,4 +460,75 @@ export default function App() {
                     }, 1000);
                   }}
                   style={{
-                    padding: '12px',
+                    padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, boxSizing: 'border-box', width: '100%',
+                    background: selectedOpt === null ? '#ffffff' : (oIdx === activeQ.correct ? S.success : (selectedOpt === oIdx ? S.danger : '#ffffff')),
+                    color: selectedOpt !== null && (oIdx === activeQ.correct || selectedOpt === oIdx) ? '#ffffff' : S.textPrimary,
+                    fontWeight: 'bold', fontSize: '13px', cursor: 'pointer'
+                  }}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* Sidebar Modal */}
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', justifyContent: 'flex-start', boxSizing: 'border-box' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#ffffff', borderRight: `1px solid ${S.cardBorder}`, width: '85%', maxWidth: '300px', height: '100%', padding: '20px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'right' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '10px', boxSizing: 'border-box', width: '100%' }}>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '900', color: S.textPrimary }}>⚙️ ניהול ומערכת</h3>
+              <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: S.textSecondary, fontSize: '16px', cursor: 'pointer' }}>✕</button>
+            </div>
+
+            <button onClick={() => setAdminModal(true)} style={{ padding: '10px 14px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+              📂 ניהול / טעינת מסלולים (מנהל)
+            </button>
+
+            <button onClick={() => setBackupModal(true)} style={{ padding: '10px 14px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+              💾 גיבוי ושחזור נתונים (מנהל)
+            </button>
+            
+            <div style={{ marginTop: 'auto', fontSize: '11px', color: S.textSecondary, textAlign: 'center', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '10px', boxSizing: 'border-box', width: '100%' }}>
+              Trip-Navigator גרסה {APP_VERSION}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Modal */}
+      {adminModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '24px', borderRadius: '14px', width: '100%', maxWidth: '380px', textAlign: 'right', boxSizing: 'border-box' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '15px', fontWeight: '900' }}>📂 ניהול והוספת מסלולים</h3>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '10px' }}>הזן קוד מנהל ({ADMIN_PIN}):</p>
+            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '12px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }} />
+            
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '12px', marginBottom: '12px', boxSizing: 'border-box', width: '100%' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary }}>הוספה ידנית של תחנה ליום הנבחר:</strong>
+              <input type="text" placeholder="שם היעד / תחנה" value={manualTitle} onChange={e => setManualTitle(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginTop: '6px', marginBottom: '6px', boxSizing: 'border-box', fontSize: '12px', outline: 'none' }} />
+              <input type="text" placeholder="שעה (לדוגמה: 14:00)" value={manualTime} onChange={e => setManualTime(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginBottom: '6px', boxSizing: 'border-box', fontSize: '12px', outline: 'none' }} />
+              <input type="text" placeholder="תיאור קצר / הערה" value={manualDesc} onChange={e => setManualDesc(e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, marginBottom: '8px', boxSizing: 'border-box', fontSize: '12px', outline: 'none' }} />
+              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '8px', background: S.success, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
+            </div>
+
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '12px', marginBottom: '14px', boxSizing: 'border-box', width: '100%' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary }}>או טעינה מקובץ (Excel / CSV / JSON):</strong>
+              <input type="file" accept=".csv, .json, .txt" onChange={file => handleFileUpload(file)} style={{ width: '100%', marginTop: '6px', fontSize: '12px', boxSizing: 'border-box' }} />
+            </div>
+
+            <button onClick={() => setAdminModal(false)} style={{ width: '100%', padding: '10px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+          </div>
+        </div>
+      )}
+
+      {/* Backup Modal */}
+      {backupModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '24px', borderRadius: '14px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '15px', fontWeight: '900' }}>💾 גיבוי ושחזור מערכת</h3>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '10px' }}>הזן קוד מנהל ({ADMIN_PIN}) להורדת גיבוי:</p>
+            <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary,
