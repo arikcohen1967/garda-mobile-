@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.7.6 (Fixed Syntax & Closed Brackets) ---
-const APP_VERSION = 'v1.7.6';
+// --- TRIP-NAVIGATOR v1.7.7 (Fixed Missing Closing Brackets) ---
+const APP_VERSION = 'v1.7.7';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -175,7 +175,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v176')
+    const channel = supabase.channel('trip_sync_v177')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -791,4 +791,26 @@ export default function App() {
               <input type="file" accept=".json" onChange={file => handleFileUpload(file)} style={{ width: '100%', marginTop: '8px', fontSize: '12px', boxSizing: 'border-box' }} />
             </div>
 
-            <button onClick={() => setAdminModal(false)} style={{ width: '100%',
+            <button onClick={() => setAdminModal(false)} style={{ width: '100%', padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+          </div>
+        </div>
+      )}
+
+      {/* Backup Modal */}
+      {backupModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '16px', fontWeight: '900' }}>💾 גיבוי ושחזור מערכת</h3>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '12px' }}>הזן קוד מנהל ({ADMIN_PIN}) להורדת גיבוי:</p>
+            <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
+            <div style={{ display: 'flex', gap: '10px', boxSizing: 'border-box' }}>
+              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '12px', background: S.success, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>הורד גיבוי</button>
+              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
