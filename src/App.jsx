@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.6.6 (Fixed Build & Enhanced Live Radar) ---
-const APP_VERSION = 'v1.6.6';
+// --- TRIP-NAVIGATOR v1.7.0 (Interactive Map, Live Ping & Navigation) ---
+const APP_VERSION = 'v1.7.0';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -67,6 +67,7 @@ export default function App() {
   const [locationStatus, setLocationStatus] = useState('ממתין לאישור מיקום GPS...');
   const [allUsersLocations, setAllUsersLocations] = useState({});
   const [currentWeather, setCurrentWeather] = useState({ temp: '... ', icon: '⏳' });
+  const [incomingPing, setIncomingPing] = useState(null);
 
   const [customSearchQuery, setCustomSearchQuery] = useState('');
 
@@ -89,60 +90,68 @@ export default function App() {
   const [selectedOpt, setSelectedOpt] = useState(null);
   const [adminTriviaPin, setAdminTriviaPin] = useState('');
 
-  // Sync Trivia with Supabase
+  // Leaflet Map Ref for embedded map rendering
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  // Load Leaflet scripts dynamically for embedded interactive map
   useEffect(() => {
-    const fetchTriviaGlobal = async () => {
-      try {
-        const { data } = await supabase.from('family_timers').select('*').eq('id', 999).single();
-        if (data && data.trivia_data) {
-          setTriviaState(data.trivia_data);
-        }
-      } catch (e) {}
-    };
-    fetchTriviaGlobal();
+    if (document.getElementById('leaflet-script')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
 
-    const triviaChannel = supabase.channel('trip_trivia_sync_v166')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_timers' }, payload => {
-        if (payload.new && payload.new.id === 999 && payload.new.trivia_data) {
-          setTriviaState(payload.new.trivia_data);
-        }
-      })
-      .subscribe();
-
-    return () => { supabase.removeChannel(triviaChannel); };
+    const script = document.createElement('script');
+    script.id = 'leaflet-script';
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    document.body.appendChild(script);
   }, []);
 
-  const updateTriviaInCloud = async (newState) => {
-    setTriviaState(newState);
-    try {
-      localStorage.setItem('trip-trivia-state', JSON.stringify(newState));
-      await supabase.from('family_timers').upsert([{ id: 999, trivia_data: newState }], { onConflict: 'id' });
-    } catch (e) {}
-  };
-
-  // 30 Seconds Timer Effect
+  // Render Leaflet Map when in Radar tab
   useEffect(() => {
-    if (activeTab !== 'trivia' || triviaState.isPaused || selectedOpt !== null) return;
+    if (activeTab !== 'radar') return;
+    const timer = setTimeout(() => {
+      if (!window.L || !mapContainerRef.current) return;
 
-    if (timeLeft <= 0) {
-      setTimeLeft(30);
-      const nextIdx = triviaState.idx + 1;
-      updateTriviaInCloud({ ...triviaState, idx: nextIdx });
-      return;
-    }
+      const defaultLat = myLocation?.lat || 45.4384;
+      const defaultLng = myLocation?.lng || 10.6816;
 
-    const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
-    }, 1000);
+      if (!mapInstanceRef.current) {
+        mapInstanceRef.current = window.L.map(mapContainerRef.current).setView([defaultLat, defaultLng], 12);
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(mapInstanceRef.current);
+      } else {
+        mapInstanceRef.current.setView([defaultLat, defaultLng], 12);
+        mapInstanceRef.current.invalidateSize();
+      }
 
-    return () => clearInterval(timer);
-  }, [activeTab, triviaState, timeLeft, selectedOpt]);
+      // Clear existing markers layers if any
+      mapInstanceRef.current.eachLayer((layer) => {
+        if (layer instanceof window.L.Marker) {
+          mapInstanceRef.current.removeLayer(layer);
+        }
+      });
 
-  // Sync Location & Weather & Fetch Radar Data
+      // Add markers for all users
+      Object.values(allUsersLocations).forEach(loc => {
+        if (loc.lat && loc.lng) {
+          const marker = window.L.marker([loc.lat, loc.lng]).addTo(mapInstanceRef.current);
+          marker.bindPopup(`<b>${loc.name}</b><br/>עדכון: ${loc.updated_at || 'לפני רגע'}`);
+        }
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [activeTab, allUsersLocations, myLocation]);
+
+  // Sync Trivia, Radar & Pings with Supabase
   useEffect(() => {
     if (!currentUser) return;
 
-    const fetchLocations = async () => {
+    const fetchInitialData = async () => {
       try {
         const { data } = await supabase.from('family_radar').select('*');
         if (data) {
@@ -152,12 +161,18 @@ export default function App() {
         }
       } catch (err) {}
     };
-    fetchLocations();
+    fetchInitialData();
 
-    const channel = supabase.channel('trip_radar_v166')
+    // Listen to Radar & Pings changes
+    const channel = supabase.channel('trip_sync_v170')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
+          
+          // Check if there is a ping for current user
+          if (payload.new.name === currentUser && payload.new.ping_target && payload.new.ping_target === currentUser) {
+            setIncomingPing({ from: payload.new.ping_from, msg: payload.new.ping_msg || 'חזור אלי בדחיפות!' });
+          }
         }
       })
       .subscribe();
@@ -195,6 +210,7 @@ export default function App() {
         }
 
         try {
+          // Keep existing ping data if present when upserting location
           await supabase.from('family_radar').upsert([coords], { onConflict: 'name' });
         } catch (err) {}
       }, () => {
@@ -210,6 +226,41 @@ export default function App() {
       supabase.removeChannel(channel);
     };
   }, [currentUser]);
+
+  const sendPingToUser = async (targetName) => {
+    const customMsg = prompt(`שלח הודעת PING אל ${targetName}:`, "היי, איפה אתה? חזור אלי בבקשה!");
+    if (customMsg === null) return;
+
+    try {
+      // Fetch target record first to avoid overwriting their lat/lng with nulls
+      const targetUserObj = allUsersLocations[targetName] || { name: targetName, lat: 45.43, lng: 10.68 };
+      await supabase.from('family_radar').upsert([{
+        ...targetUserObj,
+        ping_target: targetName,
+        ping_from: currentUser,
+        ping_msg: customMsg
+      }], { onConflict: 'name' });
+
+      alert(`✅ ה-PING נשלח בהצלחה אל ${targetName}!`);
+    } catch (e) {
+      alert('❌ שגיאה בשליחת ה-PING');
+    }
+  };
+
+  const clearIncomingPing = async () => {
+    if (!myLocation) return;
+    try {
+      await supabase.from('family_radar').upsert([{
+        ...myLocation,
+        ping_target: null,
+        ping_from: null,
+        ping_msg: null
+      }], { onConflict: 'name' });
+      setIncomingPing(null);
+    } catch (e) {
+      setIncomingPing(null);
+    }
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -350,6 +401,23 @@ export default function App() {
   return (
     <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
       
+      {/* Incoming PING Modal Alert */}
+      {incomingPing && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', border: '3px solid #dc2626', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '340px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+            <div style={{ fontSize: '40px', marginBottom: '8px' }}>🚨</div>
+            <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#dc2626', margin: '0 0 8px' }}>קיבלת PING דחוף!</h3>
+            <p style={{ fontSize: '14px', fontWeight: '700', color: S.textPrimary, margin: '0 0 4px' }}>מאת: {incomingPing.from}</p>
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '12px', borderRadius: '10px', fontSize: '13px', color: '#991b1b', margin: '14px 0', fontWeight: '600' }}>
+              "{incomingPing.msg}"
+            </div>
+            <button onClick={clearIncomingPing} style={{ width: '100%', padding: '12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+              הבנתי, תודה 👍
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top Header - Clickable Weather Widget */}
       <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
         
@@ -394,7 +462,7 @@ export default function App() {
         <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
           {[
             { id: 'itinerary', label: '📅 מסלול' },
-            { id: 'radar', label: '📍 רדאר' },
+            { id: 'radar', label: '📍 מפה ורדאר' },
             { id: 'around', label: '📍 מה סביבי' },
             { id: 'trivia', label: '🎯 טריוויה' }
           ].map(tab => (
@@ -470,50 +538,58 @@ export default function App() {
           </div>
         )}
 
-        {/* Tab 2: Radar */}
+        {/* Tab 2: Radar & Interactive Map */}
         {activeTab === 'radar' && (
-          <div style={{ background: '#18181b', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', padding: '24px 20px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}>
+          <div style={{ background: '#18181b', color: '#ffffff', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '24px', padding: '20px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px' }}>
               <div>
-                <h2 style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 4px', letterSpacing: '-0.5px' }}>רדאר משתמשים חי</h2>
-                <span style={{ fontSize: '11px', color: '#a1a1aa' }}>מיקום חי בזמן אמת מכלל חברי המשפחה</span>
+                <h2 style={{ fontSize: '18px', fontWeight: '800', margin: '0 0 2px', letterSpacing: '-0.5px' }}>מפה ורדאר חַי</h2>
+                <span style={{ fontSize: '11px', color: '#a1a1aa' }}>מעקב מיקום אינטראקטיבי בזמן אמת</span>
               </div>
               <span style={{ fontSize: '12px', background: '#27272a', color: '#22c55e', padding: '4px 10px', borderRadius: '12px', fontWeight: '700', border: '1px solid rgba(34, 197, 94, 0.3)' }}>● Live</span>
             </div>
+
+            {/* Embedded Interactive Map Container */}
+            <div ref={mapContainerRef} style={{ width: '100%', height: '260px', borderRadius: '16px', marginBottom: '16px', zIndex: 1, border: '1px solid rgba(255,255,255,0.15)' }}></div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', boxSizing: 'border-box', width: '100%' }}>
               {Object.keys(allUsersLocations).length === 0 ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: '#a1a1aa', fontSize: '13px' }}>
                   ממתין לנתוני מיקום מהמשתמשים...
                 </div>
               ) : (
                 Object.values(allUsersLocations).map((loc, idx) => (
-                  <div key={idx} style={{ background: '#27272a', border: '1px solid rgba(255,255,255,0.08)', padding: '16px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div key={idx} style={{ background: '#27272a', border: '1px solid rgba(255,255,255,0.08)', padding: '14px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ position: 'relative' }}>
-                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#3f3f46', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '18px', border: '2px solid rgba(255,255,255,0.2)' }}>
+                        <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#3f3f46', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '16px', border: '2px solid rgba(255,255,255,0.2)' }}>
                           {loc.name ? loc.name[0] : '👤'}
                         </div>
-                        <span style={{ position: 'absolute', bottom: '2px', right: '2px', width: '12px', height: '12px', background: '#22c55e', borderRadius: '50%', border: '2px solid #27272a' }}></span>
+                        <span style={{ position: 'absolute', bottom: '2px', right: '2px', width: '10px', height: '10px', background: '#22c55e', borderRadius: '50%', border: '2px solid #27272a' }}></span>
                       </div>
                       <div>
-                        <strong style={{ fontSize: '15px', color: '#ffffff', fontWeight: '700', display: 'block', marginBottom: '2px' }}>
+                        <strong style={{ fontSize: '14px', color: '#ffffff', fontWeight: '700', display: 'block', marginBottom: '2px' }}>
                           {loc.name} {loc.name === currentUser ? '(אתה)' : ''}
                         </strong>
-                        <span style={{ fontSize: '11px', color: '#a1a1aa', display: 'block' }}>
-                          📍 קואורדינטות: {Number(loc.lat).toFixed(3)}, {Number(loc.lng).toFixed(3)}
-                        </span>
                         {loc.updated_at && (
-                          <span style={{ fontSize: '10px', color: '#71717a', display: 'block', marginTop: '2px' }}>
-                            עדכון אחרון: {loc.updated_at}
+                          <span style={{ fontSize: '10px', color: '#a1a1aa', display: 'block' }}>
+                            עדכון: {loc.updated_at}
                           </span>
                         )}
                       </div>
                     </div>
-                    <a href={getMapsUrl(loc.lat, loc.lng, loc.name)} target="_blank" rel="noreferrer" style={{ background: '#3b82f6', color: '#ffffff', padding: '10px 16px', borderRadius: '12px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
-                      נווט ➔
-                    </a>
+                    
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {loc.name !== currentUser && (
+                        <button onClick={() => sendPingToUser(loc.name)} style={{ background: '#f59e0b', color: '#ffffff', border: 'none', padding: '8px 10px', borderRadius: '10px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }} title="שלח פינג התראה">
+                          🔔 PING
+                        </button>
+                      )}
+                      <a href={getMapsUrl(loc.lat, loc.lng, loc.name)} target="_blank" rel="noreferrer" style={{ background: '#3b82f6', color: '#ffffff', padding: '8px 12px', borderRadius: '10px', textDecoration: 'none', fontSize: '11px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
+                        נווט ➔
+                      </a>
+                    </div>
                   </div>
                 ))
               )}
