@@ -37,5 +37,100 @@ const INITIAL_TRIP_DAYS = [
   }
 ];
 
-const TRIVIA_BANK = Array.from({ length: 1500 }, (_, i) => {
-  const
+const TRIVIA_BANK = [
+  { q: "באיזו מדינה באירופה נמצא אגם גארדה?", options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+  { q: "מהי בירת איטליה?", options: ["מילאנו", "ונציה", "רומא", "פדובה"], correct: 2 },
+  { q: "איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?", options: ["דיסנילנד", "גארדלנד", "פורט אבנטורה", "אסטריקס"], correct: 1 },
+  { q: "מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?", options: ["ורונה", "מנטובה", "בולוניה", "גנואה"], correct: 0 },
+  { q: "איזה מאכל איטלקי מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?", options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 }
+];
+
+export default function App() {
+  const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('trip-user') || '');
+  const [loginInput, setLoginInput] = useState('');
+  const [activeTab, setActiveTab] = useState('itinerary'); 
+  const [activeDay, setActiveDay] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const [tripDays, setTripDays] = useState(() => {
+    try {
+      const saved = localStorage.getItem('trip-custom-days');
+      return saved ? JSON.parse(saved) : INITIAL_TRIP_DAYS;
+    } catch (e) { return INITIAL_TRIP_DAYS; }
+  });
+
+  const [myLocation, setMyLocation] = useState(null);
+  const [gpsConnected, setGpsConnected] = useState(false);
+  const [allUsersLocations, setAllUsersLocations] = useState({});
+  const [currentWeather, setCurrentWeather] = useState({ temp: '... ', icon: '⏳' });
+  const [incomingPing, setIncomingPing] = useState(null);
+
+  const [customSearchQuery, setCustomSearchQuery] = useState('');
+
+  const [adminModal, setAdminModal] = useState(false);
+  const [adminPinInput, setAdminPinInput] = useState('');
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualDesc, setManualDesc] = useState('');
+  const [manualTime, setManualTime] = useState('10:00');
+
+  const [backupModal, setBackupModal] = useState(false);
+  const [backupPinInput, setBackupPinInput] = useState('');
+
+  const [triviaState, setTriviaState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('trip-trivia-state');
+      return saved ? JSON.parse(saved) : { idx: 0, scores: {}, isPaused: false };
+    } catch (e) { return { idx: 0, scores: {}, isPaused: false }; }
+  });
+  
+  const [selectedOpt, setSelectedOpt] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [activeTriviaPlayer, setActiveTriviaPlayer] = useState(() => currentUser || '');
+
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  const updateTriviaInCloud = async (newState) => {
+    setTriviaState(newState);
+    localStorage.setItem('trip-trivia-state', JSON.stringify(newState));
+    try {
+      await supabase.from('family_radar').upsert([{
+        name: currentUser,
+        lat: myLocation?.lat || 45.43,
+        lng: myLocation?.lng || 10.68,
+        updated_at: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        trivia_state: newState
+      }], { onConflict: 'name' });
+    } catch (err) {}
+  };
+
+  useEffect(() => {
+    if (activeTab !== 'trivia' || triviaState.isPaused || selectedOpt !== null) return;
+
+    if (timeLeft <= 0) {
+      const nextIdx = (triviaState.idx + 1) % TRIVIA_BANK.length;
+      updateTriviaInCloud({ ...triviaState, idx: nextIdx });
+      setTimeLeft(30);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeTab, timeLeft, triviaState, selectedOpt]);
+
+  useEffect(() => {
+    setTimeLeft(30);
+  }, [triviaState.idx]);
+
+  useEffect(() => {
+    if (document.getElementById('leaflet-script')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
+
+    const script = document.createElement('script');
+    script
