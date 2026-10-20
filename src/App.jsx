@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.22 (Clean & Fixed) ---
-const APP_VERSION = 'v1.8.22';
+// --- TRIP-NAVIGATOR v1.8.5 (Original Light Theme Edition) ---
+const APP_VERSION = 'v1.8.5';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -25,7 +25,7 @@ const INITIAL_TRIP_DAYS = [
   {
     date: "2026-09-30", label: "יום 1 · נחיתה", title: "נחיתה והגעה למלון", icon: "✈️",
     stops: [
-      { time: "16:00", name: "נחיתה בשדה התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף רכב וקבלת פנים ראשונה." },
+      { time: "16:00", name: "נחיתה בשדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף רכב וקבלת פנים ראשונה." },
       { time: "18:00", name: "הגעה למלון Bio Agriturismo Vojon", dest: "Peschiera del Garda, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין והתארגנות." }
     ]
   },
@@ -86,11 +86,9 @@ export default function App() {
       return saved ? JSON.parse(saved) : { idx: 0, scores: {}, isPaused: false };
     } catch (e) { return { idx: 0, scores: {}, isPaused: false }; }
   });
-  
-  const [selectedOpt, setSelectedOpt] = useState(null);
   const [timeLeft, setTimeLeft] = useState(30);
+  const [selectedOpt, setSelectedOpt] = useState(null);
   const [adminTriviaPin, setAdminTriviaPin] = useState('');
-  const [activeTriviaPlayer, setActiveTriviaPlayer] = useState(() => currentUser || '');
 
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -108,27 +106,6 @@ export default function App() {
       }], { onConflict: 'name' });
     } catch (err) {}
   };
-
-  useEffect(() => {
-    if (activeTab !== 'trivia' || triviaState.isPaused || selectedOpt !== null) return;
-
-    if (timeLeft <= 0) {
-      const nextIdx = triviaState.idx + 1;
-      updateTriviaInCloud({ ...triviaState, idx: nextIdx });
-      setTimeLeft(30);
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [activeTab, timeLeft, triviaState, selectedOpt]);
-
-  useEffect(() => {
-    setTimeLeft(30);
-  }, [triviaState.idx]);
 
   useEffect(() => {
     if (document.getElementById('leaflet-script')) return;
@@ -197,8 +174,7 @@ export default function App() {
 
     const fetchInitialData = async () => {
       try {
-        const response = await supabase.from('family_radar').select('*');
-        const data = response.data;
+        const { data } = await supabase.from('family_radar').select('*');
         if (data) {
           const map = {};
           data.forEach(item => { 
@@ -213,7 +189,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v1822')
+    const channel = supabase.channel('trip_sync_v185')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -315,7 +291,6 @@ export default function App() {
     if (!loginInput.trim()) return;
     const name = loginInput.trim();
     setCurrentUser(name);
-    setActiveTriviaPlayer(name);
     localStorage.setItem('trip-user', name);
   };
 
@@ -358,20 +333,14 @@ export default function App() {
     const q = queryText || customSearchQuery;
     if (!q || !q.trim()) return alert('נא להקליד או לבחור קטגוריה לחיפוש');
 
-    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    const lat = myLocation?.lat;
-    const lng = myLocation?.lng;
-
-    if (lat && lng) {
-      const url = isApple
-        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&near=${lat},${lng}`
-        : `https://www.google.com/maps/search/${encodeURIComponent(q)}+near+${lat},${lng}`;
+    if (myLocation && myLocation.lat && myLocation.lng) {
+      const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+      const url = isApple 
+        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&ll=${myLocation.lat},${myLocation.lng}`
+        : `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${myLocation.lat},${myLocation.lng},14z`;
       window.open(url, '_blank');
     } else {
-      const url = isApple
-        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}`
-        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
-      window.open(url, '_blank');
+      window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank');
     }
   };
 
@@ -439,29 +408,6 @@ export default function App() {
     setBackupModal(false);
   };
 
-  const handleAnswerSelect = (optionIdx) => {
-    if (selectedOpt !== null) return;
-    setSelectedOpt(optionIdx);
-
-    const isCorrect = optionIdx === activeQ.correct;
-    const currentScore = triviaState.scores?.[activeTriviaPlayer] || 0;
-    const newScores = {
-      ...(triviaState.scores || {}),
-      [activeTriviaPlayer]: isCorrect ? currentScore + 10 : currentScore
-    };
-
-    setTimeout(() => {
-      const nextIdx = triviaState.idx + 1;
-      updateTriviaInCloud({
-        ...triviaState,
-        idx: nextIdx,
-        scores: newScores
-      });
-      setSelectedOpt(null);
-      setTimeLeft(30);
-    }, 1200);
-  };
-
   if (!currentUser) {
     return (
       <div style={{ background: S.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif', direction: 'rtl', padding: '20px', boxSizing: 'border-box' }}>
@@ -488,7 +434,7 @@ export default function App() {
   const sortedScores = Object.entries(triviaState.scores || {}).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '70px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
+    <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
       
       {incomingPing && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -506,380 +452,367 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER */}
-      <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧭</div>
-          <div>
-            <h1 style={{ fontSize: '14px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>Trip-Nav</h1>
-            <div style={{ fontSize: '11px', color: S.textSecondary }}>שלום, {currentUser}</div>
-          </div>
+      <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', boxSizing: 'border-box', minWidth: 0 }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>🧭</div>
+          <h1 style={{ fontSize: '13px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>Trip-Nav</h1>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-          <div 
-            onClick={openWeatherApp}
-            style={{ cursor: 'pointer', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '4px 8px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span>{currentWeather.icon}</span>
-            <span>{currentWeather.temp}</span>
-          </div>
-
-          <div style={{ 
-            background: gpsConnected ? '#f0fdf4' : '#fef2f2',
-            color: gpsConnected ? '#15803d' : '#b91c1c',
-            padding: '4px 8px',
-            borderRadius: '8px',
-            fontSize: '11px',
-            fontWeight: 'bold',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <span>{gpsConnected ? '🟢 GPS' : '🔴 אין GPS'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', boxSizing: 'border-box', flexShrink: 0 }}>
+          
+          <div style={{ background: gpsConnected ? '#f0fdf4' : '#fef2f2', border: `1px solid ${gpsConnected ? '#bbf7d0' : '#fecaca'}`, height: '28px', padding: '0 6px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', fontWeight: '800', color: gpsConnected ? '#166534' : '#dc2626', boxSizing: 'border-box' }}>
+            <span>{gpsConnected ? '🟢' : '🔴'}</span>
+            <span>{gpsConnected ? 'GPS' : 'אין GPS'}</span>
           </div>
 
           <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', fontSize: '14px' }}>
-            ⚙️
+            onClick={openWeatherApp}
+            title="פתח אפליקציית מזג אוויר"
+            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 6px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '2px', fontSize: '9px', fontWeight: '800', color: S.textPrimary, boxSizing: 'border-box', cursor: 'pointer' }}
+          >
+            <span>{currentWeather.icon}</span>
+            <span>{currentWeather.temp}</span>
           </button>
+
+          <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 8px', borderRadius: '8px', display: 'flex', alignItems: 'center', fontSize: '10px', fontWeight: '700', color: S.textSecondary, boxSizing: 'border-box', whiteSpace: 'nowrap', maxWidth: '75px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            👤 {currentUser}
+          </div>
+
+          <button 
+            onClick={() => setSidebarOpen(true)} 
+            style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, height: '28px', padding: '0 8px', borderRadius: '8px', display: 'flex', alignItems: 'center', color: S.textPrimary, cursor: 'pointer', fontSize: '10px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}
+          >
+            ⚙️ ניהול
+          </button>
+
         </div>
+
       </header>
 
-      {/* ADMIN & TOOLS SIDEBAR / MODAL */}
-      {sidebarOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', justifyContent: 'flex-start' }}>
-          <div style={{ background: '#fff', width: '280px', height: '100%', padding: '20px', boxSizing: 'border-box', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>הגדרות וניהול</h3>
-              <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}>✕</button>
-            </div>
-            <hr style={{ border: 'none', borderTop: `1px solid ${S.cardBorder}`, margin: '4px 0' }} />
-            <button onClick={() => { setAdminModal(true); setSidebarOpen(false); }} style={{ padding: '10px', background: '#eff6ff', color: S.accent, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'right' }}>
-              ➕ הוספת תחנה ידנית
-            </button>
-            <button onClick={() => { setBackupModal(true); setSidebarOpen(false); }} style={{ padding: '10px', background: '#f1f5f9', color: S.textPrimary, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'right' }}>
-              💾 גיבוי ושחזור מסלולים
-            </button>
-            <button onClick={() => { localStorage.removeItem('trip-user'); setCurrentUser(''); setSidebarOpen(false); }} style={{ padding: '10px', background: '#fef2f2', color: S.danger, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'right', marginTop: 'auto' }}>
-              🚪 החלף משתמש
-            </button>
-          </div>
-        </div>
-      )}
+      <main style={{ padding: '18px 16px', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box', width: '100%' }}>
 
-      {/* CONTENT AREA */}
-      <main style={{ padding: '12px', maxWidth: '600px', margin: '0 auto' }}>
-        
-        {/* TAB 1: ITINERARY */}
+        <nav style={{ background: '#e2e8f0', padding: '5px', borderRadius: '16px', display: 'flex', gap: '6px', marginBottom: '20px', boxSizing: 'border-box', width: '100%', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.06)' }}>
+          {[
+            { id: 'itinerary', label: '📅 מסלול' },
+            { id: 'radar', label: '📍 מפה ורדאר' },
+            { id: 'around', label: '📍 מה סביבי' },
+            { id: 'trivia', label: '🎯 טריוויה' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                flex: 1, padding: '11px 4px', borderRadius: '12px', border: 'none',
+                background: activeTab === tab.id ? '#ffffff' : 'transparent',
+                color: activeTab === tab.id ? S.accent : S.textSecondary,
+                fontWeight: '800', fontSize: '12px', cursor: 'pointer', boxSizing: 'border-box',
+                boxShadow: activeTab === tab.id ? '0 4px 12px rgba(37,99,235,0.12), 0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                textAlign: 'center', whiteSpace: 'nowrap', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+
         {activeTab === 'itinerary' && (
-          <div>
-            {/* Days Selector */}
-            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '12px' }}>
-              {tripDays.map((day, idx) => (
+          <div style={{ boxSizing: 'border-box', width: '100%' }}>
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '16px', scrollbarWidth: 'none', boxSizing: 'border-box', width: '100%' }}>
+              {tripDays.map((d, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveDay(idx)}
                   style={{
-                    padding: '8px 14px',
-                    borderRadius: '20px',
-                    border: 'none',
-                    background: activeDay === idx ? S.accent : '#e2e8f0',
-                    color: activeDay === idx ? '#fff' : S.textPrimary,
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0
+                    flex: '0 0 auto', padding: '10px 16px', borderRadius: '12px',
+                    border: `1px solid ${activeDay === idx ? S.accent : S.cardBorder}`,
+                    background: activeDay === idx ? S.accent : '#ffffff',
+                    color: activeDay === idx ? '#ffffff' : S.textSecondary,
+                    fontWeight: '700', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box',
+                    boxShadow: activeDay === idx ? '0 2px 8px rgba(37,99,235,0.2)' : 'none'
                   }}
                 >
-                  {day.icon} {day.label}
+                  {d.icon} {d.label}
                 </button>
               ))}
             </div>
 
-            {/* Current Day Header */}
-            <div style={{ background: '#fff', padding: '14px', borderRadius: S.radius, border: `1px solid ${S.cardBorder}`, marginBottom: '14px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px' }}>{currentDay.title}</h2>
-              <div style={{ fontSize: '12px', color: S.textSecondary }}>{currentDay.date}</div>
-            </div>
-
-            {/* Stops Timeline */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {currentDay.stops?.map((stop, sIdx) => (
-                <div key={sIdx} style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: S.accent }}>⏰ {stop.time}</span>
-                    <span style={{ fontSize: '11px', background: '#f1f5f9', padding: '2px 8px', borderRadius: '10px' }}>תחנה {sIdx + 1}</span>
-                  </div>
-                  <div style={{ fontSize: '15px', fontWeight: 'bold', color: S.textPrimary }}>{stop.name}</div>
-                  {stop.note && <div style={{ fontSize: '13px', color: S.textSecondary }}>{stop.note}</div>}
-
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                    <a
-                      href={getMapsUrl(stop.lat, stop.lng, stop.dest)}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ flex: 1, textAlign: 'center', background: S.accent, color: '#fff', textDecoration: 'none', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold' }}
-                    >
-                      🚗 ניווט
-                    </a>
-                    <a
-                      href={getSatelliteMapsUrl(stop.lat, stop.lng, stop.dest)}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ flex: 1, textAlign: 'center', background: '#f1f5f9', color: S.textPrimary, textDecoration: 'none', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', border: `1px solid ${S.cardBorder}` }}
-                    >
-                      🛰️ לוויין
-                    </a>
-                  </div>
+            <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', boxSizing: 'border-box', boxShadow: '0 4px 16px rgba(0,0,0,0.04)', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '14px', boxSizing: 'border-box' }}>
+                <span style={{ fontSize: '30px' }}>{currentDay.icon}</span>
+                <div>
+                  <h2 style={{ fontSize: '17px', fontWeight: '900', color: S.textPrimary, margin: '0 0 2px' }}>{currentDay.title}</h2>
+                  <span style={{ fontSize: '12px', color: S.accent, fontWeight: '700' }}>{currentDay.label} · {currentDay.date}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: RADAR */}
-        {activeTab === 'radar' && (
-          <div>
-            <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, overflow: 'hidden', marginBottom: '14px' }}>
-              <div ref={mapContainerRef} style={{ width: '100%', height: '320px' }} />
-            </div>
-
-            <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px' }}>משתתפים במפה</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {Object.values(allUsersLocations).map((usr, uIdx) => (
-                <div key={uIdx} style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, padding: '12px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{usr.name} {usr.name === currentUser && '(אני)'}</div>
-                    <div style={{ fontSize: '11px', color: S.textSecondary }}>עדכון: {usr.updated_at || 'לאחרונה'}</div>
-                  </div>
-                  {usr.name !== currentUser && (
-                    <button
-                      onClick={() => sendPingToUser(usr.name)}
-                      style={{ background: '#fee2e2', color: S.danger, border: 'none', padding: '6px 12px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}
-                    >
-                      🚨 שלח PING
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 3: SEARCH AROUND ME */}
-        {activeTab === 'search' && (
-          <div>
-            <div style={{ background: '#fff', padding: '14px', borderRadius: S.radius, border: `1px solid ${S.cardBorder}`, marginBottom: '14px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 10px' }}>חיפוש עסקים בסביבתי</h3>
-              <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
-                <input
-                  type="text"
-                  placeholder="למשל: בית קפה, סופרמרקט..."
-                  value={customSearchQuery}
-                  onChange={e => setCustomSearchQuery(e.target.value)}
-                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, outline: 'none' }}
-                />
-                <button
-                  onClick={() => searchAroundMe()}
-                  style={{ background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', padding: '0 16px', fontWeight: 'bold', cursor: 'pointer' }}
-                >
-                  חפש
-                </button>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-                {['🍕 מסעדות', '☕ בתי קפה', '🛒 סופרמרקט', '⛽ תחנות דלק', '💊 בית מרקחת', '🅿️ חניונים'].map((cat, cIdx) => (
-                  <button
-                    key={cIdx}
-                    onClick={() => searchAroundMe(cat.split(' ')[1])}
-                    style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center', fontSize: '13px' }}
-                  >
-                    {cat}
-                  </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box', width: '100%' }}>
+                {currentDay.stops.map((stop, sIdx) => (
+                  <div key={sIdx} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box' }}>
+                      <strong style={{ fontSize: '14px', color: S.textPrimary, fontWeight: '800' }}>{stop.name}</strong>
+                      <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '800' }}>{stop.time}</span>
+                    </div>
+                    <p style={{ fontSize: '12px', color: S.textSecondary, margin: 0, lineHeight: '1.5' }}>{stop.note}</p>
+                    
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '6px', boxSizing: 'border-box', width: '100%' }}>
+                      <a href={`https://waze.com/ul?q=${encodeURIComponent(stop.dest || stop.name)}&navigate=yes`} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#0284c7', color: '#fff', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}>
+                        🚗 ניווט ב-Waze
+                      </a>
+                      <a href={getMapsUrl(stop.lat, stop.lng, stop.dest || stop.name)} target="_blank" rel="noreferrer" style={{ flex: 1, background: '#475569', color: '#fff', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}>
+                        🗺️ מפות (Apple/Google)
+                      </a>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
           </div>
         )}
 
-        {/* TAB 4: TRIVIA */}
-        {activeTab === 'trivia' && (
-          <div>
-            <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '16px', marginBottom: '14px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <span style={{ fontSize: '12px', background: '#eff6ff', color: S.accent, padding: '4px 10px', borderRadius: '12px', fontWeight: 'bold' }}>
-                  שאלה #{triviaState.idx + 1}
-                </span>
-                <span style={{ fontSize: '13px', fontWeight: 'bold', color: timeLeft <= 5 ? S.danger : S.textPrimary }}>
-                  ⏱️ {timeLeft} שניות
-                </span>
+        {activeTab === 'radar' && (
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'right', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '10px' }}>
+              <div>
+                <h2 style={{ fontSize: '17px', fontWeight: '900', margin: '0 0 2px', letterSpacing: '-0.3px', color: S.textPrimary }}>רדאר משפחתי – איתור ברחוב</h2>
+                <span style={{ fontSize: '11px', color: S.textSecondary }}>לחץ על הכפתור כדי לפתוח תצוגת לוויין מדויקת</span>
               </div>
-
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 16px', lineHeight: 1.4 }}>
-                {activeQ.q}
-              </h3>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {activeQ.options.map((opt, oIdx) => {
-                  let btnBg = '#f8fafc';
-                  let btnBorder = S.cardBorder;
-                  let btnColor = S.textPrimary;
-
-                  if (selectedOpt !== null) {
-                    if (oIdx === activeQ.correct) {
-                      btnBg = '#dcfce7';
-                      btnBorder = '#86efac';
-                      btnColor = '#166534';
-                    } else if (selectedOpt === oIdx) {
-                      btnBg = '#fee2e2';
-                      btnBorder = '#fca5a5';
-                      btnColor = '#991b1b';
-                    }
-                  }
-
-                  return (
-                    <button
-                      key={oIdx}
-                      disabled={selectedOpt !== null}
-                      onClick={() => handleAnswerSelect(oIdx)}
-                      style={{
-                        padding: '12px',
-                        borderRadius: '10px',
-                        border: `1px solid ${btnBorder}`,
-                        background: btnBg,
-                        color: btnColor,
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        cursor: selectedOpt !== null ? 'default' : 'pointer',
-                        textAlign: 'right'
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
-              </div>
+              <span style={{ fontSize: '11px', background: '#f0fdf4', color: '#166534', padding: '3px 8px', borderRadius: '10px', fontWeight: '700', border: '1px solid #bbf7d0' }}>● Live</span>
             </div>
 
-            {/* Scoreboard */}
-            <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '14px' }}>
-              <h4 style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: 'bold' }}>🏆 טבלת מובילים בטריוויה</h4>
-              {sortedScores.length === 0 ? (
-                <div style={{ fontSize: '12px', color: S.textSecondary }}>עדיין אין נקודות. תהיו הראשונים לענות!</div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {sortedScores.map(([pName, pScore], sIdx) => (
-                    <div key={sIdx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '4px 0', borderBottom: '1px dashed #e2e8f0' }}>
-                      <span>{sIdx + 1}. {pName}</span>
-                      <span style={{ fontWeight: 'bold', color: S.accent }}>{pScore} נק'</span>
-                    </div>
-                  ))}
+            <div ref={mapContainerRef} style={{ width: '100%', height: '420px', borderRadius: '16px', marginBottom: '14px', zIndex: 1, border: `1px solid ${S.cardBorder}` }}></div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
+              {Object.keys(allUsersLocations).length === 0 ? (
+                <div style={{ padding: '15px', textAlign: 'center', color: S.textSecondary, fontSize: '12px' }}>
+                  ממתין לנתוני מיקום מהבנות...
                 </div>
+              ) : (
+                Object.values(allUsersLocations).map((loc, idx) => (
+                  <div key={idx} style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '12px 14px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box', width: '100%' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ position: 'relative' }}>
+                        <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#e2e8f0', color: S.textPrimary, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', fontSize: '14px', border: '1px solid #cbd5e1' }}>
+                          {loc.name ? loc.name[0] : '👤'}
+                        </div>
+                        <span style={{ position: 'absolute', bottom: '0px', right: '0px', width: '9px', height: '9px', background: '#059669', borderRadius: '50%', border: '1.5px solid #ffffff' }}></span>
+                      </div>
+                      <div>
+                        <strong style={{ fontSize: '13px', color: S.textPrimary, fontWeight: '700', display: 'inline-block', marginLeft: '6px' }}>
+                          {loc.name} {loc.name === currentUser ? '(אתה)' : ''}
+                        </strong>
+                        {loc.updated_at && (
+                          <span style={{ fontSize: '10px', color: S.textSecondary, display: 'block' }}>
+                            עודכן לפני: {loc.updated_at}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {loc.name !== currentUser && (
+                        <button onClick={() => sendPingToUser(loc.name)} style={{ background: '#d97706', color: '#ffffff', border: 'none', padding: '6px 8px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }} title="שלח פינג התראה">
+                          🔔 PING
+                        </button>
+                      )}
+                      <a href={getSatelliteMapsUrl(loc.lat, loc.lng, loc.name)} target="_blank" rel="noreferrer" style={{ background: S.accent, color: '#ffffff', padding: '8px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '12px', fontWeight: '700', boxSizing: 'border-box', whiteSpace: 'nowrap' }}>
+                        🛰️ תצוגת לוויין ➔
+                      </a>
+                    </div>
+                  </div>
+                ))
               )}
             </div>
           </div>
         )}
 
+        {activeTab === 'around' && (
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
+            <h2 style={{ fontSize: '17px', fontWeight: '900', color: S.textPrimary, marginBottom: '6px' }}>מה יש סביבי?</h2>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '18px' }}>מצא מקומות בקרבת המיקום הנוכחי שלך בלחיצת כפתור:</p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
+              {[{ label: '🍽️ מסעדות', q: 'מסעדות' }, { label: '🏛️ מוזיאונים', q: 'מוזיאונים' }, { label: '🎢 אטרקציות', q: 'אטרקציות תיירותיות' }, { label: '☕ בתי קפה', q: 'בתי קפה' }].map((item, i) => (
+                <button key={i} type="button" onClick={() => searchAroundMe(item.q)} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box', width: '100%', flexShrink: 0 }}>
+              <input 
+                type="text" 
+                placeholder="הקלד כל דבר (לדוגמה: סופרמרקט...)" 
+                value={customSearchQuery} 
+                onChange={e => setCustomSearchQuery(e.target.value)}
+                style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, fontSize: '16px', boxSizing: 'border-box', outline: 'none', background: '#ffffff', color: '#0f172a' }}
+              />
+              <button type="button" onClick={() => searchAroundMe(customSearchQuery)} style={{ padding: '12px 18px', background: S.accent, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box', flexShrink: 0 }}>
+                חפש 🔍
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'trivia' && (
+          <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '900', color: S.textPrimary, margin: 0 }}>🎯 טריוויה משפחתית (1500)</h2>
+              <span style={{ background: triviaState.isPaused ? '#fef2f2' : '#f0fdf4', color: triviaState.isPaused ? '#dc2626' : '#166534', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold' }}>
+                {triviaState.isPaused ? '⏸️ מושהה ע"י מנהל' : `שאלה מס' ${(triviaState.idx || 0) + 1}`}
+              </span>
+            </div>
+
+            <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', padding: '12px', marginBottom: '16px', textAlign: 'right' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary, display: 'block', marginBottom: '6px' }}>🏆 טבלת מובילים (הניקוד נשמר תמיד):</strong>
+              {sortedScores.length === 0 ? (
+                <span style={{ fontSize: '11px', color: S.textSecondary }}>עדיין אין ניקוד. התחל לענות!</span>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {sortedScores.map(([name, score], sIdx) => (
+                    <div key={sIdx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                      <span>{sIdx === 0 ? '👑 ' : '👤 '}{name}</span>
+                      <strong style={{ color: S.accent }}>{score} נק'</strong>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {!triviaState.isPaused ? (
+              <>
+                <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '18px', borderRadius: '12px', marginBottom: '16px', fontSize: '14px', fontWeight: '800', color: S.textPrimary, lineHeight: '1.5' }}>
+                  {activeQ.q}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {activeQ.options.map((opt, oIdx) => (
+                    <button
+                      key={oIdx}
+                      onClick={() => {
+                        if (selectedOpt !== null || triviaState.isPaused) return;
+                        setSelectedOpt(oIdx);
+                        const isCorrect = oIdx === activeQ.correct;
+                        const currentScores = triviaState.scores || {};
+                        let updatedScores = { ...currentScores };
+                        
+                        if (isCorrect) {
+                          updatedScores[currentUser] = (updatedScores[currentUser] || 0) + 10;
+                        }
+
+                        const nextIdx = triviaState.idx + 1;
+                        updateTriviaInCloud({
+                          ...triviaState,
+                          idx: nextIdx,
+                          scores: updatedScores
+                        });
+
+                        setTimeout(() => {
+                          setSelectedOpt(null);
+                        }, 1200);
+                      }}
+                      style={{
+                        padding: '14px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`,
+                        background: selectedOpt === null ? '#ffffff' : (oIdx === activeQ.correct ? S.success : (selectedOpt === oIdx ? S.danger : '#ffffff')),
+                        color: selectedOpt !== null && (oIdx === activeQ.correct || selectedOpt === oIdx) ? '#ffffff' : S.textPrimary,
+                        fontWeight: '800', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s'
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div style={{ padding: '30px', color: S.danger, fontWeight: 'bold', fontSize: '14px' }}>
+                ⏸️ המשחק מושהה כרגע על ידי מנהל המערכת. הרצף והניקוד נשמרו במדויק!
+              </div>
+            )}
+
+            <div style={{ marginTop: '20px', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', display: 'flex', gap: '8px' }}>
+              <input type="password" placeholder="קוד מנהל (1967)" value={adminTriviaPin} onChange={e => setAdminTriviaPin(e.target.value)} style={{ width: '120px', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, textAlign: 'center', fontSize: '12px', outline: 'none' }} />
+              <button onClick={() => {
+                if (adminTriviaPin !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
+                updateTriviaInCloud({ ...triviaState, isPaused: !triviaState.isPaused });
+                setAdminTriviaPin('');
+              }} style={{ flex: 1, padding: '8px', background: triviaState.isPaused ? S.success : '#f59e0b', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
+                {triviaState.isPaused ? 'הפעל משחק ▶️' : 'השהה משחק ⏸️'}
+              </button>
+              <button onClick={() => {
+                if (adminTriviaPin !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
+                updateTriviaInCloud({ idx: 0, scores: {}, isPaused: false });
+                setTimeLeft(30);
+                setAdminTriviaPin('');
+                alert('🔄 המשחק אופס בהצלחה!');
+              }} style={{ padding: '8px 12px', background: S.danger, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
+                איפוס מלא 🔄
+              </button>
+            </div>
+
+          </div>
+        )}
+
       </main>
 
-      {/* BOTTOM NAVIGATION TABS */}
-      <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderTop: `1px solid ${S.cardBorder}`, display: 'flex', justifyContent: 'space-around', padding: '6px 0', zIndex: 1000 }}>
-        {[
-          { id: 'itinerary', label: 'מסלול', icon: '🗺️' },
-          { id: 'radar', label: 'רדאר', icon: '📡' },
-          { id: 'search', label: 'סביבי', icon: '🔍' },
-          { id: 'trivia', label: 'טריוויה', icon: '❓' }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              background: 'none',
-              border: 'none',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '2px',
-              color: activeTab === tab.id ? S.accent : S.textSecondary,
-              cursor: 'pointer',
-              fontSize: '11px',
-              fontWeight: activeTab === tab.id ? 'bold' : 'normal'
-            }}
-          >
-            <span style={{ fontSize: '18px' }}>{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', justifyContent: 'flex-start', boxSizing: 'border-box' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#ffffff', borderRight: `1px solid ${S.cardBorder}`, width: '85%', maxWidth: '300px', height: '100%', padding: '24px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'right' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `1px solid ${S.cardBorder}`, paddingBottom: '12px', boxSizing: 'border-box', width: '100%' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '900', color: S.textPrimary }}>⚙️ ניהול ומערכת</h3>
+              <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: S.textSecondary, fontSize: '18px', cursor: 'pointer' }}>✕</button>
+            </div>
 
-      {/* MODAL: MANUAL STOP ADDITION */}
-      {adminModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 30000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ background: '#fff', borderRadius: '16px', padding: '20px', width: '100%', maxWidth: '360px', boxSizing: 'border-box' }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: '16px', fontWeight: 'bold' }}>הוספת תחנה למסלול</h3>
-            <input
-              type="password"
-              placeholder="קוד מנהל (PIN)"
-              value={adminPinInput}
-              onChange={e => setAdminPinInput(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '10px', boxSizing: 'border-box' }}
-            />
-            <input
-              type="time"
-              value={manualTime}
-              onChange={e => setManualTime(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '10px', boxSizing: 'border-box' }}
-            />
-            <input
-              type="text"
-              placeholder="שם התחנה / יעד"
-              value={manualTitle}
-              onChange={e => setManualTitle(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '10px', boxSizing: 'border-box' }}
-            />
-            <textarea
-              placeholder="הערות או פרטים נוספים"
-              value={manualDesc}
-              onChange={e => setManualDesc(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '14px', boxSizing: 'border-box', height: '60px' }}
-            />
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleAddManualStop} style={{ flex: 1, padding: '10px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                שמור תחנה
-              </button>
-              <button onClick={() => setAdminModal(false)} style={{ flex: 1, padding: '10px', background: '#f1f5f9', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                ביטול
-              </button>
+            <button onClick={() => setAdminModal(true)} style={{ padding: '12px 16px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '10px', fontWeight: '800', fontSize: '13px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+              📂 ניהול / טעינת מסלולים (מנהל)
+            </button>
+
+            <button onClick={() => setBackupModal(true)} style={{ padding: '12px 16px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '10px', fontWeight: '800', fontSize: '13px', color: S.textPrimary, cursor: 'pointer', textAlign: 'right', boxSizing: 'border-box', width: '100%' }}>
+              💾 גיבוי ושחזור נתונים (מנהל)
+            </button>
+            
+            <div style={{ marginTop: 'auto', fontSize: '11px', color: S.textSecondary, textAlign: 'center', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', boxSizing: 'border-box', width: '100%' }}>
+              Trip-Navigator גרסה {APP_VERSION}
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL: BACKUP & RESTORE */}
+      {adminModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '380px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '16px', fontWeight: '900' }}>📂 ניהול והוספת מסלולים</h3>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '12px' }}>הזן קוד מנהל ({ADMIN_PIN}):</p>
+            <input type="password" placeholder="קוד מנהל (1967)" value={adminPinInput} onChange={e => setAdminPinInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
+            
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', marginBottom: '14px', boxSizing: 'border-box', width: '100%' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary }}>הוספה ידנית של תחנה ליום הנבחר:</strong>
+              <input type="text" placeholder="שם היעד / תחנה" value={manualTitle} onChange={e => setManualTitle(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginTop: '8px', marginBottom: '8px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
+              <input type="text" placeholder="שעה (לדוגמה: 14:00)" value={manualTime} onChange={e => setManualTime(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '8px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
+              <input type="text" placeholder="תיאור קצר / הערה" value={manualDesc} onChange={e => setManualDesc(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '10px', boxSizing: 'border-box', fontSize: '16px', outline: 'none' }} />
+              <button onClick={handleAddManualStop} style={{ width: '100%', padding: '8px', background: S.success, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box' }}>הוסף תחנה למסלול ➕</button>
+            </div>
+
+            <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
+              <strong style={{ fontSize: '12px', color: S.textPrimary }}>או טעינה מקובץ (JSON):</strong>
+              <input type="file" accept=".json" onChange={file => handleFileUpload(file)} style={{ width: '100%', marginTop: '8px', fontSize: '12px', boxSizing: 'border-box' }} />
+            </div>
+
+            <button onClick={() => setAdminModal(false)} style={{ width: '100%', padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+          </div>
+        </div>
+      )}
+
       {backupModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 30000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ background: '#fff', borderRadius: '16px', padding: '20px', width: '100%', maxWidth: '360px', boxSizing: 'border-box' }}>
-            <h3 style={{ margin: '0 0 12px', fontSize: '16px', fontWeight: 'bold' }}>גיבוי ושחזור נתונים</h3>
-            <input
-              type="password"
-              placeholder="קוד מנהל (PIN)"
-              value={backupPinInput}
-              onChange={e => setBackupPinInput(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '14px', boxSizing: 'border-box' }}
-            />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button onClick={handleDownloadBackup} style={{ width: '100%', padding: '10px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                📥 הורד קובץ גיבוי (JSON)
-              </button>
-              <label style={{ width: '100%', padding: '10px', background: '#f1f5f9', color: S.textPrimary, borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', border: `1px solid ${S.cardBorder}` }}>
-                📤 טען קובץ גיבוי
-                <input type="file" accept=".json" onChange={handleFileUpload} style={{ display: 'none' }} />
-              </label>
-              <button onClick={() => setBackupModal(false)} style={{ width: '100%', padding: '10px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
-                סגור
-              </button>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ background: '#ffffff', border: `1px solid ${S.cardBorder}`, padding: '28px', borderRadius: '16px', width: '100%', maxWidth: '360px', textAlign: 'right', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ marginTop: 0, color: S.textPrimary, fontSize: '16px', fontWeight: '900' }}>💾 גיבוי ושחזור מערכת</h3>
+            <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '12px' }}>הזן קוד מנהל ({ADMIN_PIN}) להורדת גיבוי:</p>
+            <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
+            <div style={{ display: 'flex', gap: '10px', boxSizing: 'border-box' }}>
+              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '12px', background: S.success, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>הורד גיבוי</button>
+              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
             </div>
           </div>
         </div>
