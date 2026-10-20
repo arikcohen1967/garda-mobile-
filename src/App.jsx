@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.19 (Clean & Fixed) ---
-const APP_VERSION = 'v1.8.19';
+// --- TRIP-NAVIGATOR v1.8.21 (Clean & Fixed) ---
+const APP_VERSION = 'v1.8.21';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -213,7 +213,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v1819')
+    const channel = supabase.channel('trip_sync_v1821')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -362,16 +362,16 @@ export default function App() {
     const lat = myLocation?.lat;
     const lng = myLocation?.lng;
 
-    // פתיחת מפות עם חיפוש קטגוריה רוחבי סביב המיקום הנוכחי
+    // הפורמט הנכון שמאלץ את גוגל מפות לחפש את העסקים (כמו מסעדות) סביב הקואורדינטות של המכשיר
     if (lat && lng) {
       const url = isApple
-        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&ll=${lat},${lng}`
-        : `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${lat},${lng},14z`;
+        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&ll=${lat},${lng}&z=15`
+        : `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${lat},${lng},15z`;
       window.open(url, '_blank');
     } else {
       const url = isApple
         ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}`
-        : `https://www.google.com/maps/search/${encodeURIComponent(q)}`;
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
       window.open(url, '_blank');
     }
   };
