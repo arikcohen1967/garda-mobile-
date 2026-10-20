@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.14 (Clean & Fixed) ---
-const APP_VERSION = 'v1.8.14';
+// --- TRIP-NAVIGATOR v1.8.15 (Clean & Fixed) ---
+const APP_VERSION = 'v1.8.15';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -197,7 +197,53 @@ export default function App() {
 
     const fetchInitialData = async () => {
       try {
-        const { data } = await supabase.from('family_radar').select('*');
+        const response = await supabase.from('family_radar').select('*');
+        const data = response.data;
         if (data) {
           const map = {};
-          data.
+          data.forEach(item => { 
+            map[item.name] = item; 
+            if (item.trivia_state && item.name === currentUser) {
+              setTriviaState(item.trivia_state);
+            }
+          });
+          setAllUsersLocations(map);
+        }
+      } catch (err) {}
+    };
+    fetchInitialData();
+
+    const channel = supabase.channel('trip_sync_v1815')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
+        if (payload.new && payload.new.name) {
+          setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
+          if (payload.new.trivia_state) {
+            setTriviaState(payload.new.trivia_state);
+          }
+          if (payload.new.name === currentUser && payload.new.ping_target && payload.new.ping_target === currentUser) {
+            setIncomingPing({ from: payload.new.ping_from, msg: payload.new.ping_msg || 'חזור אלי בדחיפות!' });
+          }
+        }
+      })
+      .subscribe();
+
+    let watchId = null;
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const timeStr = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const coords = {
+          name: currentUser,
+          lat: lat,
+          lng: lng,
+          updated_at: timeStr
+        };
+        setMyLocation(coords);
+        setGpsConnected(true);
+        
+        try {
+          const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+          const weatherData = await res.json();
+          if (weatherData && weatherData.current_weather) {
+            const tempVal = Math.round(
