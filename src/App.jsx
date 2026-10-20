@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.24 (Stabilized Mobile Edition) ---
-const APP_VERSION = 'v1.8.24';
+// --- TRIP-NAVIGATOR v1.8.25 (Stabilized Edition) ---
+const APP_VERSION = 'v1.8.25';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -159,3 +159,88 @@ export default function App() {
         }).setView([defaultLat, defaultLng], 12);
 
         window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(mapInstanceRef.current);
+      } else {
+        mapInstanceRef.current.setView([defaultLat, defaultLng], 12);
+        mapInstanceRef.current.invalidateSize();
+      }
+
+      mapInstanceRef.current.eachLayer((layer) => {
+        if (layer instanceof window.L.Marker) {
+          mapInstanceRef.current.removeLayer(layer);
+        }
+      });
+
+      const redPinIcon = window.L.divIcon({
+        className: 'custom-red-pin',
+        html: `<div style="background-color: #dc2626; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.4);"></div>`,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      });
+
+      Object.values(allUsersLocations).forEach(loc => {
+        if (loc.lat && loc.lng) {
+          const marker = window.L.marker([loc.lat, loc.lng], { icon: redPinIcon }).addTo(mapInstanceRef.current);
+          marker.bindPopup(`<b>${loc.name}</b><br/>עדכון: ${loc.updated_at || 'לפני רגע'}`);
+        }
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [activeTab, allUsersLocations, myLocation]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const fetchInitialData = async () => {
+      try {
+        const { data } = await supabase.from('family_radar').select('*');
+        if (data) {
+          const map = {};
+          data.forEach(item => { 
+            map[item.name] = item; 
+            if (item.trivia_state && item.name === currentUser) {
+              setTriviaState(item.trivia_state);
+            }
+          });
+          setAllUsersLocations(map);
+        }
+      } catch (err) {}
+    };
+    fetchInitialData();
+
+    const channel = supabase.channel('trip_sync_v1825')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
+        if (payload.new && payload.new.name) {
+          setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
+          if (payload.new.trivia_state) {
+            setTriviaState(payload.new.trivia_state);
+          }
+          if (payload.new.name === currentUser && payload.new.ping_target && payload.new.ping_target === currentUser) {
+            setIncomingPing({ from: payload.new.ping_from, msg: payload.new.ping_msg || 'חזור אלי בדחיפות!' });
+          }
+        }
+      })
+      .subscribe();
+
+    let watchId = null;
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const timeStr = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const coords = {
+          name: currentUser,
+          lat: lat,
+          lng: lng,
+          updated_at: timeStr
+        };
+        setMyLocation(coords);
+        setGpsConnected(true);
+        
+        try {
+          const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+          const weatherData = await res.json();
+          if (weatherData && weatherData.current_weather
