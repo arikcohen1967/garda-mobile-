@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.7 (Trivia Timer & UX Update) ---
-const APP_VERSION = 'v1.8.7';
+// --- TRIP-NAVIGATOR v1.8.8 (Fixed Build & UI Edition) ---
+const APP_VERSION = 'v1.8.8';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -114,7 +114,6 @@ export default function App() {
     if (activeTab !== 'trivia' || triviaState.isPaused || selectedOpt !== null) return;
 
     if (timeLeft <= 0) {
-      // זמן נגמר - עבור לשאלה הבאה אוטומטית
       const nextIdx = triviaState.idx + 1;
       updateTriviaInCloud({ ...triviaState, idx: nextIdx });
       setTimeLeft(30);
@@ -128,7 +127,6 @@ export default function App() {
     return () => clearInterval(timer);
   }, [activeTab, timeLeft, triviaState, selectedOpt]);
 
-  // איפוס הטיימר בכל פעם שעוברים שאלה
   useEffect(() => {
     setTimeLeft(30);
   }, [triviaState.idx]);
@@ -215,7 +213,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v187')
+    const channel = supabase.channel('trip_sync_v188')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -254,227 +252,4 @@ export default function App() {
             if (code >= 1 && code <= 3) condIcon = '🌤️';
             else if (code >= 51 && code <= 67) condIcon = '🌧️';
             else if (code >= 71 && code <= 77) condIcon = '❄️';
-            else if (code >= 95) condIcon = '⛈️';
-            setCurrentWeather({ temp: `${tempVal}°C`, icon: condIcon });
-          }
-        } catch (e) {
-          setCurrentWeather({ temp: '24°C', icon: '☀️' });
-        }
-
-        try {
-          await supabase.from('family_radar').upsert([coords], { onConflict: 'name' });
-        } catch (err) {}
-      }, () => {
-        setGpsConnected(false);
-        setCurrentWeather({ temp: '24°C', icon: '☀️' });
-      }, { enableHighAccuracy: true });
-    }
-
-    return () => {
-      if (watchId !== null && navigator.geolocation) {
-        navigator.geolocation.clearWatch(watchId);
-      }
-      supabase.removeChannel(channel);
-    };
-  }, [currentUser]);
-
-  const sendPingToUser = async (targetName) => {
-    const customMsg = prompt(`שלח הודעת PING אל ${targetName}:`, "היי, איפה אתה? חזור אלי בבקשה!");
-    if (customMsg === null) return;
-
-    try {
-      const targetUserObj = allUsersLocations[targetName] || { name: targetName, lat: 45.43, lng: 10.68 };
-      await supabase.from('family_radar').upsert([{
-        ...targetUserObj,
-        ping_target: targetName,
-        ping_from: currentUser,
-        ping_msg: customMsg
-      }], { onConflict: 'name' });
-
-      alert(`✅ ה-PING נשלח בהצלחה אל ${targetName}!`);
-    } catch (e) {
-      alert('❌ שגיאה בשליחת ה-PING');
-    }
-  };
-
-  const clearIncomingPing = async () => {
-    if (!myLocation) return;
-    try {
-      await supabase.from('family_radar').upsert([{
-        ...myLocation,
-        ping_target: null,
-        ping_from: null,
-        ping_msg: null
-      }], { onConflict: 'name' });
-      setIncomingPing(null);
-    } catch (e) {
-      setIncomingPing(null);
-    }
-  };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (!loginInput.trim()) return;
-    const name = loginInput.trim();
-    setCurrentUser(name);
-    setActiveTriviaPlayer(name);
-    localStorage.setItem('trip-user', name);
-  };
-
-  const getSatelliteMapsUrl = (lat, lng, queryName) => {
-    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    if (isApple) {
-      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}&t=h`;
-      return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}&t=h`;
-    } else {
-      if (lat && lng) return `https://www.google.com/maps/@?api=1&map_action=map&center=${lat},${lng}&zoom=18&basemap=satellite`;
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
-    }
-  };
-
-  const getMapsUrl = (lat, lng, queryName) => {
-    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    if (isApple) {
-      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}`;
-      return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}`;
-    } else {
-      if (lat && lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
-    }
-  };
-
-  const openWeatherApp = () => {
-    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    if (isApple) {
-      window.location.href = 'weather://';
-    } else {
-      if (myLocation && myLocation.lat && myLocation.lng) {
-        window.open(`https://www.google.com/search?q=weather+${myLocation.lat},${myLocation.lng}`, '_blank');
-      } else {
-        window.open('https://www.google.com/search?q=weather', '_blank');
-      }
-    }
-  };
-
-  const searchAroundMe = (queryText) => {
-    const q = queryText || customSearchQuery;
-    if (!q || !q.trim()) return alert('נא להקליד או לבחור קטגוריה לחיפוש');
-
-    if (myLocation && myLocation.lat && myLocation.lng) {
-      const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-      const url = isApple 
-        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&ll=${myLocation.lat},${myLocation.lng}`
-        : `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${myLocation.lat},${myLocation.lng},14z`;
-      window.open(url, '_blank');
-    } else {
-      window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank');
-    }
-  };
-
-  const handleAddManualStop = () => {
-    if (adminPinInput !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
-    if (!manualTitle.trim()) return alert('נא להזין כותרת לתחנה');
-
-    const updatedDays = [...tripDays];
-    if (!updatedDays[activeDay]) return;
-
-    updatedDays[activeDay].stops.push({
-      time: manualTime || '12:00',
-      name: manualTitle,
-      dest: manualTitle,
-      lat: myLocation?.lat || 32.0853,
-      lng: myLocation?.lng || 34.7818,
-      note: manualDesc || 'הוספה ידנית מהמערכת'
-    });
-
-    setTripDays(updatedDays);
-    setManualTitle('');
-    setManualDesc('');
-    alert('✅ התחנה נוספה בהצלחה למסלול!');
-  };
-
-  const handleFileUpload = (e) => {
-    if (adminPinInput !== ADMIN_PIN) {
-      alert('❌ נא להזין קוד מנהל תקין (1967) תחילה!');
-      e.target.value = '';
-      return;
-    }
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const content = event.target.result;
-        if (file.name.endsWith('.json')) {
-          const parsed = JSON.parse(content);
-          if (parsed.tripDays) {
-            setTripDays(parsed.tripDays);
-            alert('✅ המסלולים נטענו בהצלחה!');
-            setAdminModal(false);
-          }
-        }
-      } catch (err) {
-        alert('❌ שגיאה בקריאת הקובץ.');
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const handleDownloadBackup = () => {
-    if (backupPinInput !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
-    const backupObj = { version: APP_VERSION, date: new Date().toISOString(), tripDays, triviaState };
-    const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `trip-navigator-${APP_VERSION}-backup.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    alert('💾 גיבוי ירד בהצלחה למכשירך!');
-    setBackupModal(false);
-  };
-
-  if (!currentUser) {
-    return (
-      <div style={{ background: S.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif', direction: 'rtl', padding: '20px', boxSizing: 'border-box' }}>
-        <form onSubmit={handleLogin} style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, padding: '32px', borderRadius: '20px', width: '100%', maxWidth: '380px', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', boxSizing: 'border-box' }}>
-          <h2 style={{ color: S.textPrimary, fontSize: '20px', fontWeight: '900', margin: '0 0 6px' }}>Trip-Navigator</h2>
-          <p style={{ color: S.textSecondary, fontSize: '13px', marginBottom: '24px' }}>מערכת ניהול טיולים וניווט ({APP_VERSION})</p>
-          <input 
-            type="text" 
-            placeholder="הכנס את שמך המלא (לדוגמה: אריק)" 
-            value={loginInput} 
-            onChange={e => setLoginInput(e.target.value)}
-            style={{ width: '100%', padding: '14px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', fontSize: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }}
-          />
-          <button type="submit" style={{ width: '100%', padding: '14px', background: S.accent, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.2)' }}>
-            התחל מסע ➔
-          </button>
-        </form>
-      </div>
-    );
-  }
-
-  const currentDay = tripDays[activeDay] || tripDays[0];
-  const activeQ = TRIVIA_BANK[triviaState.idx % TRIVIA_BANK.length];
-  const sortedScores = Object.entries(triviaState.scores || {}).sort((a, b) => b[1] - a[1]);
-
-  return (
-    <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '40px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
-      
-      {incomingPing && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#ffffff', border: '3px solid #dc2626', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '340px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
-            <div style={{ fontSize: '40px', marginBottom: '8px' }}>🚨</div>
-            <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#dc2626', margin: '0 0 8px' }}>קיבלת PING דחוף!</h3>
-            <p style={{ fontSize: '14px', fontWeight: '700', color: S.textPrimary, margin: '0 0 4px' }}>מאת: {incomingPing.from}</p>
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '12px', borderRadius: '10px', fontSize: '13px', color: '#991b1b', margin: '14px 0', fontWeight: '600' }}>
-              "{incomingPing.msg}"
-            </div>
-            <button onClick={clearIncomingPing} style={{ width: '100%', padding: '12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
-              הבנתי, תודה 👍
-            </button>
-          </div>
-        </div>
-      )}
+            else
