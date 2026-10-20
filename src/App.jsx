@@ -243,4 +243,46 @@ export default function App() {
         try {
           const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
           const weatherData = await res.json();
-          if (weatherData && weatherData.current_weather
+          if (weatherData && weatherData.current_weather) {
+            const tempVal = Math.round(weatherData.current_weather.temperature);
+            const code = weatherData.current_weather.weathercode;
+            let condIcon = '☀️';
+            if (code >= 1 && code <= 3) condIcon = '🌤️';
+            else if (code >= 51 && code <= 67) condIcon = '🌧️';
+            else if (code >= 71 && code <= 77) condIcon = '❄️';
+            else if (code >= 95) condIcon = '⛈️';
+            setCurrentWeather({ temp: `${tempVal}°C`, icon: condIcon });
+          }
+        } catch (e) {
+          setCurrentWeather({ temp: '24°C', icon: '☀️' });
+        }
+
+        try {
+          await supabase.from('family_radar').upsert([coords], { onConflict: 'name' });
+        } catch (err) {}
+      }, () => {
+        setGpsConnected(false);
+        setCurrentWeather({ temp: '24°C', icon: '☀️' });
+      }, { enableHighAccuracy: true });
+    }
+
+    return () => {
+      if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      supabase.removeChannel(channel);
+    };
+  }, [currentUser]);
+
+  const sendPingToUser = async (targetName) => {
+    const customMsg = prompt(`שלח הודעת PING אל ${targetName}:`, "היי, איפה אתה? חזור אלי בבקשה!");
+    if (customMsg === null) return;
+
+    try {
+      const targetUserObj = allUsersLocations[targetName] || { name: targetName, lat: 45.43, lng: 10.68 };
+      await supabase.from('family_radar').upsert([{
+        ...targetUserObj,
+        ping_target: targetName,
+        ping_from: currentUser,
+        ping_msg: customMsg
+      }], { onConflict:
