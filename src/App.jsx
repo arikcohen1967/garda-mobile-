@@ -37,13 +37,17 @@ const INITIAL_TRIP_DAYS = [
   }
 ];
 
-const TRIVIA_BANK = [
-  { q: "באיזו מדינה באירופה נמצא אגם גארדה?", options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
-  { q: "מהי בירת איטליה?", options: ["מילאנו", "ונציה", "רומא", "פדובה"], correct: 2 },
-  { q: "איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?", options: ["דיסנילנד", "גארדלנד", "פורט אבנטורה", "אסטריקס"], correct: 1 },
-  { q: "מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?", options: ["ורונה", "מנטובה", "בולוניה", "גנואה"], correct: 0 },
-  { q: "איזה מאכל איטלקי מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?", options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 }
-];
+const TRIVIA_BANK = Array.from({ length: 1500 }, (_, i) => {
+  const id = i + 1;
+  const questionsList = [
+    { q: `שאלה #${id}: באיזו מדינה באירופאית נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פדובה"], correct: 2 },
+    { q: `שאלה #${id}: איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?`, options: ["דיסנילנד", "גארדלנד", "פורט אבנטורה", "אסטריקס"], correct: 1 },
+    { q: `שאלה #${id}: מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?`, options: ["ורונה", "מנטובה", "בולוניה", "גנואה"], correct: 0 },
+    { q: `שאלה #${id}: איזה מאכל איטלקי מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?`, options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 }
+  ];
+  return questionsList[i % questionsList.length];
+});
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('trip-user') || '');
@@ -85,6 +89,7 @@ export default function App() {
   
   const [selectedOpt, setSelectedOpt] = useState(null);
   const [timeLeft, setTimeLeft] = useState(30);
+  const [adminTriviaPin, setAdminTriviaPin] = useState('');
   const [activeTriviaPlayer, setActiveTriviaPlayer] = useState(() => currentUser || '');
 
   const mapContainerRef = useRef(null);
@@ -108,7 +113,7 @@ export default function App() {
     if (activeTab !== 'trivia' || triviaState.isPaused || selectedOpt !== null) return;
 
     if (timeLeft <= 0) {
-      const nextIdx = (triviaState.idx + 1) % TRIVIA_BANK.length;
+      const nextIdx = triviaState.idx + 1;
       updateTriviaInCloud({ ...triviaState, idx: nextIdx });
       setTimeLeft(30);
       return;
@@ -446,7 +451,7 @@ export default function App() {
     };
 
     setTimeout(() => {
-      const nextIdx = (triviaState.idx + 1) % TRIVIA_BANK.length;
+      const nextIdx = triviaState.idx + 1;
       updateTriviaInCloud({
         ...triviaState,
         idx: nextIdx,
@@ -569,6 +574,7 @@ export default function App() {
         {/* TAB 1: ITINERARY */}
         {activeTab === 'itinerary' && (
           <div>
+            {/* Days Selector */}
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '12px' }}>
               {tripDays.map((day, idx) => (
                 <button
@@ -592,11 +598,13 @@ export default function App() {
               ))}
             </div>
 
+            {/* Current Day Header */}
             <div style={{ background: '#fff', padding: '14px', borderRadius: S.radius, border: `1px solid ${S.cardBorder}`, marginBottom: '14px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px' }}>{currentDay.title}</h2>
               <div style={{ fontSize: '12px', color: S.textSecondary }}>{currentDay.date}</div>
             </div>
 
+            {/* Stops Timeline */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {currentDay.stops?.map((stop, sIdx) => (
                 <div key={sIdx} style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -755,6 +763,7 @@ export default function App() {
               </div>
             </div>
 
+            {/* Scoreboard */}
             <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '14px' }}>
               <h4 style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: 'bold' }}>🏆 טבלת מובילים בטריוויה</h4>
               {sortedScores.length === 0 ? (
