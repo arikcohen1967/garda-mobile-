@@ -133,4 +133,534 @@ export default function App() {
     document.head.appendChild(link);
 
     const script = document.createElement('script');
-    script
+    script.id = 'leaflet-script';
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    document.body.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab !== 'radar') return;
+    const timer = setTimeout(() => {
+      if (!window.L || !mapContainerRef.current) return;
+
+      const defaultLat = myLocation?.lat || 45.4384;
+      const defaultLng = myLocation?.lng || 10.6816;
+
+      if (!mapInstanceRef.current) {
+        mapInstanceRef.current = window.L.map(mapContainerRef.current, {
+          dragging: true,
+          touchZoom: true,
+          scrollWheelZoom: true,
+          doubleClickZoom: true
+        }).setView([defaultLat, defaultLng], 12);
+
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(mapInstanceRef.current);
+      } else {
+        mapInstanceRef.current.setView([defaultLat, defaultLng], 12);
+        mapInstanceRef.current.invalidateSize();
+      }
+
+      mapInstanceRef.current.eachLayer((layer) => {
+        if (layer instanceof window.L.Marker) {
+          mapInstanceRef.current.removeLayer(layer);
+        }
+      });
+
+      const redPinIcon = window.L.divIcon({
+        className: 'custom-red-pin',
+        html: `<div style="background-color: #dc2626; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.4);"></div>`,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      });
+
+      Object.values(allUsersLocations).forEach(loc => {
+        if (loc.lat && loc.lng) {
+          const marker = window.L.marker([loc.lat, loc.lng], { icon: redPinIcon }).addTo(mapInstanceRef.current);
+          marker.bindPopup(`<b>${loc.name}</b><br/>עדכון: ${loc.updated_at || 'לפני רגע'}`);
+        }
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [activeTab, allUsersLocations, myLocation]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const fetchInitialData = async () => {
+      try {
+        const response = await supabase.from('family_radar').select('*');
+        const data = response.data;
+        if (data) {
+          const map = {};
+          data.forEach(item => { 
+            map[item.name] = item; 
+            if (item.trivia_state && item.name === currentUser) {
+              setTriviaState(item.trivia_state);
+            }
+          });
+          setAllUsersLocations(map);
+        }
+      } catch (err) {}
+    };
+    fetchInitialData();
+
+    const channel = supabase.channel('trip_sync_v1822')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
+        if (payload.new && payload.new.name) {
+          setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
+          if (payload.new.trivia_state) {
+            setTriviaState(payload.new.trivia_state);
+          }
+          if (payload.new.name === currentUser && payload.new.ping_target && payload.new.ping_target === currentUser) {
+            setIncomingPing({ from: payload.new.ping_from, msg: payload.new.ping_msg || 'חזור אלי בדחיפות!' });
+          }
+        }
+      })
+      .subscribe();
+
+    let watchId = null;
+    if (navigator.geolocation) {
+      watchId = navigator.geolocation.watchPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const timeStr = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const coords = {
+          name: currentUser,
+          lat: lat,
+          lng: lng,
+          updated_at: timeStr
+        };
+        setMyLocation(coords);
+        setGpsConnected(true);
+        
+        try {
+          const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+          const weatherData = await res.json();
+          if (weatherData && weatherData.current_weather) {
+            const tempVal = Math.round(weatherData.current_weather.temperature);
+            const code = weatherData.current_weather.weathercode;
+            let condIcon = '☀️';
+            if (code >= 1 && code <= 3) condIcon = '🌤️';
+            else if (code >= 51 && code <= 67) condIcon = '🌧️';
+            else if (code >= 71 && code <= 77) condIcon = '❄️';
+            else if (code >= 95) condIcon = '⛈️';
+            setCurrentWeather({ temp: `${tempVal}°C`, icon: condIcon });
+          }
+        } catch (e) {
+          setCurrentWeather({ temp: '24°C', icon: '☀️' });
+        }
+
+        try {
+          await supabase.from('family_radar').upsert([coords], { onConflict: 'name' });
+        } catch (err) {}
+      }, () => {
+        setGpsConnected(false);
+        setCurrentWeather({ temp: '24°C', icon: '☀️' });
+      }, { enableHighAccuracy: true });
+    }
+
+    return () => {
+      if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      supabase.removeChannel(channel);
+    };
+  }, [currentUser]);
+
+  const sendPingToUser = async (targetName) => {
+    const customMsg = prompt(`שלח הודעת PING אל ${targetName}:`, "היי, איפה אתה? חזור אלי בבקשה!");
+    if (customMsg === null) return;
+
+    try {
+      const targetUserObj = allUsersLocations[targetName] || { name: targetName, lat: 45.43, lng: 10.68 };
+      await supabase.from('family_radar').upsert([{
+        ...targetUserObj,
+        ping_target: targetName,
+        ping_from: currentUser,
+        ping_msg: customMsg
+      }], { onConflict: 'name' });
+
+      alert(`✅ ה-PING נשלח בהצלחה אל ${targetName}!`);
+    } catch (e) {
+      alert('❌ שגיאה בשליחת ה-PING');
+    }
+  };
+
+  const clearIncomingPing = async () => {
+    if (!myLocation) return;
+    try {
+      await supabase.from('family_radar').upsert([{
+        ...myLocation,
+        ping_target: null,
+        ping_from: null,
+        ping_msg: null
+      }], { onConflict: 'name' });
+      setIncomingPing(null);
+    } catch (e) {
+      setIncomingPing(null);
+    }
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (!loginInput.trim()) return;
+    const name = loginInput.trim();
+    setCurrentUser(name);
+    setActiveTriviaPlayer(name);
+    localStorage.setItem('trip-user', name);
+  };
+
+  const getSatelliteMapsUrl = (lat, lng, queryName) => {
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    if (isApple) {
+      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}&t=h`;
+      return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}&t=h`;
+    } else {
+      if (lat && lng) return `https://www.google.com/maps/@?api=1&map_action=map&center=${lat},${lng}&zoom=18&basemap=satellite`;
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
+    }
+  };
+
+  const getMapsUrl = (lat, lng, queryName) => {
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    if (isApple) {
+      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}`;
+      return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}`;
+    } else {
+      if (lat && lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
+    }
+  };
+
+  const openWeatherApp = () => {
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    if (isApple) {
+      window.location.href = 'weather://';
+    } else {
+      if (myLocation && myLocation.lat && myLocation.lng) {
+        window.open(`https://www.google.com/search?q=weather+${myLocation.lat},${myLocation.lng}`, '_blank');
+      } else {
+        window.open('https://www.google.com/search?q=weather', '_blank');
+      }
+    }
+  };
+
+  const searchAroundMe = (queryText) => {
+    const q = queryText || customSearchQuery;
+    if (!q || !q.trim()) return alert('נא להקליד או לבחור קטגוריה לחיפוש');
+
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    const lat = myLocation?.lat;
+    const lng = myLocation?.lng;
+
+    if (lat && lng) {
+      const url = isApple
+        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&near=${lat},${lng}`
+        : `https://www.google.com/maps/search/${encodeURIComponent(q)}+near+${lat},${lng}`;
+      window.open(url, '_blank');
+    } else {
+      const url = isApple
+        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}`
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+      window.open(url, '_blank');
+    }
+  };
+
+  const handleAddManualStop = () => {
+    if (adminPinInput !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
+    if (!manualTitle.trim()) return alert('נא להזין כותרת לתחנה');
+
+    const updatedDays = [...tripDays];
+    if (!updatedDays[activeDay]) return;
+
+    updatedDays[activeDay].stops.push({
+      time: manualTime || '12:00',
+      name: manualTitle,
+      dest: manualTitle,
+      lat: myLocation?.lat || 32.0853,
+      lng: myLocation?.lng || 34.7818,
+      note: manualDesc || 'הוספה ידנית מהמערכת'
+    });
+
+    setTripDays(updatedDays);
+    setManualTitle('');
+    setManualDesc('');
+    alert('✅ התחנה נוספה בהצלחה למסלול!');
+  };
+
+  const handleFileUpload = (e) => {
+    if (adminPinInput !== ADMIN_PIN) {
+      alert('❌ נא להזין קוד מנהל תקין (1967) תחילה!');
+      e.target.value = '';
+      return;
+    }
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target.result;
+        if (file.name.endsWith('.json')) {
+          const parsed = JSON.parse(content);
+          if (parsed.tripDays) {
+            setTripDays(parsed.tripDays);
+            alert('✅ המסלולים נטענו בהצלחה!');
+            setAdminModal(false);
+          }
+        }
+      } catch (err) {
+        alert('❌ שגיאה בקריאת הקובץ.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleDownloadBackup = () => {
+    if (backupPinInput !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
+    const backupObj = { version: APP_VERSION, date: new Date().toISOString(), tripDays, triviaState };
+    const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `trip-navigator-${APP_VERSION}-backup.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    alert('💾 גיבוי ירד בהצלחה למכשירך!');
+    setBackupModal(false);
+  };
+
+  const handleAnswerSelect = (optionIdx) => {
+    if (selectedOpt !== null) return;
+    setSelectedOpt(optionIdx);
+
+    const isCorrect = optionIdx === activeQ.correct;
+    const currentScore = triviaState.scores?.[activeTriviaPlayer] || 0;
+    const newScores = {
+      ...(triviaState.scores || {}),
+      [activeTriviaPlayer]: isCorrect ? currentScore + 10 : currentScore
+    };
+
+    setTimeout(() => {
+      const nextIdx = (triviaState.idx + 1) % TRIVIA_BANK.length;
+      updateTriviaInCloud({
+        ...triviaState,
+        idx: nextIdx,
+        scores: newScores
+      });
+      setSelectedOpt(null);
+      setTimeLeft(30);
+    }, 1200);
+  };
+
+  if (!currentUser) {
+    return (
+      <div style={{ background: S.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif', direction: 'rtl', padding: '20px', boxSizing: 'border-box' }}>
+        <form onSubmit={handleLogin} style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, padding: '32px', borderRadius: '20px', width: '100%', maxWidth: '380px', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', boxSizing: 'border-box' }}>
+          <h2 style={{ color: S.textPrimary, fontSize: '20px', fontWeight: '900', margin: '0 0 6px' }}>Trip-Navigator</h2>
+          <p style={{ color: S.textSecondary, fontSize: '13px', marginBottom: '24px' }}>מערכת ניהול טיולים וניווט ({APP_VERSION})</p>
+          <input 
+            type="text" 
+            placeholder="הכנס את שמך המלא (לדוגמה: אריק)" 
+            value={loginInput} 
+            onChange={e => setLoginInput(e.target.value)}
+            style={{ width: '100%', padding: '14px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', fontSize: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none' }}
+          />
+          <button type="submit" style={{ width: '100%', padding: '14px', background: S.accent, color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.2)' }}>
+            התחל מסע ➔
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  const currentDay = tripDays[activeDay] || tripDays[0];
+  const activeQ = TRIVIA_BANK[triviaState.idx % TRIVIA_BANK.length];
+  const sortedScores = Object.entries(triviaState.scores || {}).sort((a, b) => b[1] - a[1]);
+
+  return (
+    <div style={{ background: S.bg, minHeight: '100vh', color: S.textPrimary, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', direction: 'rtl', paddingBottom: '70px', boxSizing: 'border-box', width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
+      
+      {incomingPing && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', border: '3px solid #dc2626', borderRadius: '20px', padding: '24px', width: '100%', maxWidth: '340px', textAlign: 'center', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
+            <div style={{ fontSize: '40px', marginBottom: '8px' }}>🚨</div>
+            <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#dc2626', margin: '0 0 8px' }}>קיבלת PING דחוף!</h3>
+            <p style={{ fontSize: '14px', fontWeight: '700', color: S.textPrimary, margin: '0 0 4px' }}>מאת: {incomingPing.from}</p>
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '12px', borderRadius: '10px', fontSize: '13px', color: '#991b1b', margin: '14px 0', fontWeight: '600' }}>
+              "{incomingPing.msg}"
+            </div>
+            <button onClick={clearIncomingPing} style={{ width: '100%', padding: '12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}>
+              הבנתי, תודה 👍
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* HEADER */}
+      <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧭</div>
+          <div>
+            <h1 style={{ fontSize: '14px', fontWeight: '900', color: S.textPrimary, margin: 0, letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>Trip-Nav</h1>
+            <div style={{ fontSize: '11px', color: S.textSecondary }}>שלום, {currentUser}</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          <div 
+            onClick={openWeatherApp}
+            style={{ cursor: 'pointer', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '4px 8px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span>{currentWeather.icon}</span>
+            <span>{currentWeather.temp}</span>
+          </div>
+
+          <div style={{ 
+            background: gpsConnected ? '#f0fdf4' : '#fef2f2',
+            color: gpsConnected ? '#15803d' : '#b91c1c',
+            padding: '4px 8px',
+            borderRadius: '8px',
+            fontSize: '11px',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <span>{gpsConnected ? '🟢 GPS' : '🔴 אין GPS'}</span>
+          </div>
+
+          <button 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', fontSize: '14px' }}>
+            ⚙️
+          </button>
+        </div>
+      </header>
+
+      {/* ADMIN & TOOLS SIDEBAR / MODAL */}
+      {sidebarOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', justifyContent: 'flex-start' }}>
+          <div style={{ background: '#fff', width: '280px', height: '100%', padding: '20px', boxSizing: 'border-box', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>הגדרות וניהול</h3>
+              <button onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}>✕</button>
+            </div>
+            <hr style={{ border: 'none', borderTop: `1px solid ${S.cardBorder}`, margin: '4px 0' }} />
+            <button onClick={() => { setAdminModal(true); setSidebarOpen(false); }} style={{ padding: '10px', background: '#eff6ff', color: S.accent, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'right' }}>
+              ➕ הוספת תחנה ידנית
+            </button>
+            <button onClick={() => { setBackupModal(true); setSidebarOpen(false); }} style={{ padding: '10px', background: '#f1f5f9', color: S.textPrimary, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'right' }}>
+              💾 גיבוי ושחזור מסלולים
+            </button>
+            <button onClick={() => { localStorage.removeItem('trip-user'); setCurrentUser(''); setSidebarOpen(false); }} style={{ padding: '10px', background: '#fef2f2', color: S.danger, border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'right', marginTop: 'auto' }}>
+              🚪 החלף משתמש
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* CONTENT AREA */}
+      <main style={{ padding: '12px', maxWidth: '600px', margin: '0 auto' }}>
+        
+        {/* TAB 1: ITINERARY */}
+        {activeTab === 'itinerary' && (
+          <div>
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '12px' }}>
+              {tripDays.map((day, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveDay(idx)}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '20px',
+                    border: 'none',
+                    background: activeDay === idx ? S.accent : '#e2e8f0',
+                    color: activeDay === idx ? '#fff' : S.textPrimary,
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
+                >
+                  {day.icon} {day.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ background: '#fff', padding: '14px', borderRadius: S.radius, border: `1px solid ${S.cardBorder}`, marginBottom: '14px' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px' }}>{currentDay.title}</h2>
+              <div style={{ fontSize: '12px', color: S.textSecondary }}>{currentDay.date}</div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {currentDay.stops?.map((stop, sIdx) => (
+                <div key={sIdx} style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: S.accent }}>⏰ {stop.time}</span>
+                    <span style={{ fontSize: '11px', background: '#f1f5f9', padding: '2px 8px', borderRadius: '10px' }}>תחנה {sIdx + 1}</span>
+                  </div>
+                  <div style={{ fontSize: '15px', fontWeight: 'bold', color: S.textPrimary }}>{stop.name}</div>
+                  {stop.note && <div style={{ fontSize: '13px', color: S.textSecondary }}>{stop.note}</div>}
+
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <a
+                      href={getMapsUrl(stop.lat, stop.lng, stop.dest)}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ flex: 1, textAlign: 'center', background: S.accent, color: '#fff', textDecoration: 'none', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold' }}
+                    >
+                      🚗 ניווט
+                    </a>
+                    <a
+                      href={getSatelliteMapsUrl(stop.lat, stop.lng, stop.dest)}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ flex: 1, textAlign: 'center', background: '#f1f5f9', color: S.textPrimary, textDecoration: 'none', padding: '8px', borderRadius: '8px', fontSize: '12px', fontWeight: 'bold', border: `1px solid ${S.cardBorder}` }}
+                    >
+                      🛰️ לוויין
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: RADAR */}
+        {activeTab === 'radar' && (
+          <div>
+            <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, overflow: 'hidden', marginBottom: '14px' }}>
+              <div ref={mapContainerRef} style={{ width: '100%', height: '320px' }} />
+            </div>
+
+            <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px' }}>משתתפים במפה</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {Object.values(allUsersLocations).map((usr, uIdx) => (
+                <div key={uIdx} style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, padding: '12px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{usr.name} {usr.name === currentUser && '(אני)'}</div>
+                    <div style={{ fontSize: '11px', color: S.textSecondary }}>עדכון: {usr.updated_at || 'לאחרונה'}</div>
+                  </div>
+                  {usr.name !== currentUser && (
+                    <button
+                      onClick={() => sendPingToUser(usr.name)}
+                      style={{ background: '#fee2e2', color: S.danger, border: 'none', padding: '6px 12px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}
+                    >
+                      🚨 שלח PING
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: SEARCH AROUND ME */}
+        {activeTab === 'search' && (
+          <div>
+            <div style={{ background: '#fff', padding: '14px', borderRadius: S.radius, border
