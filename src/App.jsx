@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.16 (Clean & Fixed) ---
-const APP_VERSION = 'v1.8.16';
+// --- TRIP-NAVIGATOR v1.8.17 (Clean & Fixed) ---
+const APP_VERSION = 'v1.8.17';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -213,7 +213,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v1816')
+    const channel = supabase.channel('trip_sync_v1817')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -359,10 +359,14 @@ export default function App() {
     if (!q || !q.trim()) return alert('נא להקליד או לבחור קטגוריה לחיפוש');
 
     const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    if (myLocation && myLocation.lat && myLocation.lng) {
-      const url = isApple 
-        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&ll=${myLocation.lat},${myLocation.lng}`
-        : `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${myLocation.lat},${myLocation.lng},14z`;
+    // מעבר ישיר לחיפוש הקטגוריה (כגון מסעדות סביב המיקום הנוכחי או בעזרת GPS)
+    const lat = myLocation?.lat;
+    const lng = myLocation?.lng;
+
+    if (lat && lng) {
+      const url = isApple
+        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&ll=${lat},${lng}`
+        : `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${lat},${lng},14z`;
       window.open(url, '_blank');
     } else {
       const url = isApple
