@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.22 (Clean & Fixed) ---
 const APP_VERSION = 'v1.8.22';
 const ADMIN_PIN = '1967';
 
@@ -64,7 +63,6 @@ export default function App() {
   const [allUsersLocations, setAllUsersLocations] = useState({});
   const [currentWeather, setCurrentWeather] = useState({ temp: '... ', icon: '⏳' });
   const [incomingPing, setIncomingPing] = useState(null);
-
   const [customSearchQuery, setCustomSearchQuery] = useState('');
 
   const [adminModal, setAdminModal] = useState(false);
@@ -501,7 +499,6 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER */}
       <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
           <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧭</div>
@@ -541,7 +538,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* ADMIN & TOOLS SIDEBAR / MODAL */}
       {sidebarOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', justifyContent: 'flex-start' }}>
           <div style={{ background: '#fff', width: '280px', height: '100%', padding: '20px', boxSizing: 'border-box', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -563,10 +559,7 @@ export default function App() {
         </div>
       )}
 
-      {/* CONTENT AREA */}
       <main style={{ padding: '12px', maxWidth: '600px', margin: '0 auto' }}>
-        
-        {/* TAB 1: ITINERARY */}
         {activeTab === 'itinerary' && (
           <div>
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '12px' }}>
@@ -631,7 +624,6 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 2: RADAR */}
         {activeTab === 'radar' && (
           <div>
             <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, overflow: 'hidden', marginBottom: '14px' }}>
@@ -660,7 +652,216 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 3: SEARCH AROUND ME */}
         {activeTab === 'search' && (
           <div>
-            <div style={{ background: '#fff', padding: '14px', borderRadius: S.radius, border
+            <div style={{ background: '#fff', padding: '14px', borderRadius: S.radius, border: `1px solid ${S.cardBorder}`, marginBottom: '14px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 10px' }}>חיפוש עסקים בסביבתי</h3>
+              <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
+                <input
+                  type="text"
+                  placeholder="למשל: בית קפה, סופרמרקט..."
+                  value={customSearchQuery}
+                  onChange={e => setCustomSearchQuery(e.target.value)}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, outline: 'none' }}
+                />
+                <button
+                  onClick={() => searchAroundMe()}
+                  style={{ background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', padding: '0 16px', fontWeight: 'bold', cursor: 'pointer' }}
+                >
+                  חפש
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                {['🍕 מסעדות', '☕ בתי קפה', '🛒 סופרמרקט', '⛽ תחנות דלק', '💊 בית מרקחת', '🅿️ חניונים'].map((cat, cIdx) => (
+                  <button
+                    key={cIdx}
+                    onClick={() => searchAroundMe(cat.split(' ')[1])}
+                    style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center', fontSize: '13px' }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'trivia' && (
+          <div>
+            <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '16px', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ fontSize: '12px', background: '#eff6ff', color: S.accent, padding: '4px 10px', borderRadius: '12px', fontWeight: 'bold' }}>
+                  שאלה #{triviaState.idx + 1}
+                </span>
+                <span style={{ fontSize: '13px', fontWeight: 'bold', color: timeLeft <= 5 ? S.danger : S.textPrimary }}>
+                  ⏱️ {timeLeft} שניות
+                </span>
+              </div>
+
+              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 16px', lineHeight: 1.4 }}>
+                {activeQ.q}
+              </h3>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {activeQ.options.map((opt, oIdx) => {
+                  let btnBg = '#f8fafc';
+                  let btnBorder = S.cardBorder;
+                  let btnColor = S.textPrimary;
+
+                  if (selectedOpt !== null) {
+                    if (oIdx === activeQ.correct) {
+                      btnBg = '#dcfce7';
+                      btnBorder = '#86efac';
+                      btnColor = '#166534';
+                    } else if (selectedOpt === oIdx) {
+                      btnBg = '#fee2e2';
+                      btnBorder = '#fca5a5';
+                      btnColor = '#991b1b';
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={oIdx}
+                      disabled={selectedOpt !== null}
+                      onClick={() => handleAnswerSelect(oIdx)}
+                      style={{
+                        padding: '12px',
+                        borderRadius: '10px',
+                        border: `1px solid ${btnBorder}`,
+                        background: btnBg,
+                        color: btnColor,
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        cursor: selectedOpt !== null ? 'default' : 'pointer',
+                        textAlign: 'right'
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '14px' }}>
+              <h4 style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: 'bold' }}>🏆 טבלת מובילים בטריוויה</h4>
+              {sortedScores.length === 0 ? (
+                <div style={{ fontSize: '12px', color: S.textSecondary }}>עדיין אין נקודות. תהיו הראשונים לענות!</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {sortedScores.map(([pName, pScore], sIdx) => (
+                    <div key={sIdx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '4px 0', borderBottom: '1px dashed #e2e8f0' }}>
+                      <span>{sIdx + 1}. {pName}</span>
+                      <span style={{ fontWeight: 'bold', color: S.accent }}>{pScore} נק'</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+
+      <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderTop: `1px solid ${S.cardBorder}`, display: 'flex', justifyContent: 'space-around', padding: '6px 0', zIndex: 1000 }}>
+        {[
+          { id: 'itinerary', label: 'מסלול', icon: '🗺️' },
+          { id: 'radar', label: 'רדאר', icon: '📡' },
+          { id: 'search', label: 'סביבי', icon: '🔍' },
+          { id: 'trivia', label: 'טריוויה', icon: '❓' }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              background: 'none',
+              border: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '2px',
+              color: activeTab === tab.id ? S.accent : S.textSecondary,
+              cursor: 'pointer',
+              fontSize: '11px',
+              fontWeight: activeTab === tab.id ? 'bold' : 'normal'
+            }}
+          >
+            <span style={{ fontSize: '18px' }}>{tab.icon}</span>
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      {adminModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 30000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ background: '#fff', borderRadius: '16px', padding: '20px', width: '100%', maxWidth: '360px', boxSizing: 'border-box' }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: '16px', fontWeight: 'bold' }}>הוספת תחנה למסלול</h3>
+            <input
+              type="password"
+              placeholder="קוד מנהל (PIN)"
+              value={adminPinInput}
+              onChange={e => setAdminPinInput(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '10px', boxSizing: 'border-box' }}
+            />
+            <input
+              type="time"
+              value={manualTime}
+              onChange={e => setManualTime(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '10px', boxSizing: 'border-box' }}
+            />
+            <input
+              type="text"
+              placeholder="שם התחנה / יעד"
+              value={manualTitle}
+              onChange={e => setManualTitle(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '10px', boxSizing: 'border-box' }}
+            />
+            <textarea
+              placeholder="הערות או פרטים נוספים"
+              value={manualDesc}
+              onChange={e => setManualDesc(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '14px', boxSizing: 'border-box', height: '60px' }}
+            />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={handleAddManualStop} style={{ flex: 1, padding: '10px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                שמור תחנה
+              </button>
+              <button onClick={() => setAdminModal(false)} style={{ flex: 1, padding: '10px', background: '#f1f5f9', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                ביטול
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {backupModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 30000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ background: '#fff', borderRadius: '16px', padding: '20px', width: '100%', maxWidth: '360px', boxSizing: 'border-box' }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: '16px', fontWeight: 'bold' }}>גיבוי ושחזור נתונים</h3>
+            <input
+              type="password"
+              placeholder="קוד מנהל (PIN)"
+              value={backupPinInput}
+              onChange={e => setBackupPinInput(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, marginBottom: '14px', boxSizing: 'border-box' }}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button onClick={handleDownloadBackup} style={{ width: '100%', padding: '10px', background: S.accent, color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                📥 הורד קובץ גיבוי (JSON)
+              </button>
+              <label style={{ width: '100%', padding: '10px', background: '#f1f5f9', color: S.textPrimary, borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', border: `1px solid ${S.cardBorder}` }}>
+                📤 טען קובץ גיבוי
+                <input type="file" accept=".json" onChange={handleFileUpload} style={{ display: 'none' }} />
+              </label>
+              <button onClick={() => setBackupModal(false)} style={{ width: '100%', padding: '10px', background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                סגור
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
