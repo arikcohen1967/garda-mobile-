@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.5 (Original Light Theme Edition) ---
-const APP_VERSION = 'v1.8.5';
+// --- TRIP-NAVIGATOR v1.8.6 (Enhanced Edition) ---
+const APP_VERSION = 'v1.8.6';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -86,9 +86,9 @@ export default function App() {
       return saved ? JSON.parse(saved) : { idx: 0, scores: {}, isPaused: false };
     } catch (e) { return { idx: 0, scores: {}, isPaused: false }; }
   });
-  const [timeLeft, setTimeLeft] = useState(30);
   const [selectedOpt, setSelectedOpt] = useState(null);
   const [adminTriviaPin, setAdminTriviaPin] = useState('');
+  const [activeTriviaPlayer, setActiveTriviaPlayer] = useState(() => currentUser || '');
 
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -189,7 +189,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v185')
+    const channel = supabase.channel('trip_sync_v186')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -291,6 +291,7 @@ export default function App() {
     if (!loginInput.trim()) return;
     const name = loginInput.trim();
     setCurrentUser(name);
+    setActiveTriviaPlayer(name);
     localStorage.setItem('trip-user', name);
   };
 
@@ -658,6 +659,23 @@ export default function App() {
 
         {activeTab === 'trivia' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+            
+            {/* בורר שחקן פעיל למשחק משפחתי */}
+            <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', padding: '12px', marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '800', color: S.textPrimary }}>👤 שחקן תורן:</span>
+              <select 
+                value={activeTriviaPlayer} 
+                onChange={e => setActiveTriviaPlayer(e.target.value)}
+                style={{ flex: 1, padding: '8px', borderRadius: '8px', border: `1px solid ${S.cardBorder}`, fontSize: '14px', fontWeight: 'bold', background: '#fff', color: S.accent, outline: 'none', textAlign: 'right' }}
+              >
+                <option value={currentUser}>{currentUser} (אני)</option>
+                <option value="בת 1">בת 1</option>
+                <option value="בת 2">בת 2</option>
+                <option value="בת 3">בת 3</option>
+                <option value="סיגל">סיגל</option>
+              </select>
+            </div>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: '900', color: S.textPrimary, margin: 0 }}>🎯 טריוויה משפחתית (1500)</h2>
               <span style={{ background: triviaState.isPaused ? '#fef2f2' : '#f0fdf4', color: triviaState.isPaused ? '#dc2626' : '#166534', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold' }}>
@@ -698,8 +716,9 @@ export default function App() {
                         const currentScores = triviaState.scores || {};
                         let updatedScores = { ...currentScores };
                         
+                        const targetPlayer = activeTriviaPlayer || currentUser;
                         if (isCorrect) {
-                          updatedScores[currentUser] = (updatedScores[currentUser] || 0) + 10;
+                          updatedScores[targetPlayer] = (updatedScores[targetPlayer] || 0) + 10;
                         }
 
                         const nextIdx = triviaState.idx + 1;
@@ -732,7 +751,13 @@ export default function App() {
             )}
 
             <div style={{ marginTop: '20px', borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', display: 'flex', gap: '8px' }}>
-              <input type="password" placeholder="קוד מנהל (1967)" value={adminTriviaPin} onChange={e => setAdminTriviaPin(e.target.value)} style={{ width: '120px', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, textAlign: 'center', fontSize: '12px', outline: 'none' }} />
+              <input 
+                type="password" 
+                placeholder="קוד מנהל (1967)" 
+                value={adminTriviaPin} 
+                onChange={e => setAdminTriviaPin(e.target.value)} 
+                style={{ width: '120px', padding: '8px', borderRadius: '6px', border: `1px solid ${S.cardBorder}`, textAlign: 'center', fontSize: '16px', outline: 'none' }} 
+              />
               <button onClick={() => {
                 if (adminTriviaPin !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
                 updateTriviaInCloud({ ...triviaState, isPaused: !triviaState.isPaused });
@@ -743,11 +768,10 @@ export default function App() {
               <button onClick={() => {
                 if (adminTriviaPin !== ADMIN_PIN) return alert('❌ קוד מנהל שגוי!');
                 updateTriviaInCloud({ idx: 0, scores: {}, isPaused: false });
-                setTimeLeft(30);
                 setAdminTriviaPin('');
-                alert('🔄 המשחק אופס בהצלחה!');
-              }} style={{ padding: '8px 12px', background: S.danger, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
-                איפוס מלא 🔄
+                alert('🔄 המשחק התחיל מחדש ואופס בהצלחה!');
+              }} style={{ padding: '8px 12px', background: S.accent, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}>
+                התחל מחדש / איפוס 🔄
               </button>
             </div>
 
@@ -796,10 +820,10 @@ export default function App() {
 
             <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: '14px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
               <strong style={{ fontSize: '12px', color: S.textPrimary }}>או טעינה מקובץ (JSON):</strong>
-              <input type="file" accept=".json" onChange={file => handleFileUpload(file)} style={{ width: '100%', marginTop: '8px', fontSize: '12px', boxSizing: 'border-box' }} />
+              <input type="file" accept=".json" onChange={file => handleFileUpload(file)} style={{ width: '100%', marginTop: '8px', fontSize: '14px', boxSizing: 'border-box' }} />
             </div>
 
-            <button onClick={() => setAdminModal(false)} style={{ width: '100%', padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+            <button onClick={() => setAdminModal(false)} style={{ width: '100%', padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box', fontSize: '14px' }}>סגור</button>
           </div>
         </div>
       )}
@@ -811,8 +835,8 @@ export default function App() {
             <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '12px' }}>הזן קוד מנהל ({ADMIN_PIN}) להורדת גיבוי:</p>
             <input type="password" placeholder="קוד מנהל (1967)" value={backupPinInput} onChange={e => setBackupPinInput(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, marginBottom: '16px', boxSizing: 'border-box', textAlign: 'center', outline: 'none', fontSize: '16px' }} />
             <div style={{ display: 'flex', gap: '10px', boxSizing: 'border-box' }}>
-              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '12px', background: S.success, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>הורד גיבוי</button>
-              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box' }}>סגור</button>
+              <button onClick={handleDownloadBackup} style={{ flex: 1, padding: '12px', background: S.success, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box', fontSize: '14px' }}>הורד גיבוי</button>
+              <button onClick={() => setBackupModal(false)} style={{ flex: 1, padding: '12px', background: '#e2e8f0', color: S.textPrimary, border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', boxSizing: 'border-box', fontSize: '14px' }}>סגור</button>
             </div>
           </div>
         </div>
