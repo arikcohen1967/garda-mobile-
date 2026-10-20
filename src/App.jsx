@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.22 (Clean & Fixed) ---
 const APP_VERSION = 'v1.8.22';
 const ADMIN_PIN = '1967';
 
@@ -37,17 +36,13 @@ const INITIAL_TRIP_DAYS = [
   }
 ];
 
-const TRIVIA_BANK = Array.from({ length: 1500 }, (_, i) => {
-  const id = i + 1;
-  const questionsList = [
-    { q: `שאלה #${id}: באיזו מדינה באירופאית נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
-    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פדובה"], correct: 2 },
-    { q: `שאלה #${id}: איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?`, options: ["דיסנילנד", "גארדלנד", "פורט אבנטורה", "אסטריקס"], correct: 1 },
-    { q: `שאלה #${id}: מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?`, options: ["ורונה", "מנטובה", "בולוניה", "גנואה"], correct: 0 },
-    { q: `שאלה #${id}: איזה מאכל איטלקי מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?`, options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 }
-  ];
-  return questionsList[i % questionsList.length];
-});
+const TRIVIA_BANK = [
+  { q: "באיזו מדינה באירופה נמצא אגם גארדה?", options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+  { q: "מהי בירת איטליה?", options: ["מילאנו", "ונציה", "רומא", "פדובה"], correct: 2 },
+  { q: "איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?", options: ["דיסנילנד", "גארדלנד", "פורט אבנטורה", "אסטריקס"], correct: 1 },
+  { q: "מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?", options: ["ורונה", "מנטובה", "בולוניה", "גנואה"], correct: 0 },
+  { q: "איזה מאכל איטלקי מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?", options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 }
+];
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('trip-user') || '');
@@ -68,7 +63,6 @@ export default function App() {
   const [allUsersLocations, setAllUsersLocations] = useState({});
   const [currentWeather, setCurrentWeather] = useState({ temp: '... ', icon: '⏳' });
   const [incomingPing, setIncomingPing] = useState(null);
-
   const [customSearchQuery, setCustomSearchQuery] = useState('');
 
   const [adminModal, setAdminModal] = useState(false);
@@ -89,7 +83,6 @@ export default function App() {
   
   const [selectedOpt, setSelectedOpt] = useState(null);
   const [timeLeft, setTimeLeft] = useState(30);
-  const [adminTriviaPin, setAdminTriviaPin] = useState('');
   const [activeTriviaPlayer, setActiveTriviaPlayer] = useState(() => currentUser || '');
 
   const mapContainerRef = useRef(null);
@@ -113,7 +106,7 @@ export default function App() {
     if (activeTab !== 'trivia' || triviaState.isPaused || selectedOpt !== null) return;
 
     if (timeLeft <= 0) {
-      const nextIdx = triviaState.idx + 1;
+      const nextIdx = (triviaState.idx + 1) % TRIVIA_BANK.length;
       updateTriviaInCloud({ ...triviaState, idx: nextIdx });
       setTimeLeft(30);
       return;
@@ -451,7 +444,7 @@ export default function App() {
     };
 
     setTimeout(() => {
-      const nextIdx = triviaState.idx + 1;
+      const nextIdx = (triviaState.idx + 1) % TRIVIA_BANK.length;
       updateTriviaInCloud({
         ...triviaState,
         idx: nextIdx,
@@ -506,7 +499,6 @@ export default function App() {
         </div>
       )}
 
-      {/* HEADER */}
       <header style={{ background: '#ffffff', borderBottom: `1px solid ${S.cardBorder}`, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 1000, boxSizing: 'border-box', width: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
           <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧭</div>
@@ -546,7 +538,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* ADMIN & TOOLS SIDEBAR / MODAL */}
       {sidebarOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', justifyContent: 'flex-start' }}>
           <div style={{ background: '#fff', width: '280px', height: '100%', padding: '20px', boxSizing: 'border-box', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -568,13 +559,9 @@ export default function App() {
         </div>
       )}
 
-      {/* CONTENT AREA */}
       <main style={{ padding: '12px', maxWidth: '600px', margin: '0 auto' }}>
-        
-        {/* TAB 1: ITINERARY */}
         {activeTab === 'itinerary' && (
           <div>
-            {/* Days Selector */}
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '12px' }}>
               {tripDays.map((day, idx) => (
                 <button
@@ -598,13 +585,11 @@ export default function App() {
               ))}
             </div>
 
-            {/* Current Day Header */}
             <div style={{ background: '#fff', padding: '14px', borderRadius: S.radius, border: `1px solid ${S.cardBorder}`, marginBottom: '14px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px' }}>{currentDay.title}</h2>
               <div style={{ fontSize: '12px', color: S.textSecondary }}>{currentDay.date}</div>
             </div>
 
-            {/* Stops Timeline */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {currentDay.stops?.map((stop, sIdx) => (
                 <div key={sIdx} style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -639,7 +624,6 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 2: RADAR */}
         {activeTab === 'radar' && (
           <div>
             <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, overflow: 'hidden', marginBottom: '14px' }}>
@@ -668,7 +652,6 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 3: SEARCH AROUND ME */}
         {activeTab === 'search' && (
           <div>
             <div style={{ background: '#fff', padding: '14px', borderRadius: S.radius, border: `1px solid ${S.cardBorder}`, marginBottom: '14px' }}>
@@ -704,7 +687,6 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 4: TRIVIA */}
         {activeTab === 'trivia' && (
           <div>
             <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '16px', marginBottom: '14px' }}>
@@ -763,7 +745,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Scoreboard */}
             <div style={{ background: '#fff', border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '14px' }}>
               <h4 style={{ margin: '0 0 10px', fontSize: '14px', fontWeight: 'bold' }}>🏆 טבלת מובילים בטריוויה</h4>
               {sortedScores.length === 0 ? (
@@ -781,10 +762,8 @@ export default function App() {
             </div>
           </div>
         )}
-
       </main>
 
-      {/* BOTTOM NAVIGATION TABS */}
       <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderTop: `1px solid ${S.cardBorder}`, display: 'flex', justifyContent: 'space-around', padding: '6px 0', zIndex: 1000 }}>
         {[
           { id: 'itinerary', label: 'מסלול', icon: '🗺️' },
@@ -814,7 +793,6 @@ export default function App() {
         ))}
       </nav>
 
-      {/* MODAL: MANUAL STOP ADDITION */}
       {adminModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 30000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
           <div style={{ background: '#fff', borderRadius: '16px', padding: '20px', width: '100%', maxWidth: '360px', boxSizing: 'border-box' }}>
@@ -857,7 +835,6 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL: BACKUP & RESTORE */}
       {backupModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 30000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
           <div style={{ background: '#fff', borderRadius: '16px', padding: '20px', width: '100%', maxWidth: '360px', boxSizing: 'border-box' }}>
