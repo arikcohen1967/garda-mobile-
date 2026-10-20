@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.18 (Clean & Fixed) ---
-const APP_VERSION = 'v1.8.18';
+// --- TRIP-NAVIGATOR v1.8.19 (Clean & Fixed) ---
+const APP_VERSION = 'v1.8.19';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -213,7 +213,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v1818')
+    const channel = supabase.channel('trip_sync_v1819')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -322,42 +322,4 @@ export default function App() {
   const getSatelliteMapsUrl = (lat, lng, queryName) => {
     const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
     if (isApple) {
-      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}&t=h`;
-      return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}&t=h`;
-    } else {
-      if (lat && lng) return `https://www.google.com/maps/@?api=1&map_action=map&center=${lat},${lng}&zoom=18&basemap=satellite`;
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
-    }
-  };
-
-  const getMapsUrl = (lat, lng, queryName) => {
-    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    if (isApple) {
-      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}`;
-      return `maps://maps.apple.com/?q=${encodeURIComponent(queryName)}`;
-    } else {
-      if (lat && lng) return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`;
-    }
-  };
-
-  const openWeatherApp = () => {
-    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    if (isApple) {
-      window.location.href = 'weather://';
-    } else {
-      if (myLocation && myLocation.lat && myLocation.lng) {
-        window.open(`https://www.google.com/search?q=weather+${myLocation.lat},${myLocation.lng}`, '_blank');
-      } else {
-        window.open('https://www.google.com/search?q=weather', '_blank');
-      }
-    }
-  };
-
-  const searchAroundMe = (queryText) => {
-    const q = queryText || customSearchQuery;
-    if (!q || !q.trim()) return alert('נא להקליד או לבחור קטגוריה לחיפוש');
-
-    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
-    const lat = myLocation?.lat;
-    const
+      if (lat && lng) return `maps://maps.apple.com/?q=${lat},${lng}&t=h
