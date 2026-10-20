@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.5 (Original Light Theme Edition) ---
-const APP_VERSION = 'v1.8.5';
+// --- TRIP-NAVIGATOR v1.8.23 (Full Features Edition) ---
+const APP_VERSION = 'v1.8.23';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -25,7 +25,7 @@ const INITIAL_TRIP_DAYS = [
   {
     date: "2026-09-30", label: "יום 1 · נחיתה", title: "נחיתה והגעה למלון", icon: "✈️",
     stops: [
-      { time: "16:00", name: "נחיתה בשדה התעופה وרונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף רכב וקבלת פנים ראשונה." },
+      { time: "16:00", name: "נחיתה בשדה התעופה ורונה", dest: "Verona Villafranca Airport", lat: 45.3957, lng: 10.8885, note: "איסוף רכב וקבלת פנים ראשונה." },
       { time: "18:00", name: "הגעה למלון Bio Agriturismo Vojon", dest: "Peschiera del Garda, Italy", lat: 45.4192, lng: 10.6908, note: "צ׳ק-אין והתארגנות." }
     ]
   },
@@ -86,9 +86,11 @@ export default function App() {
       return saved ? JSON.parse(saved) : { idx: 0, scores: {}, isPaused: false };
     } catch (e) { return { idx: 0, scores: {}, isPaused: false }; }
   });
-  const [timeLeft, setTimeLeft] = useState(30);
+
   const [selectedOpt, setSelectedOpt] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [adminTriviaPin, setAdminTriviaPin] = useState('');
+  const [activeTriviaPlayer, setActiveTriviaPlayer] = useState(() => currentUser || '');
 
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -106,6 +108,27 @@ export default function App() {
       }], { onConflict: 'name' });
     } catch (err) {}
   };
+
+  useEffect(() => {
+    if (activeTab !== 'trivia' || triviaState.isPaused || selectedOpt !== null) return;
+
+    if (timeLeft <= 0) {
+      const nextIdx = triviaState.idx + 1;
+      updateTriviaInCloud({ ...triviaState, idx: nextIdx });
+      setTimeLeft(30);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeTab, timeLeft, triviaState, selectedOpt]);
+
+  useEffect(() => {
+    setTimeLeft(30);
+  }, [triviaState.idx]);
 
   useEffect(() => {
     if (document.getElementById('leaflet-script')) return;
@@ -189,7 +212,7 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v185')
+    const channel = supabase.channel('trip_sync_v1823')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
@@ -291,6 +314,7 @@ export default function App() {
     if (!loginInput.trim()) return;
     const name = loginInput.trim();
     setCurrentUser(name);
+    setActiveTriviaPlayer(name);
     localStorage.setItem('trip-user', name);
   };
 
@@ -333,14 +357,20 @@ export default function App() {
     const q = queryText || customSearchQuery;
     if (!q || !q.trim()) return alert('נא להקליד או לבחור קטגוריה לחיפוש');
 
-    if (myLocation && myLocation.lat && myLocation.lng) {
-      const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    const isApple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+    const lat = myLocation?.lat;
+    const lng = myLocation?.lng;
+
+    if (lat && lng) {
       const url = isApple 
-        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&ll=${myLocation.lat},${myLocation.lng}`
-        : `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${myLocation.lat},${myLocation.lng},14z`;
+        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}&near=${lat},${lng}`
+        : `https://www.google.com/maps/search/${encodeURIComponent(q)}+near+${lat},${lng}`;
       window.open(url, '_blank');
     } else {
-      window.open(`https://www.google.com/maps/search/${encodeURIComponent(q)}`, '_blank');
+      const url = isApple
+        ? `maps://maps.apple.com/?q=${encodeURIComponent(q)}`
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+      window.open(url, '_blank');
     }
   };
 
@@ -627,42 +657,70 @@ export default function App() {
           </div>
         )}
 
+        {/* מה יש סביבי – מעודכן עם כל הקטגוריות וחיפוש מדויק */}
         {activeTab === 'around' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>📍</div>
             <h2 style={{ fontSize: '17px', fontWeight: '900', color: S.textPrimary, marginBottom: '6px' }}>מה יש סביבי?</h2>
             <p style={{ fontSize: '12px', color: S.textSecondary, marginBottom: '18px' }}>מצא מקומות בקרבת המיקום הנוכחי שלך בלחיצת כפתור:</p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
-              {[{ label: '🍽️ מסעדות', q: 'מסעדות' }, { label: '🏛️ מוזיאונים', q: 'מוזיאונים' }, { label: '🎢 אטרקציות', q: 'אטרקציות תיירותיות' }, { label: '☕ בתי קפה', q: 'בתי קפה' }].map((item, i) => (
-                <button key={i} type="button" onClick={() => searchAroundMe(item.q)} style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box', flexShrink: 0 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', marginBottom: '16px', boxSizing: 'border-box', width: '100%' }}>
+              {[
+                { label: '🍕 מסעדות', q: 'מסעדות' },
+                { label: '☕ בתי קפה', q: 'בתי קפה' },
+                { label: '🛒 סופרמרקט', q: 'סופרמרקט' },
+                { label: '⛽ תחנות דלק', q: 'תחנת דלק' },
+                { label: '💊 בית מרקחת', q: 'בית מרקחת' },
+                { label: '🅿️ חניונים', q: 'חניון' }
+              ].map((item, i) => (
+                <button 
+                  key={i} 
+                  type="button" 
+                  onClick={() => searchAroundMe(item.q)} 
+                  style={{ padding: '14px 10px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`, background: '#f8fafc', color: S.textPrimary, fontWeight: '800', fontSize: '13px', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
+                >
                   {item.label}
                 </button>
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box', width: '100%', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: '8px', boxSizing: 'border-box', width: '100%' }}>
               <input 
                 type="text" 
-                placeholder="הקלד כל דבר (לדוגמה: סופרמרקט...)" 
+                placeholder="הקלד חיפוש חופשי (למשל: גלידה, מאפייה...)" 
                 value={customSearchQuery} 
                 onChange={e => setCustomSearchQuery(e.target.value)}
-                style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, fontSize: '16px', boxSizing: 'border-box', outline: 'none', background: '#ffffff', color: '#0f172a' }}
+                style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '10px', border: `1px solid ${S.cardBorder}`, fontSize: '15px', boxSizing: 'border-box', outline: 'none', background: '#ffffff', color: '#0f172a' }}
               />
-              <button type="button" onClick={() => searchAroundMe(customSearchQuery)} style={{ padding: '12px 18px', background: S.accent, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box', flexShrink: 0 }}>
+              <button 
+                type="button" 
+                onClick={() => searchAroundMe(customSearchQuery)} 
+                style={{ padding: '12px 18px', background: S.accent, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', boxSizing: 'border-box', whiteSpace: 'nowrap' }}
+              >
                 חפש 🔍
               </button>
             </div>
           </div>
         )}
 
+        {/* טריוויה – מעודכנת עם טיימר 30 שניות, משוב ויזואלי וניהול שחקנים */}
         {activeTab === 'trivia' && (
           <div style={{ background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: S.radius, padding: '20px', textAlign: 'center', boxSizing: 'border-box', width: '100%', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: '900', color: S.textPrimary, margin: 0 }}>🎯 טריוויה משפחתית (1500)</h2>
-              <span style={{ background: triviaState.isPaused ? '#fef2f2' : '#f0fdf4', color: triviaState.isPaused ? '#dc2626' : '#166534', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold' }}>
-                {triviaState.isPaused ? '⏸️ מושהה ע"י מנהל' : `שאלה מס' ${(triviaState.idx || 0) + 1}`}
-              </span>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: '900', color: S.textPrimary, margin: 0 }}>🎯 טריוויה משפחתית (1500)</h2>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {!triviaState.isPaused && (
+                  <span style={{ fontSize: '12px', fontWeight: '800', color: timeLeft <= 5 ? S.danger : S.accent, background: timeLeft <= 5 ? '#fee2e2' : '#eff6ff', padding: '3px 8px', borderRadius: '8px' }}>
+                    ⏱️ {timeLeft} ש'
+                  </span>
+                )}
+                <span style={{ background: triviaState.isPaused ? '#fef2f2' : '#f0fdf4', color: triviaState.isPaused ? '#dc2626' : '#166534', padding: '4px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: 'bold' }}>
+                  {triviaState.isPaused ? '⏸️ מושהה' : `שאלה מס' ${(triviaState.idx || 0) + 1}`}
+                </span>
+              </div>
             </div>
 
             <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', padding: '12px', marginBottom: '16px', textAlign: 'right' }}>
@@ -673,7 +731,7 @@ export default function App() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {sortedScores.map(([name, score], sIdx) => (
                     <div key={sIdx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                      <span>{sIdx === 0 ? '👑 ' : '👤 '}{name}</span>
+                      <span>{sIdx === 0 ? '👑 ' : '👤 '}{name} {name === currentUser ? '(אני)' : ''}</span>
                       <strong style={{ color: S.accent }}>{score} נק'</strong>
                     </div>
                   ))}
@@ -683,46 +741,65 @@ export default function App() {
 
             {!triviaState.isPaused ? (
               <>
-                <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '18px', borderRadius: '12px', marginBottom: '16px', fontSize: '14px', fontWeight: '800', color: S.textPrimary, lineHeight: '1.5' }}>
+                <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, padding: '18px', borderRadius: '12px', marginBottom: '16px', fontSize: '15px', fontWeight: '800', color: S.textPrimary, lineHeight: '1.5' }}>
                   {activeQ.q}
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {activeQ.options.map((opt, oIdx) => (
-                    <button
-                      key={oIdx}
-                      onClick={() => {
-                        if (selectedOpt !== null || triviaState.isPaused) return;
-                        setSelectedOpt(oIdx);
-                        const isCorrect = oIdx === activeQ.correct;
-                        const currentScores = triviaState.scores || {};
-                        let updatedScores = { ...currentScores };
-                        
-                        if (isCorrect) {
-                          updatedScores[currentUser] = (updatedScores[currentUser] || 0) + 10;
-                        }
+                  {activeQ.options.map((opt, oIdx) => {
+                    let btnBg = '#ffffff';
+                    let btnColor = S.textPrimary;
+                    let btnBorder = S.cardBorder;
 
-                        const nextIdx = triviaState.idx + 1;
-                        updateTriviaInCloud({
-                          ...triviaState,
-                          idx: nextIdx,
-                          scores: updatedScores
-                        });
+                    if (selectedOpt !== null) {
+                      if (oIdx === activeQ.correct) {
+                        btnBg = S.success;
+                        btnColor = '#ffffff';
+                        btnBorder = S.success;
+                      } else if (selectedOpt === oIdx) {
+                        btnBg = S.danger;
+                        btnColor = '#ffffff';
+                        btnBorder = S.danger;
+                      }
+                    }
 
-                        setTimeout(() => {
-                          setSelectedOpt(null);
-                        }, 1200);
-                      }}
-                      style={{
-                        padding: '14px', borderRadius: '12px', border: `1px solid ${S.cardBorder}`,
-                        background: selectedOpt === null ? '#ffffff' : (oIdx === activeQ.correct ? S.success : (selectedOpt === oIdx ? S.danger : '#ffffff')),
-                        color: selectedOpt !== null && (oIdx === activeQ.correct || selectedOpt === oIdx) ? '#ffffff' : S.textPrimary,
-                        fontWeight: '800', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s'
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  ))}
+                    return (
+                      <button
+                        key={oIdx}
+                        disabled={selectedOpt !== null}
+                        onClick={() => {
+                          if (selectedOpt !== null || triviaState.isPaused) return;
+                          setSelectedOpt(oIdx);
+                          const isCorrect = oIdx === activeQ.correct;
+                          const currentScores = triviaState.scores || {};
+                          let updatedScores = { ...currentScores };
+                          
+                          if (isCorrect) {
+                            updatedScores[currentUser] = (updatedScores[currentUser] || 0) + 10;
+                          }
+
+                          setTimeout(() => {
+                            const nextIdx = triviaState.idx + 1;
+                            updateTriviaInCloud({
+                              ...triviaState,
+                              idx: nextIdx,
+                              scores: updatedScores
+                            });
+                            setSelectedOpt(null);
+                            setTimeLeft(30);
+                          }, 1200);
+                        }}
+                        style={{
+                          padding: '14px', borderRadius: '12px', border: `1px solid ${btnBorder}`,
+                          background: btnBg,
+                          color: btnColor,
+                          fontWeight: '800', fontSize: '13px', cursor: selectedOpt !== null ? 'default' : 'pointer', transition: 'all 0.2s', textAlign: 'center'
+                        }}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
                 </div>
               </>
             ) : (
