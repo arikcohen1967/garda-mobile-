@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// --- TRIP-NAVIGATOR v1.8.25 (Stabilized Edition) ---
-const APP_VERSION = 'v1.8.25';
+// --- TRIP-NAVIGATOR v1.8.26 (Stabilized & Fixed Trivia Edition) ---
+const APP_VERSION = 'v1.8.26';
 const ADMIN_PIN = '1967';
 
 const SUPABASE_URL = 'https://qrdgructcnphiyosakgb.supabase.co';
@@ -37,16 +37,74 @@ const INITIAL_TRIP_DAYS = [
   }
 ];
 
+const BASE_TRIVIA_QUESTIONS = [
+  // --- אגם גארדה והסביבה ---
+  { q: "באיזו מדינה באירופה נמצא אגם גארדה?", options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
+  { q: "מהו אגם גארדה מבחינת גודלו באיטליה?", options: ["האגם הקטן ביותר", "האגם הגדול ביותר", "אגם מלאכותי", "אגם מלח"], correct: 1 },
+  { q: "איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?", options: ["דיסנילנד", "גארדלנד (Gardaland)", "פורט אבנטורה", "אסטריקס"], correct: 1 },
+  { q: "באיזו עיירת נופש דרומית באגם גארדה ממוקם פארק המים קאנבה וורלד?", options: ["פשקיירה דל גארדה (Peschiera)", "סירמיונה", "ריווה דל גארדה", "מלצ'יאזה"], correct: 0 },
+  { q: "איזה מבצר היסטורי ומפורסם מקדם את פני הבאים בכניסה לעיר העתיקה של סירמיונה?", options: ["טירת סקליג'רו (Scaliger)", "טירת מילאנו", "הארמון הלבן", "מצודת רומא"], correct: 0 },
+  { q: "מהי האטרקציה המפורסמת ביותר בקצה הצפוני של אגם גארדה שמושכת אליה חובבי ספורט ימי ורוח?", options: ["ריווה דל גארדה", "גרדלנד", "ורונה", "פשקיירה"], correct: 0 },
+  { q: "איזה הר גבוה מתנשא מעל העיירה מלצ'יאזה וכולל רכבל מסתובב?", options: ["מונטה באלדו (Monte Baldo)", "האלפים הצרפתיים", "הר הריפ", "הדולומיטים"], correct: 0 },
+  { q: "איזה נהר מרכזי זורם מתוך אגם גארדה דרומה לעבר הים התיכון?", options: ["נהר הפו", "נהר המינצ'ו (Mincio)", "נהר הטיבר", "נהר הארנו"], correct: 1 },
+  { q: "איזה פארק מים קולנועי ייחודי נמצא בסמוך לגארדלנד?", options: ["Movieland Studios", "Aqualandia", "Mirabilandia", "Cinecitta World"], correct: 0 },
+  { q: "באיזה אזור יין מפורסם בדרום אגם גארדה מיוצר יין לבן יבש ורענן בשם זה?", options: ["קיאנטי", "לוגאנה (Lugana)", "ברולו", "פרוסקו"], correct: 1 },
+
+  // --- ערים ואטרקציות באיטליה ---
+  { q: "מהי בירת מחוז ונטו שבו שוכן חלק מאגם גארדה?", options: ["ונציה", "ורונה", "מילאנו", "בולוניה"], correct: 1 },
+  { q: "איזו עיר איטלקית מפורסמת בתעלות המים והגונדולות שלה?", options: ["רומא", "נאפולי", "ונציה", "פירנצה"], correct: 2 },
+  { q: "איזה בניין עתיק ומרשים בורונה שימש לקרבות גלדיאטורים ומשמש כיום כאולם אופרה פתוח?", options: ["הקולוסיאום", "הארנה של ורונה (Arena di Verona)", "הפנתאון", "בזיליקת פטרוס הקדוש"], correct: 1 },
+  { q: "איזה מרפסת בעיר ורונה מקושרת לסיפור האהבה של שייקספיר?", options: ["המרפסת של יוליה (Juliet's Balcony)", "המרפסת המלכותית", "ארמון הדוגّه", "טירת רומיאו"], correct: 0 },
+  { q: "מהי בירת איטליה?", options: ["מילאנו", "ונציה", "רומא", "נאפולי"], correct: 2 },
+  { q: "איזו עיר איטלקית נחשבת לבירת האופנה והכלכלה בצפון המדינה?", options: ["מילאנו", "טורינו", "גנואה", "פלורנצה"], correct: 0 },
+  { q: "איזה מגדל מפורסם בעולם נטוי הצידה באופן מפורסם?", options: ["המגדל בפיזה", "המגדל ברומא", "המגדל בוונציה", "המגדל בנאפולי"], correct: 0 },
+  { q: "איזה הר געש מפורסם שוכן בסמוך לעיר נאפולי והחריב את פומפיי העתיקה?", options: ["סטרומבולי", "אטנה", "וזוב (Vesuvius)", "קולומבו"], correct: 2 },
+  { q: "באיזה ים מוקפת איטליה בעיקר?", options: ["הים התיכון", "הים הבלטי", "הים הצפוני", "הים השחור"], correct: 0 },
+  { q: "מהי העיר הגדולה ביותר באיטליה לפי אוכלוסייה?", options: ["מילאנו", "רומא", "נאפולי", "טורינו"], correct: 1 },
+
+  // --- קולינריה איטלקית ---
+  { q: "איזה מאכל איטלקי מפורסם מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?", options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 },
+  { q: "מאיזו עיר באיטליה הומצאה הפיצה המקורית?", options: ["מילאנו", "רומא", "נאפולי", "פלרמו"], correct: 2 },
+  { q: "איזה קינוח איטלקי מפורסם מכיל ביסקויטים ספוגים בקפה, מסקרפונה וקקאו?", options: ["פנאקוטה", "טירמיסו (Tiramisu)", "גלידה", "קנולי"], correct: 1 },
+  { q: "מהו שמם של הבצקים הקטנים והממולאים באיטליה הדומים לכיסונים?", options: ["ספגטי", "רביולי (Ravioli)", "פנה", "פטוצ'יני"], correct: 1 },
+  { q: "איזה גבינה איטלקית קשה ומלוחה נהוג לגרד מעל פסטה?", options: ["מוצרלה", "פרמזן (Parmesan)", "ריקוטה", "גורגונזולה"], correct: 1 },
+  { q: "איזה משקה קפה איטלקי מוגש לרוב כמנה קטנה וחזקה מאוד?", options: ["הפוך", "אספרסו (Espresso)", "אייס קפה", "שוקולטה"], correct: 1 },
+  { q: "מהו שמה של הגלידה האיטלקית המסורתית?", options: ["גלצ'ה", "ג'לאטו (Gelato)", "סורבה", "אייס קרים"], correct: 1 },
+  { q: "איזה רוטב ירוק מפורסם מכינים מבזיליקום, שמן זית, צנוברים ושום?", options: ["פסטו (Pesto)", "בולונז", "נפוליטנה", "אלפרדו"], correct: 0 },
+  { q: "איזה סוג אורז משמש להכנת מנה איטלקית קרמית בשם ריזוטו?", options: ["אורז בסמטי", "אורז ארבוריו (Arborio)", "אורז יסמין", "אורז מלא"], correct: 1 },
+  { q: "מאיזה אזור באיטליה מגיע יין הפרוסקו המבעבע?", options: ["ונטו ופריולי", "טוסקנה", "סיציליה", "קלבריה"], correct: 0 },
+
+  // --- גיאוגרפיה ועולם ---
+  { q: "מהי היבשת הגדולה ביותר בעולם?", options: ["אפריקה", "אסיה", "אמריקה הצפונית", "אירופה"], correct: 1 },
+  { q: "איזה אוקיינוס הוא הגדול ביותר בכדור הארץ?", options: ["האוקיינוס האטלנטי", "האוקיינוס ההודי", "האוקיינוס השקט", "האוקיינוס הארקטי"], correct: 2 },
+  { q: "מהי המדינה הגדולה ביותר בעולם לפי שטח?", options: ["קנדה", "סין", "ארצות הברית", "רוסיה"], correct: 3 },
+  { q: "באיזו מדינה נמצאת העיר ברצלונה?", options: ["איטליה", "פורטוגל", "ספרד", "צרפת"], correct: 2 },
+  { q: "איזה נהר הוא הארוך ביותר בעולם?", options: ["האמזונס", "הנילוס", "המיסיסיפי", "היאנגצה"], correct: 1 },
+  { q: "איזו עיר היא בירת צרפת?", options: ["לונדון", "ברלין", "פריז", "מדריד"], correct: 2 },
+  { q: "איזו מדינה בצורת מגף מופיעה במפה בדרום אירופה?", options: ["יוון", "ספרד", "איטליה", "פורטוגל"], correct: 2 },
+  { q: "מהו ההר הגבוה ביותר בעולם?", options: ["המלקי", "הר קלימנג'רו", "אוורסט", "מונט בלן"], correct: 2 },
+  { q: "איזה מצר מפריד בין ספרד למרוקו ובין הים התיכון לאוקיינוס האטלנטי?", options: ["מצר גיברלטר", "מצר בוספורוס", "מצר מגלן", "תעלת פנמה"], correct: 0 },
+  { q: "באיזו יבשת נמצא מדבר סהרה?", options: ["אסיה", "אוסטרליה", "אפריקה", "אמריקה הדרומית"], correct: 2 },
+
+  // --- תרבות, סרטים וטבע ---
+  { q: "איזה חיה נחשבת למלך החיות?", options: ["פיל", "אריה", "נמר", "דוב"], correct: 1 },
+  { q: "כמה רגליים יש לעכביש?", options: ["6", "8", "10", "12"], correct: 1 },
+  { q: "מהו כוכב הלכת הקרוב ביותר לשמש?", options: ["נוגה", "מאדים", "חמה (מרקורי)", "צדק"], correct: 2 },
+  { q: "איזה יסוד כימי מסומן באותיות O בטבלה המחזורית?", options: ["זהב", "מימן", "חמצן (Oxygen)", "פחמן"], correct: 2 },
+  { q: "באיזה סרט מופיעה הדמות 'טרמיניאטור' המפורסמת?", options: ["מלחמת הכוכבים", "שליחות קטלנית (Terminator)", "בחזרה העתיד", "מטריקס"], correct: 1 },
+  { q: "כמה ימים יש בשנה מעוברת?", options: ["365", "366", "364", "370"], correct: 1 },
+  { q: "איזה בעל חיים ימי נחשב לגדול ביותר בעולם?", options: ["כריש לבן", "לוויתן כחול", "תמנון ענק", "דולפין"], correct: 1 },
+  { q: "מהי מהירות האור בקירוב?", options: ["300 אלף ק\"מ בשנייה", "3,000 ק\"מ בשנייה", "300 ק\"מ בשנייה", "3 מיליון ק\"מ בשנייה"], correct: 0 },
+  { q: "איזה צבע מקבלים כשמערבבים כחול וצהוב?", options: ["סגול", "כתום", "ירוק", "חום"], correct: 2 },
+  { q: "מי כתב את המחזה 'רומיאו ויוליה'?", options: ["ויליאם שייקספיר", "צ'ארלס דיקנס", "הנס כריסטיان אנדרסן", "ויקטור הוגו"], correct: 0 }
+];
+
 const TRIVIA_BANK = Array.from({ length: 1500 }, (_, i) => {
-  const id = i + 1;
-  const questionsList = [
-    { q: `שאלה #${id}: באיזו מדינה באירופאית נמצא אגם גארדה?`, options: ["צרפת", "ספרד", "איטליה", "אוסטריה"], correct: 2 },
-    { q: `שאלה #${id}: מהי בירת איטליה?`, options: ["מילאנו", "ונציה", "רומא", "פדובה"], correct: 2 },
-    { q: `שאלה #${id}: איזה פארק שעשועים ענק נמצא בסמוך לדרום אגם גארדה?`, options: ["דיסנילנד", "גארדלנד", "פורט אבנטורה", "אסטריקס"], correct: 1 },
-    { q: `שאלה #${id}: מהי העיר המפורסמת ביותר בזכות סיפורם של רומיאו ויוליה?`, options: ["ורונה", "מנטובה", "בולוניה", "גנואה"], correct: 0 },
-    { q: `שאלה #${id}: איזה מאכל איטלקי מורכב מבצק, רוטב עגבניות וגבינת מוצרלה?`, options: ["פסטה", "ריזוטו", "פיצה", "לזניה"], correct: 2 }
-  ];
-  return questionsList[i % questionsList.length];
+  const baseQ = BASE_TRIVIA_QUESTIONS[i % BASE_TRIVIA_QUESTIONS.length];
+  return {
+    ...baseQ,
+    q: `שאלה #${i + 1}: ${baseQ.q.replace(/^שאלה #\d+:\s*/, '')}`
+  };
 });
 
 export default function App() {
@@ -201,8 +259,13 @@ export default function App() {
           const map = {};
           data.forEach(item => { 
             map[item.name] = item; 
-            if (item.trivia_state && item.name === currentUser) {
-              setTriviaState(item.trivia_state);
+            if (item.trivia_state) {
+              // מיזוג נבון של ניקוד כדי לא לאפס בטעות אם משתמש אחר עדכן לאחרונה
+              setTriviaState(prev => ({
+                idx: Math.max(prev.idx, item.trivia_state.idx || 0),
+                isPaused: item.trivia_state.isPaused ?? prev.isPaused,
+                scores: { ...(item.trivia_state.scores || {}), ...(prev.scores || {}) }
+              }));
             }
           });
           setAllUsersLocations(map);
@@ -211,12 +274,16 @@ export default function App() {
     };
     fetchInitialData();
 
-    const channel = supabase.channel('trip_sync_v1825')
+    const channel = supabase.channel('trip_sync_v1826')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'family_radar' }, payload => {
         if (payload.new && payload.new.name) {
           setAllUsersLocations(prev => ({ ...prev, [payload.new.name]: payload.new }));
           if (payload.new.trivia_state) {
-            setTriviaState(payload.new.trivia_state);
+            setTriviaState(prev => ({
+              idx: Math.max(prev.idx, payload.new.trivia_state.idx || 0),
+              isPaused: payload.new.trivia_state.isPaused ?? prev.isPaused,
+              scores: { ...(payload.new.trivia_state.scores || {}), ...(prev.scores || {}) }
+            }));
           }
           if (payload.new.name === currentUser && payload.new.ping_target && payload.new.ping_target === currentUser) {
             setIncomingPing({ from: payload.new.ping_from, msg: payload.new.ping_msg || 'חזור אלי בדחיפות!' });
@@ -235,7 +302,8 @@ export default function App() {
           name: currentUser,
           lat: lat,
           lng: lng,
-          updated_at: timeStr
+          updated_at: timeStr,
+          trivia_state: triviaState
         };
         setMyLocation(coords);
         setGpsConnected(true);
@@ -724,7 +792,7 @@ export default function App() {
             </div>
 
             <div style={{ background: '#f8fafc', border: `1px solid ${S.cardBorder}`, borderRadius: '12px', padding: '12px', marginBottom: '16px', textAlign: 'right', boxSizing: 'border-box' }}>
-              <strong style={{ fontSize: '12px', color: S.textPrimary, display: 'block', marginBottom: '6px' }}>🏆 טבלת מובילים (הניקוד נשמר תמיד):</strong>
+              <strong style={{ fontSize: '12px', color: S.textPrimary, display: 'block', marginBottom: '6px' }}>🏆 טבלת מובילים (נשמר תמיד בכל המכשירים):</strong>
               {sortedScores.length === 0 ? (
                 <span style={{ fontSize: '11px', color: S.textSecondary }}>עדיין אין ניקוד. התחל לענות!</span>
               ) : (
